@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Award, Crown, Medal } from "lucide-react";
 
-type Row = { user_id: string; points: number; name?: string | null };
+type Row = { user_id: string; points: number; name?: string | null; company?: string | null };
 
 const Leaderboard = () => {
   const [rows, setRows] = useState<Row[]>([]);
@@ -22,11 +22,16 @@ const Leaderboard = () => {
     const ids = rowsBase.map(b => b.user_id);
     const { data: profiles } = await supabase
       .from("profiles")
-      .select("user_id, company_name, business_name")
+      .select("user_id, company_name, business_name, username")
       .in("user_id", ids);
     const nameMap: Record<string, string | null> = {};
-    profiles?.forEach(p => { nameMap[p.user_id] = p.business_name || p.company_name || null; });
-    setRows(rowsBase.map(b => ({ ...b, name: nameMap[b.user_id] ?? null })));
+    const companyMap: Record<string, string | null> = {};
+    profiles?.forEach((p: any) => {
+      nameMap[p.user_id] = p.username || p.business_name || p.company_name || null;
+      companyMap[p.user_id] = p.company_name || p.business_name || null;
+    });
+    setRows(rowsBase.map(b => ({ ...b, name: nameMap[b.user_id] ?? null, company: companyMap[b.user_id] ?? null })));
+
   };
 
   useEffect(() => {
@@ -53,7 +58,7 @@ const Leaderboard = () => {
         <link rel="canonical" href="/leaderboard" />
       </Helmet>
       <Navbar />
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto max-w-3xl px-4 py-8 text-center">
         <h1 className="mb-2 text-3xl font-semibold">Leaderboard</h1>
         <p className="mb-6 text-sm label-caps">Our Revolutionary Owners • Live Rankings</p>
 
@@ -79,7 +84,7 @@ const Leaderboard = () => {
                       {idx === 0 && <Crown className="h-6 w-6 text-delhi-gold" aria-hidden />}
                       {idx === 1 && <Medal className="h-6 w-6 text-primary" aria-hidden />}
                       {idx === 2 && <Award className="h-6 w-6 text-primary" aria-hidden />}
-                      <CardTitle className="text-base">#{idx + 1} {displayName(u)}</CardTitle>
+                      <CardTitle className="text-base">#{idx + 1} {displayName(u)}{u.company ? ` • ${u.company}` : ''}</CardTitle>
                     </div>
                     
                   </CardHeader>
@@ -108,7 +113,7 @@ const Leaderboard = () => {
                     <CardHeader className="flex flex-row items-center justify-between space-y-0">
                       <div className="flex items-center gap-2">
                         <div className="h-6 w-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs">{rank}</div>
-                        <CardTitle className="text-base">{displayName(u)}</CardTitle>
+                        <CardTitle className="text-base">{displayName(u)}{u.company ? ` • ${u.company}` : ''}</CardTitle>
                       </div>
                       <div className="text-xs text-muted-foreground">{u.points} pts</div>
                     </CardHeader>
