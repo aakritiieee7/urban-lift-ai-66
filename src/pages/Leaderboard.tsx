@@ -81,7 +81,7 @@ const Leaderboard = () => {
                       {idx === 2 && <Award className="h-6 w-6 text-primary" aria-hidden />}
                       <CardTitle className="text-base">#{idx + 1} {displayName(u)}</CardTitle>
                     </div>
-                    <div className="text-xs text-muted-foreground">@{u.user_id.slice(0, 8)}</div>
+                    
                   </CardHeader>
                   <CardContent>
                     <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
@@ -110,7 +110,7 @@ const Leaderboard = () => {
                         <div className="h-6 w-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs">{rank}</div>
                         <CardTitle className="text-base">{displayName(u)}</CardTitle>
                       </div>
-                      <div className="text-xs text-muted-foreground">@{u.user_id.slice(0, 8)} • {u.points} pts</div>
+                      <div className="text-xs text-muted-foreground">{u.points} pts</div>
                     </CardHeader>
                     <CardContent>
                       <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
