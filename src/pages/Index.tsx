@@ -2,7 +2,6 @@ import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
 import LiveMap from "@/components/LiveMap";
 import { Link } from "react-router-dom";
 import {
@@ -14,9 +13,6 @@ import {
   Star,
 } from "lucide-react";
 import heroImage from "@/assets/hero-warehouse.jpg";
-import shipperImage from "@/assets/shipper-packing.jpg";
-import carrierImage from "@/assets/carrier-feature.jpg";
-import aiDashboard from "@/assets/ai-analytics.jpg";
 
 const Index = () => {
   return (
@@ -108,7 +104,7 @@ const Index = () => {
         <section className="py-24 bg-background">
           <div className="container mx-auto px-4">
             <div className="text-center space-y-4 mb-16">
-              <h2 className="text-4xl font-bold">Why Choose UrbanLift.AI?</h2>
+              <h2 className="text-4xl font-bold tracking-tight">Why Choose UrbanLift.AI?</h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
                 Advanced AI technology meets logistics expertise to deliver unparalleled efficiency and cost savings.
               </p>
@@ -189,7 +185,7 @@ const Index = () => {
           <div className="container mx-auto px-4">
             <div className="grid gap-16 lg:gap-24">
               {/* Shipper Section */}
-              <div className="grid items-center gap-12 lg:grid-cols-2">
+              <div className="grid items-center gap-12 lg:grid-cols-1">
                 <div className="space-y-8">
                   <div className="space-y-4">
                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[hsl(var(--brand-2))]/10 border border-[hsl(var(--brand-2))]/20 text-sm font-medium text-[hsl(var(--brand-2))]">
@@ -225,37 +221,12 @@ const Index = () => {
                   </Link>
                 </div>
                 
-                <div className="relative">
-                  <Card className="relative shadow-xl border-0 overflow-hidden">
-                    <CardContent className="p-0">
-                      <AspectRatio ratio={16 / 9}>
-                        <img 
-                          src={shipperImage} 
-                          alt="Small business team packing and preparing shipments in a warehouse" 
-                          className="h-full w-full object-cover"
-                          loading="lazy"
-                        />
-                      </AspectRatio>
-                    </CardContent>
-                  </Card>
-                </div>
               </div>
               
               {/* Carrier Section */}
-              <div className="grid items-center gap-12 lg:grid-cols-2">
-                <div className="order-2 lg:order-1 relative">
-                  <Card className="relative shadow-xl border-0 overflow-hidden">
-                    <CardContent className="p-0">
-                      <img 
-                        src={carrierImage} 
-                        alt="Carrier mobile app interface" 
-                        className="w-full h-80 object-cover"
-                      />
-                    </CardContent>
-                  </Card>
-                </div>
+              <div className="grid items-center gap-12 lg:grid-cols-1">
                 
-                <div className="order-1 lg:order-2 space-y-8">
+                <div className="space-y-8">
                   <div className="space-y-4">
                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[hsl(var(--brand-orange))]/10 border border-[hsl(var(--brand-orange))]/20 text-sm font-medium text-[hsl(var(--brand-orange))]">
                       <Truck className="w-4 h-4" />
@@ -294,28 +265,41 @@ const Index = () => {
           </div>
         </section>
 
-        {/* AI Dashboard Section */}
+        {/* AI Section (text-only) */}
         <section className="py-24 bg-muted/20">
           <div className="container mx-auto px-4">
             <div className="text-center space-y-4 mb-16">
-              <h2 className="text-4xl font-bold">Powered by Advanced AI</h2>
+              <h2 className="text-4xl font-bold tracking-tight">Smart Logistics Engine</h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                Our sophisticated AI algorithms optimize every aspect of your logistics operations in real-time.
+                Real-time optimization powers pooling, ETAs, and tracking behind the scenes — no flashy visuals needed.
               </p>
             </div>
-            
-            <div className="relative">
-              
-              <Card className="relative shadow-2xl border-0 overflow-hidden">
-                <CardContent className="p-0">
-                  <AspectRatio ratio={16 / 9}>
-                    <img 
-                      src={aiDashboard} 
-                      alt="Real-world logistics analytics dashboard in a warehouse setting" 
-                      className="h-full w-full object-cover"
-                      loading="lazy"
-                    />
-                  </AspectRatio>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <Card className="hover:shadow-md transition-shadow">
+                <CardHeader className="pb-2 flex items-center gap-2">
+                  <Zap className="w-5 h-5 text-primary" />
+                  <CardTitle className="text-lg">Instant Pooling</CardTitle>
+                </CardHeader>
+                <CardContent className="text-muted-foreground">
+                  <p>Automatically groups compatible loads to cut cost and boost speed.</p>
+                </CardContent>
+              </Card>
+              <Card className="hover:shadow-md transition-shadow">
+                <CardHeader className="pb-2 flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-primary" />
+                  <CardTitle className="text-lg">Accurate ETAs</CardTitle>
+                </CardHeader>
+                <CardContent className="text-muted-foreground">
+                  <p>Live traffic and route learning improve delivery-time accuracy.</p>
+                </CardContent>
+              </Card>
+              <Card className="hover:shadow-md transition-shadow">
+                <CardHeader className="pb-2 flex items-center gap-2">
+                  <Truck className="w-5 h-5 text-primary" />
+                  <CardTitle className="text-lg">Higher Utilization</CardTitle>
+                </CardHeader>
+                <CardContent className="text-muted-foreground">
+                  <p>Keep vehicles fuller with fewer empty miles across Delhi NCR.</p>
                 </CardContent>
               </Card>
             </div>
