@@ -86,6 +86,7 @@ export type Database = {
       profiles: {
         Row: {
           address: string | null
+          auth_email: string | null
           business_model: string | null
           business_name: string | null
           company_name: string | null
@@ -99,12 +100,14 @@ export type Database = {
           specialties: string | null
           updated_at: string
           user_id: string
+          username: string | null
           vehicle_types: string | null
           website: string | null
           years_experience: number | null
         }
         Insert: {
           address?: string | null
+          auth_email?: string | null
           business_model?: string | null
           business_name?: string | null
           company_name?: string | null
@@ -118,12 +121,14 @@ export type Database = {
           specialties?: string | null
           updated_at?: string
           user_id: string
+          username?: string | null
           vehicle_types?: string | null
           website?: string | null
           years_experience?: number | null
         }
         Update: {
           address?: string | null
+          auth_email?: string | null
           business_model?: string | null
           business_name?: string | null
           company_name?: string | null
@@ -137,6 +142,7 @@ export type Database = {
           specialties?: string | null
           updated_at?: string
           user_id?: string
+          username?: string | null
           vehicle_types?: string | null
           website?: string | null
           years_experience?: number | null
