@@ -3,6 +3,8 @@ import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +15,7 @@ import { Share2, ArrowBigUp } from "lucide-react";
 import heroImg from "@/assets/ai-dashboard.jpg";
 import postImg1 from "@/assets/shipper-feature.jpg";
 import postImg2 from "@/assets/carrier-feature.jpg";
+import delhiIndustrial from "@/assets/delhi-industrial-branding.jpg";
 
 interface Post {
   id: string;
@@ -194,9 +197,9 @@ const visiblePosts = tab === "mine" ? posts.filter(p => p.user_id === userId) : 
           {visiblePosts.length === 0 && (
             <>
               {[
-                { id: "dummy-1", content: "Looking for reliable cold-chain carrier for Delhi NCR — MSME dairy coop.", user: "Amrit Dairy Co.", img: postImg1 },
-                { id: "dummy-2", content: "Need LTL from Okhla to Noida daily. Suggestions?", user: "KraftPrint MSME", img: postImg2 },
-                { id: "dummy-3", content: "What's the best rate for 32ft MXL this week?", user: "TransNova Logistics", img: postImg1 },
+                { id: "dummy-1", content: "Looking for reliable cold-chain carrier for Delhi NCR — MSME dairy coop.", user: "Amrit Dairy Co.", img: postImg1, tags: ["Cold-chain", "Delhi NCR"] },
+                { id: "dummy-2", content: "Need LTL from Okhla to Noida daily. Suggestions?", user: "KraftPrint MSME", img: delhiIndustrial, tags: ["LTL", "Okhla→Noida"] },
+                { id: "dummy-3", content: "What's the best rate for 32ft MXL this week?", user: "TransNova Logistics", img: postImg2, tags: ["FTL", "Rates"] },
               ].map((d) => (
                 <Card key={d.id}>
                   <CardHeader className="flex flex-row items-start gap-3">
@@ -205,15 +208,23 @@ const visiblePosts = tab === "mine" ? posts.filter(p => p.user_id === userId) : 
                       <AvatarFallback>{initials(d.user)}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
-                      <CardTitle className="text-base">{d.user}</CardTitle>
-                      <div className="text-xs text-muted-foreground">Just now</div>
+                      <CardTitle className="text-base">{d.content}</CardTitle>
+                      <div className="text-xs text-muted-foreground">by {d.user} • Just now</div>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="mb-3 leading-relaxed">{d.content}</p>
                     <div className="mb-3 overflow-hidden rounded-lg">
-                      <img src={d.img} alt="Community post visual" className="h-40 w-full object-cover" loading="lazy" />
+                      <AspectRatio ratio={16 / 9}>
+                        <img src={d.img} alt={d.content} className="h-full w-full object-cover" loading="lazy" />
+                      </AspectRatio>
                     </div>
+                    {d.tags && d.tags.length > 0 && (
+                      <div className="mb-3 flex flex-wrap gap-2">
+                        {d.tags.map((t: string) => (
+                          <Badge key={t} variant="secondary">{t}</Badge>
+                        ))}
+                      </div>
+                    )}
                     <div className="flex items-center gap-2">
                       <Button variant="secondary" size="sm" onClick={() => setVotes(v => ({ ...v, [d.id]: (v[d.id] || 0) + 1 }))}>
                         <ArrowBigUp className="mr-2 h-4 w-4" /> {votes[d.id] ?? 0}
