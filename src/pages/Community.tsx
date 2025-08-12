@@ -1,6 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
@@ -9,6 +10,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Share2, ArrowBigUp } from "lucide-react";
+import heroImg from "@/assets/ai-dashboard.jpg";
+import postImg1 from "@/assets/shipper-feature.jpg";
+import postImg2 from "@/assets/carrier-feature.jpg";
 
 interface Post {
   id: string;
@@ -25,6 +29,7 @@ const [posts, setPosts] = useState<Post[]>([]);
 const [tab, setTab] = useState<"all" | "mine">("all");
 const [names, setNames] = useState<Record<string, string>>({});
 const [votes, setVotes] = useState<Record<string, number>>({});
+const initials = (s: string) => s.split(' ').map(p => p[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
 
 const load = async () => {
   const { data, error } = await supabase
@@ -134,6 +139,9 @@ const visiblePosts = tab === "mine" ? posts.filter(p => p.user_id === userId) : 
       <main className="container mx-auto px-4 py-8">
 <h1 className="mb-2 text-3xl font-semibold">Community</h1>
 <p className="mb-6 text-sm label-caps">For Businesses and MSMEs • Ask, Share, Upvote</p>
+        <div className="mb-6 overflow-hidden rounded-xl shadow-sm">
+          <img src={heroImg} alt="Community discussions among MSMEs and carriers" className="h-40 w-full object-cover" loading="lazy" />
+        </div>
         <Card className="mb-6">
           <CardHeader>
             <CardTitle>Create a post</CardTitle>
@@ -152,52 +160,74 @@ const visiblePosts = tab === "mine" ? posts.filter(p => p.user_id === userId) : 
           </Tabs>
         </div>
         <div className="grid gap-4">
-          {visiblePosts.map((p) => (
-            <div key={p.id} id={p.id}>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">{p.content}</CardTitle>
-                </CardHeader>
-                <CardContent>
-<div className="mb-3 text-xs text-muted-foreground">By {names[p.user_id] || `User ${p.user_id.slice(0,8)}`} • {new Date(p.created_at).toLocaleString()}</div>
-<div className="flex items-center gap-2">
-  <Button variant="secondary" size="sm" onClick={() => upvote(p)} aria-label="Upvote">
-    <ArrowBigUp className="mr-2 h-4 w-4" /> {votes[p.id] ?? 0}
-  </Button>
-  <Button variant="outline" size="sm" onClick={() => share(p)}>
-    <Share2 className="mr-2 h-4 w-4" /> Share
-  </Button>
-</div>
-                </CardContent>
-              </Card>
-            </div>
-          ))}
+          {visiblePosts.map((p) => {
+            const display = names[p.user_id] || `User ${p.user_id.slice(0,8)}`;
+            return (
+              <div key={p.id} id={p.id}>
+                <Card>
+                  <CardHeader className="flex flex-row items-start gap-3">
+                    <Avatar className="h-9 w-9">
+                      <AvatarImage alt={display} />
+                      <AvatarFallback>{initials(display)}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <CardTitle className="text-base">{display}</CardTitle>
+                      <div className="text-xs text-muted-foreground">{new Date(p.created_at).toLocaleString()}</div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="mb-3 leading-relaxed">{p.content}</p>
+                    <div className="flex items-center gap-2">
+                      <Button variant="secondary" size="sm" onClick={() => upvote(p)} aria-label="Upvote">
+                        <ArrowBigUp className="mr-2 h-4 w-4" /> {votes[p.id] ?? 0}
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => share(p)}>
+                        <Share2 className="mr-2 h-4 w-4" /> Share
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            );
+          })}
+
           {visiblePosts.length === 0 && (
-<>
-  {[
-    { id: "dummy-1", content: "Looking for reliable cold-chain carrier for Delhi NCR — MSME dairy coop.", user: "Amrit Dairy Co." },
-    { id: "dummy-2", content: "Need LTL from Okhla to Noida daily. Suggestions?", user: "KraftPrint MSME" },
-    { id: "dummy-3", content: "What's the best rate for 32ft MXL this week?", user: "TransNova Logistics" },
-  ].map((d) => (
-    <Card key={d.id}>
-      <CardHeader>
-        <CardTitle className="text-base">{d.content}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="mb-3 text-xs text-muted-foreground">By {d.user}</div>
-        <div className="flex items-center gap-2">
-          <Button variant="secondary" size="sm" onClick={() => setVotes(v => ({ ...v, [d.id]: (v[d.id] || 0) + 1 }))}>
-            <ArrowBigUp className="mr-2 h-4 w-4" /> {votes[d.id] ?? 0}
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => navigator.clipboard.writeText(`${window.location.origin}/community`)}>
-            <Share2 className="mr-2 h-4 w-4" /> Share
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  ))}
-</>
+            <>
+              {[
+                { id: "dummy-1", content: "Looking for reliable cold-chain carrier for Delhi NCR — MSME dairy coop.", user: "Amrit Dairy Co.", img: postImg1 },
+                { id: "dummy-2", content: "Need LTL from Okhla to Noida daily. Suggestions?", user: "KraftPrint MSME", img: postImg2 },
+                { id: "dummy-3", content: "What's the best rate for 32ft MXL this week?", user: "TransNova Logistics", img: postImg1 },
+              ].map((d) => (
+                <Card key={d.id}>
+                  <CardHeader className="flex flex-row items-start gap-3">
+                    <Avatar className="h-9 w-9">
+                      <AvatarImage alt={d.user} />
+                      <AvatarFallback>{initials(d.user)}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <CardTitle className="text-base">{d.user}</CardTitle>
+                      <div className="text-xs text-muted-foreground">Just now</div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="mb-3 leading-relaxed">{d.content}</p>
+                    <div className="mb-3 overflow-hidden rounded-lg">
+                      <img src={d.img} alt="Community post visual" className="h-40 w-full object-cover" loading="lazy" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button variant="secondary" size="sm" onClick={() => setVotes(v => ({ ...v, [d.id]: (v[d.id] || 0) + 1 }))}>
+                        <ArrowBigUp className="mr-2 h-4 w-4" /> {votes[d.id] ?? 0}
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => navigator.clipboard.writeText(`${window.location.origin}/community`)}>
+                        <Share2 className="mr-2 h-4 w-4" /> Share
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </>
           )}
+
         </div>
       </main>
     </>

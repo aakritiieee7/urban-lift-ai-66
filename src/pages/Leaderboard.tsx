@@ -1,10 +1,12 @@
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Award, Crown, Medal } from "lucide-react";
+import banner from "@/assets/hero-logistics.jpg";
 
 type Row = { user_id: string; points: number; name?: string | null; company?: string | null; owner?: string | null };
 
@@ -48,6 +50,7 @@ const Leaderboard = () => {
   const displayName = (r: Row) => r.name ? r.name : `User ${r.user_id.slice(0,8)}`;
   const displayOwner = (r: Row) => r.name ? r.name : `User ${r.user_id.slice(0,8)}`;
   const displayCompany = (r: Row) => r.company ? r.company : '—';
+  const initials = (s: string) => s.split(' ').map(p => p[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
 
   const top3 = rows.slice(0, 3);
   const rest = rows.slice(3);
@@ -63,6 +66,9 @@ const Leaderboard = () => {
       <main className="container mx-auto max-w-4xl px-4 py-8">
         <h1 className="mb-2 text-3xl font-semibold text-center">Leaderboard</h1>
         <p className="mb-6 text-sm label-caps text-center">Our Revolutionary Owners • Live Rankings</p>
+        <div className="mb-6 overflow-hidden rounded-xl shadow-sm">
+          <img src={banner} alt="Top logistics performers leaderboard" className="h-40 w-full object-cover" loading="lazy" />
+        </div>
 
         <div className="space-y-4">
           {rows.length === 0 && (
@@ -82,10 +88,14 @@ const Leaderboard = () => {
                   className={idx === 0 ? "border-delhi-gold/40 shadow-sm" : "border-primary/40 shadow-sm"}
                 >
                   <CardHeader className="space-y-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       {idx === 0 && <Crown className="h-6 w-6 text-delhi-gold" aria-hidden />}
                       {idx === 1 && <Medal className="h-6 w-6 text-primary" aria-hidden />}
                       {idx === 2 && <Award className="h-6 w-6 text-primary" aria-hidden />}
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage alt={displayCompany(u)} />
+                        <AvatarFallback>{initials(displayCompany(u))}</AvatarFallback>
+                      </Avatar>
                       <div>
                         <CardTitle className="text-base">#{idx + 1} {displayCompany(u)}</CardTitle>
                         <div className="text-xs text-muted-foreground">Owner: {displayOwner(u)}</div>
@@ -117,6 +127,10 @@ const Leaderboard = () => {
                     <CardHeader className="flex flex-row items-center justify-between space-y-0">
                       <div className="flex items-center gap-3">
                         <div className="h-6 w-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs">{rank}</div>
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage alt={displayCompany(u)} />
+                          <AvatarFallback>{initials(displayCompany(u))}</AvatarFallback>
+                        </Avatar>
                         <div>
                           <CardTitle className="text-base">{displayCompany(u)}</CardTitle>
                           <div className="text-xs text-muted-foreground">Owner: {displayOwner(u)}</div>
