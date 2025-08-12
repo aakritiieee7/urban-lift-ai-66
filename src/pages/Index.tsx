@@ -2,6 +2,7 @@ import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 import LiveMap from "@/components/LiveMap";
 import { Link } from "react-router-dom";
 import {
@@ -12,10 +13,10 @@ import {
   ArrowRight,
   Star,
 } from "lucide-react";
-import heroImage from "@/assets/hero-logistics.jpg";
-import shipperImage from "@/assets/shipper-feature.jpg";
+import heroImage from "@/assets/hero-warehouse.jpg";
+import shipperImage from "@/assets/shipper-packing.jpg";
 import carrierImage from "@/assets/carrier-feature.jpg";
-import aiDashboard from "@/assets/ai-dashboard.jpg";
+import aiDashboard from "@/assets/ai-analytics.jpg";
 
 const Index = () => {
   return (
@@ -227,11 +228,14 @@ const Index = () => {
                 <div className="relative">
                   <Card className="relative shadow-xl border-0 overflow-hidden">
                     <CardContent className="p-0">
-                      <img 
-                        src={shipperImage} 
-                        alt="Shipper dashboard interface" 
-                        className="w-full h-80 object-cover"
-                      />
+                      <AspectRatio ratio={16 / 9}>
+                        <img 
+                          src={shipperImage} 
+                          alt="Small business team packing and preparing shipments in a warehouse" 
+                          className="h-full w-full object-cover"
+                          loading="lazy"
+                        />
+                      </AspectRatio>
                     </CardContent>
                   </Card>
                 </div>
@@ -304,11 +308,14 @@ const Index = () => {
               
               <Card className="relative shadow-2xl border-0 overflow-hidden">
                 <CardContent className="p-0">
-                  <img 
-                    src={aiDashboard} 
-                    alt="AI-powered logistics dashboard" 
-                    className="w-full h-96 object-cover"
-                  />
+                  <AspectRatio ratio={16 / 9}>
+                    <img 
+                      src={aiDashboard} 
+                      alt="Real-world logistics analytics dashboard in a warehouse setting" 
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                    />
+                  </AspectRatio>
                 </CardContent>
               </Card>
             </div>
