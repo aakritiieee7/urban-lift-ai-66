@@ -1,16 +1,15 @@
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
-import LiveMap from "@/components/LiveMap";
-import { Button } from "@/components/ui/button";
-import { Link, useNavigate } from "react-router-dom";
-import { Trophy, MessageSquare, Package, Clock } from "lucide-react";
-import ShipmentForm from "@/components/shipment/ShipmentForm";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
+import InstructionBanner from "@/components/dashboard/InstructionBanner";
+import StatsRow from "@/components/dashboard/StatsRow";
+import CreateShipmentCard from "@/components/dashboard/CreateShipmentCard";
+import RecentShipmentsCard from "@/components/dashboard/RecentShipmentsCard";
+import LiveMapCard from "@/components/dashboard/LiveMapCard";
+import ExploreCard from "@/components/dashboard/ExploreCard";
 const ShipperDashboard = () => {
   const { userId } = useAuth();
   const [shipments, setShipments] = useState<any[]>([]);
@@ -83,120 +82,30 @@ const ShipperDashboard = () => {
       </Helmet>
       <Navbar />
       <main className="min-h-screen bg-background overflow-y-auto">
-        <div className="container mx-auto px-4 py-8">
-          <section className="mb-6">
-            <div className="rounded-2xl border border-delhi-primary/20 bg-white/80 backdrop-blur-sm p-6 shadow-[var(--shadow-delhi)]">
-              <h1 className="text-4xl font-bold text-delhi-navy">Shipper Dashboard</h1>
-              <p className="mt-2 text-base text-delhi-navy/70">Create shipments, pool with matches, and monitor progress.</p>
-            </div>
+        <div className="container mx-auto px-4 py-8 space-y-6">
+          <section>
+            <InstructionBanner />
           </section>
 
-          <section className="mb-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card className="border-delhi-primary/20">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-delhi-navy/60">Total</p>
-                    <p className="text-2xl font-bold text-delhi-navy">{totalShipments}</p>
-                  </div>
-                  <Package className="h-6 w-6 text-delhi-primary" />
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="border-delhi-primary/20">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-delhi-navy/60">Assigned</p>
-                    <p className="text-2xl font-bold text-delhi-navy">{assignedCount}</p>
-                  </div>
-                  <Clock className="h-6 w-6 text-delhi-gold" />
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="border-delhi-primary/20">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-delhi-navy/60">Pending</p>
-                    <p className="text-2xl font-bold text-delhi-navy">{pendingCount}</p>
-                  </div>
-                  <Clock className="h-6 w-6 text-delhi-orange" />
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="border-delhi-primary/20">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-delhi-navy/60">Delivered</p>
-                    <p className="text-2xl font-bold text-delhi-navy">{deliveredCount}</p>
-                  </div>
-                  <Package className="h-6 w-6 text-delhi-success" />
-                </div>
-              </CardContent>
-            </Card>
+          <StatsRow
+            total={totalShipments}
+            assigned={assignedCount}
+            pending={pendingCount}
+            delivered={deliveredCount}
+          />
+
+          <section className="space-y-4" aria-label="Create and manage shipments">
+            <CreateShipmentCard onCreated={load} />
+            <RecentShipmentsCard
+              shipments={shipments}
+              carriers={carriers}
+              onAssign={assign}
+            />
           </section>
 
-          <section className="grid gap-6 md:grid-cols-2">
-            <div className="space-y-4">
-              <ShipmentForm onCreated={load} />
-              <Card className="border-delhi-primary/20">
-                <CardHeader>
-                  <CardTitle>Your Recent Shipments</CardTitle>
-                </CardHeader>
-                <CardContent className="max-h-[420px] overflow-auto pr-1">
-                  <div className="grid gap-3">
-                    {shipments.length === 0 && <div className="text-sm text-muted-foreground">No shipments yet.</div>}
-                    {shipments.map((s) => (
-                      <div key={s.id} className="rounded-xl border border-delhi-primary/10 bg-white/60 backdrop-blur-sm p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="text-base font-semibold text-delhi-navy">{s.origin} → {s.destination}</div>
-                            <div className="mt-1 text-xs text-delhi-navy/70">{new Date(s.created_at).toLocaleString()}</div>
-                          </div>
-                          <span className={`px-2 py-1 text-xs rounded-full border ${s.status === 'delivered' ? 'border-delhi-success/30 text-delhi-success' : s.status === 'assigned' ? 'border-delhi-gold/30 text-delhi-gold' : 'border-delhi-orange/30 text-delhi-orange'}`}>
-                            {s.status}
-                          </span>
-                        </div>
-                        <div className="mt-3 flex items-center gap-2">
-                          <Select value={s.carrier_id ?? ''} onValueChange={(v) => assign(s.id, v)}>
-                            <SelectTrigger className="w-full md:w-64"><SelectValue placeholder="Assign driver" /></SelectTrigger>
-                            <SelectContent>
-                              {carriers.map(c => (
-                                <SelectItem key={c.user_id} value={c.user_id}>User {c.user_id.slice(0,8)} • {c.points} pts</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          {s.carrier_id && <Button size="sm" variant="outline" onClick={() => assign(s.id, '')}>Unassign</Button>}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-            <div className="space-y-4">
-              <Card className="border-delhi-primary/20">
-                <CardHeader>
-                  <CardTitle>Live Map</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <LiveMap />
-                </CardContent>
-              </Card>
-              <Card className="border-delhi-primary/20">
-                <CardHeader>
-                  <CardTitle>Explore</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-3">
-                    <Link to="/community"><Button variant="outline"><MessageSquare className="mr-2" />Community</Button></Link>
-                    <Link to="/leaderboard"><Button variant="outline"><Trophy className="mr-2" />Leaderboard</Button></Link>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+          <section className="space-y-4" aria-label="Live tracking and explore">
+            <LiveMapCard />
+            <ExploreCard />
           </section>
         </div>
       </main>
