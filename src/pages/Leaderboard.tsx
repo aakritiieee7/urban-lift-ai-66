@@ -6,18 +6,27 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Award, Crown, Medal } from "lucide-react";
 
-type Row = { user_id: string; points: number };
+type Row = { user_id: string; points: number; name?: string | null };
 
 const Leaderboard = () => {
   const [rows, setRows] = useState<Row[]>([]);
 
   const load = async () => {
-    const { data } = await supabase
+    const { data: balances } = await supabase
       .from("points_balances")
       .select("user_id, points")
       .order("points", { ascending: false })
       .limit(50);
-    setRows(data ?? []);
+    const rowsBase = balances ?? [];
+    if (rowsBase.length === 0) { setRows([]); return; }
+    const ids = rowsBase.map(b => b.user_id);
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("user_id, company_name, business_name")
+      .in("user_id", ids);
+    const nameMap: Record<string, string | null> = {};
+    profiles?.forEach(p => { nameMap[p.user_id] = p.business_name || p.company_name || null; });
+    setRows(rowsBase.map(b => ({ ...b, name: nameMap[b.user_id] ?? null })));
   };
 
   useEffect(() => {
@@ -35,14 +44,15 @@ const Leaderboard = () => {
   return (
     <>
       <Helmet>
-        <title>Leaderboard | UrbanLift.AI</title>
-        <meta name="description" content="Top users ranked by realtime points." />
-        <link rel="canonical" href="/leaderboard" />
+<title>Top Businesses Leaderboard | UrbanLift.AI</title>
+<meta name="description" content="Live leaderboard of top shippers and carriers by points." />
+<link rel="canonical" href="/leaderboard" />
       </Helmet>
       <Navbar />
       <main className="container mx-auto px-4 py-8">
-        <h1 className="mb-4 text-3xl font-semibold">Leaderboard</h1>
-        <div className="grid gap-4">
+<h1 className="mb-2 text-3xl font-semibold">Leaderboard</h1>
+<p className="mb-6 text-sm label-caps">Our Revolutionary Owners • Live Rankings</p>
+<div className="grid gap-4">
           {rows.length === 0 && (
             <Card>
               <CardHeader>
@@ -58,7 +68,7 @@ const Leaderboard = () => {
                   {idx === 0 && <Crown className="h-5 w-5 text-primary" aria-hidden />}
                   {idx === 1 && <Medal className="h-5 w-5 text-primary" aria-hidden />}
                   {idx === 2 && <Award className="h-5 w-5 text-primary" aria-hidden />}
-                  <CardTitle className="text-base">#{idx + 1} User {u.user_id.slice(0, 8)}</CardTitle>
+                  <CardTitle className="text-base">#{idx + 1} {u.name ? u.name : `User ${u.user_id.slice(0, 8)}`}</CardTitle>
                 </div>
                 <div className="text-xs text-muted-foreground">{u.points} pts</div>
               </CardHeader>
