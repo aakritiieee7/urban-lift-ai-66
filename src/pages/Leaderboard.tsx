@@ -40,19 +40,24 @@ const Leaderboard = () => {
   }, []);
 
   const maxPoints = useMemo(() => Math.max(1, ...rows.map(r => r.points)), [rows]);
+  const displayName = (r: Row) => r.name ? r.name : `User ${r.user_id.slice(0,8)}`;
+
+  const top3 = rows.slice(0, 3);
+  const rest = rows.slice(3);
 
   return (
     <>
       <Helmet>
-<title>Top Businesses Leaderboard | UrbanLift.AI</title>
-<meta name="description" content="Live leaderboard of top shippers and carriers by points." />
-<link rel="canonical" href="/leaderboard" />
+        <title>Top Businesses Leaderboard | UrbanLift.AI</title>
+        <meta name="description" content="Live leaderboard of top shippers and carriers by points." />
+        <link rel="canonical" href="/leaderboard" />
       </Helmet>
       <Navbar />
       <main className="container mx-auto px-4 py-8">
-<h1 className="mb-2 text-3xl font-semibold">Leaderboard</h1>
-<p className="mb-6 text-sm label-caps">Our Revolutionary Owners • Live Rankings</p>
-<div className="grid gap-4">
+        <h1 className="mb-2 text-3xl font-semibold">Leaderboard</h1>
+        <p className="mb-6 text-sm label-caps">Our Revolutionary Owners • Live Rankings</p>
+
+        <div className="space-y-4">
           {rows.length === 0 && (
             <Card>
               <CardHeader>
@@ -61,26 +66,64 @@ const Leaderboard = () => {
               <CardContent className="text-sm text-muted-foreground">Create shipments or post in Community to earn points.</CardContent>
             </Card>
           )}
-          {rows.map((u, idx) => (
-            <Card key={u.user_id} className={idx < 3 ? "border-primary/50 shadow-sm" : undefined}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0">
-                <div className="flex items-center gap-2">
-                  {idx === 0 && <Crown className="h-5 w-5 text-primary" aria-hidden />}
-                  {idx === 1 && <Medal className="h-5 w-5 text-primary" aria-hidden />}
-                  {idx === 2 && <Award className="h-5 w-5 text-primary" aria-hidden />}
-                  <CardTitle className="text-base">#{idx + 1} {u.name ? u.name : `User ${u.user_id.slice(0, 8)}`}</CardTitle>
-                </div>
-                <div className="text-xs text-muted-foreground">{u.points} pts</div>
-              </CardHeader>
-              <CardContent>
-                <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
-                  <span>Progress</span>
-                  <span>{Math.round((u.points / maxPoints) * 100)}%</span>
-                </div>
-                <Progress value={Math.round((u.points / maxPoints) * 100)} />
-              </CardContent>
-            </Card>
-          ))}
+
+          {top3.length > 0 && (
+            <section className="grid gap-4 md:grid-cols-3">
+              {top3.map((u, idx) => (
+                <Card
+                  key={u.user_id}
+                  className={idx === 0 ? "border-delhi-gold/40 shadow-sm" : "border-primary/40 shadow-sm"}
+                >
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                    <div className="flex items-center gap-2">
+                      {idx === 0 && <Crown className="h-6 w-6 text-delhi-gold" aria-hidden />}
+                      {idx === 1 && <Medal className="h-6 w-6 text-primary" aria-hidden />}
+                      {idx === 2 && <Award className="h-6 w-6 text-primary" aria-hidden />}
+                      <CardTitle className="text-base">#{idx + 1} {displayName(u)}</CardTitle>
+                    </div>
+                    <div className="text-xs text-muted-foreground">@{u.user_id.slice(0, 8)}</div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
+                      <span>Progress</span>
+                      <span>{Math.round((u.points / maxPoints) * 100)}%</span>
+                    </div>
+                    <Progress value={Math.round((u.points / maxPoints) * 100)} />
+                    <div className="mt-3 text-sm">
+                      <span className="label-caps">Points</span>
+                      <div className="text-xl font-semibold">{u.points}</div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </section>
+          )}
+
+          {rest.length > 0 && (
+            <section className="grid gap-3">
+              {rest.map((u, i) => {
+                const rank = i + 4;
+                return (
+                  <Card key={u.user_id}>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                      <div className="flex items-center gap-2">
+                        <div className="h-6 w-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs">{rank}</div>
+                        <CardTitle className="text-base">{displayName(u)}</CardTitle>
+                      </div>
+                      <div className="text-xs text-muted-foreground">@{u.user_id.slice(0, 8)} • {u.points} pts</div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
+                        <span>Progress</span>
+                        <span>{Math.round((u.points / maxPoints) * 100)}%</span>
+                      </div>
+                      <Progress value={Math.round((u.points / maxPoints) * 100)} />
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </section>
+          )}
         </div>
       </main>
     </>
