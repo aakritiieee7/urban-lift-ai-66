@@ -3,10 +3,11 @@ import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Award, Crown, Medal } from "lucide-react";
-import banner from "@/assets/hero-logistics.jpg";
+import banner from "@/assets/delhi-industrial-branding.jpg";
 
 type Row = { user_id: string; points: number; name?: string | null; company?: string | null; owner?: string | null };
 
@@ -67,7 +68,9 @@ const Leaderboard = () => {
         <h1 className="mb-2 text-3xl font-semibold text-center">Leaderboard</h1>
         <p className="mb-6 text-sm label-caps text-center">Our Revolutionary Owners • Live Rankings</p>
         <div className="mb-6 overflow-hidden rounded-xl shadow-sm">
-          <img src={banner} alt="Top logistics performers leaderboard" className="h-40 w-full object-cover" loading="lazy" />
+          <AspectRatio ratio={21 / 9}>
+            <img src={banner} alt="Delhi NCR logistics leaderboard banner" className="h-full w-full object-cover" loading="lazy" />
+          </AspectRatio>
         </div>
 
         <div className="space-y-4">

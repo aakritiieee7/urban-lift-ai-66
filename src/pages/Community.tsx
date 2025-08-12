@@ -12,9 +12,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Share2, ArrowBigUp } from "lucide-react";
-import heroImg from "@/assets/ai-dashboard.jpg";
-import postImg1 from "@/assets/shipper-feature.jpg";
-import postImg2 from "@/assets/carrier-feature.jpg";
+import heroImg from "@/assets/delhi-industrial-branding.jpg";
+import postImg1 from "@/assets/shipper-packing.jpg";
+import postImg2 from "@/assets/hero-warehouse.jpg";
 import delhiIndustrial from "@/assets/delhi-industrial-branding.jpg";
 
 interface Post {
@@ -143,7 +143,9 @@ const visiblePosts = tab === "mine" ? posts.filter(p => p.user_id === userId) : 
 <h1 className="mb-2 text-3xl font-semibold">Community</h1>
 <p className="mb-6 text-sm label-caps">For Businesses and MSMEs • Ask, Share, Upvote</p>
         <div className="mb-6 overflow-hidden rounded-xl shadow-sm">
-          <img src={heroImg} alt="Community discussions among MSMEs and carriers" className="h-40 w-full object-cover" loading="lazy" />
+          <AspectRatio ratio={21 / 9}>
+            <img src={heroImg} alt="Delhi NCR MSME logistics community discussions" className="h-full w-full object-cover" loading="lazy" />
+          </AspectRatio>
         </div>
         <Card className="mb-6">
           <CardHeader>
