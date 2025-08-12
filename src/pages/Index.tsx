@@ -13,6 +13,7 @@ import {
   Star,
 } from "lucide-react";
 import heroImage from "@/assets/hero-warehouse.jpg";
+import carrierImage from "@/assets/carrier-feature.jpg";
 
 const Index = () => {
   return (
@@ -89,7 +90,10 @@ const Index = () => {
               </div>
               
               <div className="relative">
-                
+                <div className="absolute -inset-6 -z-10 overflow-hidden rounded-2xl">
+                  <img src={carrierImage} alt="" className="h-full w-full object-cover opacity-40" loading="lazy" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-background/0 to-background/20" />
+                </div>
                 <Card className="relative shadow-2xl border-0 bg-card">
                   <CardContent className="p-0">
                     <LiveMap />
@@ -192,8 +196,8 @@ const Index = () => {
                       <Package className="w-4 h-4" />
                       For Shippers
                     </div>
-                    <h3 className="text-4xl font-bold">Streamline Your Shipping Operations</h3>
-                    <p className="text-lg text-muted-foreground">
+                    <h3 className="text-5xl font-bold">Streamline Your Shipping Operations</h3>
+                    <p className="text-xl text-muted-foreground">
                       Create shipments, get instant quotes, and track deliveries with our intuitive shipper dashboard. Perfect for MSMEs looking to optimize their logistics.
                     </p>
                   </div>
@@ -214,7 +218,7 @@ const Index = () => {
                   </div>
                   
                   <Link to="/auth/shipper/register">
-                    <Button variant="hero" size="lg">
+                    <Button variant="hero" size="xl">
                       Start Shipping Now
                       <ArrowRight className="ml-2" />
                     </Button>
@@ -232,8 +236,8 @@ const Index = () => {
                       <Truck className="w-4 h-4" />
                       For Carriers
                     </div>
-                    <h3 className="text-4xl font-bold">Maximize Your Revenue Potential</h3>
-                    <p className="text-lg text-muted-foreground">
+                    <h3 className="text-5xl font-bold">Maximize Your Revenue Potential</h3>
+                    <p className="text-xl text-muted-foreground">
                       Access a steady stream of optimized routes, manage multiple shipments efficiently, and grow your business with our carrier platform.
                     </p>
                   </div>
@@ -254,7 +258,7 @@ const Index = () => {
                   </div>
                   
                   <Link to="/auth/carrier/register">
-                    <Button variant="premium" size="lg">
+                    <Button variant="premium" size="xl">
                       Join Our Network
                       <ArrowRight className="ml-2" />
                     </Button>
