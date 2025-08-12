@@ -38,7 +38,7 @@ const RecentShipmentsCard = ({
           {shipments.map((s) => (
             <div
               key={s.id}
-              className="rounded-xl border border-delhi-primary/10 bg-white/60 backdrop-blur-sm p-4"
+              className="rounded-xl border border-delhi-primary/10 bg-white/70 backdrop-blur-sm p-4 transition-shadow hover:shadow-[var(--shadow-card-hover)]"
             >
               <div className="flex items-center justify-between">
                 <div>
@@ -50,7 +50,7 @@ const RecentShipmentsCard = ({
                   </div>
                 </div>
                 <span
-                  className={`px-2 py-1 text-xs rounded-full border ${
+                  className={`px-2 py-1 text-[10px] uppercase tracking-wide font-semibold rounded-full border ${
                     s.status === "delivered"
                       ? "border-delhi-success/30 text-delhi-success"
                       : s.status === "assigned"

@@ -13,8 +13,8 @@ const StatCard = ({ label, value, icon: Icon, colorClass }: { label: string; val
     <CardContent className="pt-6">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs text-delhi-navy/60">{label}</p>
-          <p className="text-2xl font-bold text-delhi-navy">{value}</p>
+          <p className="text-[11px] uppercase tracking-wider text-delhi-navy/60">{label}</p>
+          <p className="text-2xl font-extrabold text-delhi-navy">{value}</p>
         </div>
         <Icon className={`h-6 w-6 ${colorClass}`} />
       </div>
