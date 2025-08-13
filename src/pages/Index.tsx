@@ -54,7 +54,7 @@ const Index = () => {
                   </p>
                 </div>
                 
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col sm:flex-row gap-5 md:gap-6">
                   <Link to="/auth/shipper/login">
                     <Button variant="default" size="xl" className="w-full sm:w-auto">
                       <Package className="mr-2" />
@@ -217,8 +217,8 @@ const Index = () => {
                     ))}
                   </div>
                   
-                  <Link to="/auth/shipper/register">
-                    <Button variant="hero" size="xl">
+                  <Link to="/auth/shipper/register" className="block">
+                    <Button variant="hero" size="xl" className="mt-6 md:mt-8">
                       Start Shipping Now
                       <ArrowRight className="ml-2" />
                     </Button>
@@ -257,8 +257,8 @@ const Index = () => {
                     ))}
                   </div>
                   
-                  <Link to="/auth/carrier/register">
-                    <Button variant="premium" size="xl">
+                  <Link to="/auth/carrier/register" className="block">
+                    <Button variant="premium" size="xl" className="mt-6 md:mt-8">
                       Join Our Network
                       <ArrowRight className="ml-2" />
                     </Button>
@@ -319,7 +319,7 @@ const Index = () => {
                 Join thousands of businesses already using UrbanLift.AI to optimize their shipping operations and reduce costs.
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row gap-5 md:gap-6 justify-center">
                 <Link to="/auth/shipper/register">
                   <Button variant="default" size="xl" className="w-full sm:w-auto">
                     <Package className="mr-2" />
