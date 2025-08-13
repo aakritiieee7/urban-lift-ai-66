@@ -54,27 +54,37 @@ An open, Delhi-focused logistics web app that connects MSME shippers with verifi
 
 
 ## Setup and development
-1) Requirements
+1) Prerequisites
 - Node.js 18+ and npm
 
-2) Install and run
+2) Clone and install
 ```
+git clone <your_repo_url>
+cd <your_repo_folder>
 npm i
+```
+
+3) Start the app (development)
+```
 npm run dev
 ```
+- Vite dev server runs at http://localhost:8080
 
-3) Supabase configuration
-- Create a .env file with:
-```
-VITE_SUPABASE_URL=your_url
-VITE_SUPABASE_ANON_KEY=your_anon_key
-```
-- The app reads from src/integrations/supabase/client.ts using these values.
+4) Supabase configuration (two options)
+- Use the bundled configuration (no changes needed):
+  The app ships with a working Supabase URL and anon key in src/integrations/supabase/client.ts so you can run it immediately.
+- Bring your own Supabase (recommended for production):
+  1. Create a new Supabase project
+  2. Copy your Project URL and anon public key
+  3. Update src/integrations/supabase/client.ts (SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY)
+  4. Enable email/password auth and create the tables/policies you need (see Data model section below)
 
-4) Scripts
-- dev: start Vite dev server
-- build: production build
-- preview: preview production build locally
+5) Build and preview (production)
+```
+npm run build
+npm run preview
+```
+- Preview starts a local static server and prints the URL in the console.
 
 
 ## Data model and Supabase notes
