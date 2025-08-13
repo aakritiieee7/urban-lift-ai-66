@@ -40,6 +40,12 @@ const Navbar = () => {
           <NavLink to="/leaderboard" className="px-3 py-2 rounded-md hover:bg-accent">
             Leaderboard
           </NavLink>
+          <NavLink to="/transits" className="px-3 py-2 rounded-md hover:bg-accent">
+            Transits
+          </NavLink>
+          <NavLink to="/ai-pooling" className="px-3 py-2 rounded-md hover:bg-accent">
+            AI Pooling
+          </NavLink>
           {userId ? (
             <>
               <Link to={role === 'carrier' ? '/carrier-dashboard' : '/dashboard'}>

@@ -16,6 +16,8 @@ import Community from "./pages/Community";
 import Leaderboard from "./pages/Leaderboard";
 import ProfileSetup from "./pages/ProfileSetup";
 import Profile from "./pages/Profile";
+import PublicTransits from "./pages/PublicTransits";
+import AIPooling from "./pages/AIPooling";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -35,6 +37,8 @@ const App = () => (
             <Route path="/carrier-dashboard" element={<CarrierDashboard />} />
             <Route path="/community" element={<Community />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/transits" element={<PublicTransits />} />
+            <Route path="/ai-pooling" element={<AIPooling />} />
             <Route path="/profile-setup" element={<ProfileSetup />} />
             <Route path="/profile" element={<Profile />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
