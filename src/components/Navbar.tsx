@@ -30,8 +30,8 @@ const Navbar = () => {
     <header className="w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <nav className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link to="/" className="inline-flex items-center gap-2 font-semibold hover:opacity-90 transition-opacity">
-          <img src="/lovable-uploads/4ddab88a-5534-4495-923d-ded0ef8373af.png" alt="UrbanLift.AI logo - trucks" className="h-10 w-auto md:h-12" loading="lazy" />
-          <span className="sr-only">UrbanLift.AI</span>
+          <Truck className="h-6 w-6" aria-hidden="true" />
+          <span className="text-base md:text-lg font-semibold">UrbanLift</span>
         </Link>
         <div className="flex items-center gap-2">
           <NavLink to="/community" className="px-3 py-2 rounded-md hover:bg-accent">

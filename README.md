@@ -17,7 +17,7 @@ An open, Delhi-focused logistics web app that connects MSME shippers with verifi
 - Dashboards: at‑a‑glance stats, recent shipments, quick actions, and live map card
 - Community and Leaderboard: social proof, recognition, and engagement for NCR/Delhi logistics
 - Responsive UI: mobile-first, semantic tokens for light/dark theming
-- Supabase integration: auth, database, and storage ready out‑of‑the‑box in Lovable
+- Supabase integration: auth, database, and storage ready out‑of‑the‑box
 
 
 ## Screens and routes
@@ -40,7 +40,7 @@ An open, Delhi-focused logistics web app that connects MSME shippers with verifi
 - React Query (TanStack) for data fetching/cache
 - Leaflet + React-Leaflet for maps
 - Recharts for dashboard visualizations
-- Supabase (auth, DB, storage) – preconnected by Lovable
+- Supabase (auth, DB, storage)
 
 
 ## Project structure (high-level)
@@ -54,11 +54,6 @@ An open, Delhi-focused logistics web app that connects MSME shippers with verifi
 
 
 ## Setup and development
-Lovable cloud
-- Supabase is already connected by Lovable; no local env keys required in the cloud editor.
-- Click Run to preview; Publish when ready to deploy.
-
-Local development
 1) Requirements
 - Node.js 18+ and npm
 
@@ -68,13 +63,13 @@ npm i
 npm run dev
 ```
 
-3) Supabase configuration (local only)
-- If you run locally outside Lovable, create a .env file with your keys:
+3) Supabase configuration
+- Create a .env file with:
 ```
 VITE_SUPABASE_URL=your_url
 VITE_SUPABASE_ANON_KEY=your_anon_key
 ```
-- The app reads from src/integrations/supabase/client.ts using these values. In Lovable cloud this is preconfigured.
+- The app reads from src/integrations/supabase/client.ts using these values.
 
 4) Scripts
 - dev: start Vite dev server
@@ -132,7 +127,6 @@ VITE_SUPABASE_ANON_KEY=your_anon_key
 ## FAQ
 - Can I swap images? Yes. Put assets in src/assets and reference via import. Use descriptive alt text.
 - How do I change the hero background or the map background image? Update the imports in src/pages/Index.tsx and ensure loading="lazy" for non-critical images.
-- Do I need to configure Supabase in Lovable? No. It’s pre-wired. For local development only, add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.
 - How do I add new UI variants? Extend component variants (e.g., buttons) instead of inline class overrides.
 
 
