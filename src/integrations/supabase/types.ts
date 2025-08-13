@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      points_balances: {
+        Row: {
+          points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          points?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null
@@ -83,12 +101,67 @@ export type Database = {
         }
         Relationships: []
       }
+      shipments: {
+        Row: {
+          capacity_kg: number | null
+          carrier_id: string | null
+          created_at: string
+          destination: string
+          dropoff_time: string | null
+          id: string
+          origin: string
+          pickup_time: string | null
+          pool_id: string | null
+          pooled: boolean
+          shipper_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          capacity_kg?: number | null
+          carrier_id?: string | null
+          created_at?: string
+          destination: string
+          dropoff_time?: string | null
+          id?: string
+          origin: string
+          pickup_time?: string | null
+          pool_id?: string | null
+          pooled?: boolean
+          shipper_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          capacity_kg?: number | null
+          carrier_id?: string | null
+          created_at?: string
+          destination?: string
+          dropoff_time?: string | null
+          id?: string
+          origin?: string
+          pickup_time?: string | null
+          pool_id?: string | null
+          pooled?: boolean
+          shipper_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      award_points: {
+        Args: { _user_id: string; _points: number; _source?: string }
+        Returns: undefined
+      }
+      mark_pooled_and_delivered: {
+        Args: { _shipment_id: string; _user_id: string }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never
