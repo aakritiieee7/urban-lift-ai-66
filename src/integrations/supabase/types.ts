@@ -14,7 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          address: string | null
+          auth_email: string | null
+          business_model: string | null
+          business_name: string | null
+          company_name: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          gstin: string | null
+          id: string
+          licenses: string | null
+          role: string | null
+          service_regions: string | null
+          specialties: string | null
+          updated_at: string
+          user_id: string
+          username: string | null
+          vehicle_types: string | null
+          website: string | null
+          years_experience: number | null
+        }
+        Insert: {
+          address?: string | null
+          auth_email?: string | null
+          business_model?: string | null
+          business_name?: string | null
+          company_name?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          gstin?: string | null
+          id?: string
+          licenses?: string | null
+          role?: string | null
+          service_regions?: string | null
+          specialties?: string | null
+          updated_at?: string
+          user_id: string
+          username?: string | null
+          vehicle_types?: string | null
+          website?: string | null
+          years_experience?: number | null
+        }
+        Update: {
+          address?: string | null
+          auth_email?: string | null
+          business_model?: string | null
+          business_name?: string | null
+          company_name?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          gstin?: string | null
+          id?: string
+          licenses?: string | null
+          role?: string | null
+          service_regions?: string | null
+          specialties?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+          vehicle_types?: string | null
+          website?: string | null
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
