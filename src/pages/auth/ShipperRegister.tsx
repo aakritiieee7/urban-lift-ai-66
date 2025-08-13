@@ -34,10 +34,13 @@ const ShipperRegister = () => {
     e.preventDefault();
     setLoading(true);
 
+    const redirectUrl = `${window.location.origin}/`;
+
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
+        emailRedirectTo: redirectUrl,
         data: {
           name,
           role: "shipper",
