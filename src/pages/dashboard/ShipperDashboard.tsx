@@ -15,6 +15,7 @@ import AnalyticsCard from "@/components/dashboard/AnalyticsCard";
 import InvoiceCard from "@/components/dashboard/InvoiceCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { User } from "lucide-react";
 const ShipperDashboard = () => {
   const { userId } = useAuth();
   const { toast } = useToast();
@@ -77,6 +78,11 @@ const ShipperDashboard = () => {
   const assign = async (shipmentId: string, carrierId: string) => {
     await supabase.from("shipments").update({ carrier_id: carrierId, status: "assigned" }).eq("id", shipmentId);
     await load();
+  };
+
+  const logout = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
   };
 
   return (
@@ -148,6 +154,30 @@ const ShipperDashboard = () => {
                 carriers={carriers}
                 onAssign={assign}
               />
+            </div>
+
+            {/* Profile & Account Section */}
+            <div className="mt-8">
+              <Card className="p-6">
+                <CardHeader className="p-0 pb-4">
+                  <CardTitle className="flex items-center gap-2">
+                    <User className="h-5 w-5" />
+                    Account & Profile
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="flex gap-3">
+                    <Link to="/profile">
+                      <Button variant="outline">
+                        Manage Profile
+                      </Button>
+                    </Link>
+                    <Button variant="ghost" onClick={logout}>
+                      Logout
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </section>
         </div>
