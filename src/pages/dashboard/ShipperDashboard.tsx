@@ -4,14 +4,20 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import InstructionBanner from "@/components/dashboard/InstructionBanner";
 import StatsRow from "@/components/dashboard/StatsRow";
 import CreateShipmentCard from "@/components/dashboard/CreateShipmentCard";
 import RecentShipmentsCard from "@/components/dashboard/RecentShipmentsCard";
 import LiveMapCard from "@/components/dashboard/LiveMapCard";
 import ExploreCard from "@/components/dashboard/ExploreCard";
+import PaymentCard from "@/components/dashboard/PaymentCard";
+import AnalyticsCard from "@/components/dashboard/AnalyticsCard";
+import BulkUploadCard from "@/components/dashboard/BulkUploadCard";
+import InvoiceCard from "@/components/dashboard/InvoiceCard";
 const ShipperDashboard = () => {
   const { userId } = useAuth();
+  const { toast } = useToast();
   const [shipments, setShipments] = useState<any[]>([]);
   const [carriers, setCarriers] = useState<Array<{ user_id: string; points: number }>>([]);
   const navigate = useNavigate();
@@ -96,6 +102,14 @@ const ShipperDashboard = () => {
 
           <section className="space-y-4" aria-label="Create and manage shipments">
             <CreateShipmentCard onCreated={load} />
+            <div className="grid gap-4 lg:grid-cols-2">
+              <BulkUploadCard onUploaded={load} />
+              <PaymentCard 
+                amount={2500} 
+                description="Platform subscription fee"
+                onPaymentSuccess={() => toast({ title: "Payment successful", description: "Thank you for your payment!" })}
+              />
+            </div>
             <RecentShipmentsCard
               shipments={shipments}
               carriers={carriers}
@@ -103,8 +117,15 @@ const ShipperDashboard = () => {
             />
           </section>
 
-          <section className="space-y-4" aria-label="Live tracking and explore">
-            <LiveMapCard />
+          <section className="space-y-4" aria-label="Analytics and insights">
+            <AnalyticsCard shipments={shipments} />
+            <div className="grid gap-4 lg:grid-cols-2">
+              <InvoiceCard shipments={shipments} />
+              <LiveMapCard />
+            </div>
+          </section>
+
+          <section className="space-y-4" aria-label="Explore and discover">
             <ExploreCard />
           </section>
         </div>
