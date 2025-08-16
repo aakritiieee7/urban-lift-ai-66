@@ -93,108 +93,138 @@ const ShipperDashboard = () => {
         <link rel="canonical" href="/dashboard" />
       </Helmet>
       <Navbar />
-      <main className="min-h-screen bg-background overflow-y-auto">
-        <div className="container mx-auto px-4 py-8 space-y-6">
-          <section>
-            <InstructionBanner />
+      <main className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 py-12">
+          {/* Landing Page Header */}
+          <section className="text-center mb-12">
+            <h1 className="text-4xl md:text-5xl font-bold text-delhi-navy mb-4">
+              Welcome to Your Logistics Hub
+            </h1>
+            <p className="text-lg text-delhi-navy/70 max-w-2xl mx-auto mb-8">
+              Streamline your shipping operations with AI-powered logistics solutions. 
+              Create shipments, track deliveries, connect with carriers, and analyze your performance.
+            </p>
+            <StatsRow
+              total={totalShipments}
+              assigned={assignedCount}
+              pending={pendingCount}
+              delivered={deliveredCount}
+            />
           </section>
 
-          <StatsRow
-            total={totalShipments}
-            assigned={assignedCount}
-            pending={pendingCount}
-            delivered={deliveredCount}
-          />
+          {/* Main Sections */}
+          <section className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 mb-12">
+            {/* Transit Section */}
+            <Card className="p-6 hover:shadow-lg transition-shadow">
+              <CardHeader className="p-0 pb-6">
+                <CardTitle className="flex items-center gap-3 text-xl">
+                  <div className="p-2 rounded-lg bg-delhi-primary/10">
+                    <Truck className="h-6 w-6 text-delhi-primary" />
+                  </div>
+                  Transit
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Create and manage your shipments
+                </p>
+              </CardHeader>
+              <CardContent className="p-0 space-y-4">
+                <CreateShipmentCard onCreated={load} />
+                <PaymentCard amount={5000} description="Default shipment amount" />
+              </CardContent>
+            </Card>
 
-          <section className="space-y-8" aria-label="Shipper dashboard sections">
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {/* Transit Section */}
-              <Card className="p-6">
-                <CardHeader className="p-0 pb-4">
-                  <CardTitle className="flex items-center gap-2">
-                    <Truck className="h-5 w-5" />
-                    Transit
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-0 space-y-3">
-                  <CreateShipmentCard onCreated={load} />
-                  <PaymentCard amount={5000} description="Default shipment amount" />
-                </CardContent>
-              </Card>
+            {/* Track Section */}
+            <Card className="p-6 hover:shadow-lg transition-shadow">
+              <CardHeader className="p-0 pb-6">
+                <CardTitle className="flex items-center gap-3 text-xl">
+                  <div className="p-2 rounded-lg bg-delhi-primary/10">
+                    <MapPin className="h-6 w-6 text-delhi-primary" />
+                  </div>
+                  Track
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Monitor deliveries in real-time
+                </p>
+              </CardHeader>
+              <CardContent className="p-0 space-y-4">
+                <LiveMapCard />
+                <RecentShipmentsCard
+                  shipments={shipments.slice(0, 3)}
+                  carriers={carriers}
+                  onAssign={assign}
+                />
+              </CardContent>
+            </Card>
 
-              {/* Track Section */}
-              <Card className="p-6">
-                <CardHeader className="p-0 pb-4">
-                  <CardTitle className="flex items-center gap-2">
-                    <MapPin className="h-5 w-5" />
-                    Track
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-0 space-y-3">
-                  <LiveMapCard />
-                  <RecentShipmentsCard
-                    shipments={shipments.slice(0, 3)}
-                    carriers={carriers}
-                    onAssign={assign}
-                  />
-                </CardContent>
-              </Card>
+            {/* Community Section */}
+            <Card className="p-6 hover:shadow-lg transition-shadow">
+              <CardHeader className="p-0 pb-6">
+                <CardTitle className="flex items-center gap-3 text-xl">
+                  <div className="p-2 rounded-lg bg-delhi-primary/10">
+                    <Users className="h-6 w-6 text-delhi-primary" />
+                  </div>
+                  Community
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Connect with other shippers
+                </p>
+              </CardHeader>
+              <CardContent className="p-0 space-y-4">
+                <Link to="/community">
+                  <Button variant="outline" className="w-full">
+                    Join Community
+                  </Button>
+                </Link>
+                <div className="text-xs text-muted-foreground">
+                  Share insights and best practices
+                </div>
+              </CardContent>
+            </Card>
 
-              {/* Community Section */}
-              <Card className="p-6">
-                <CardHeader className="p-0 pb-4">
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="h-5 w-5" />
-                    Community
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <Link to="/community">
-                    <Button variant="outline" className="w-full">
-                      Join Community
+            {/* Analytics Section */}
+            <Card className="p-6 hover:shadow-lg transition-shadow">
+              <CardHeader className="p-0 pb-6">
+                <CardTitle className="flex items-center gap-3 text-xl">
+                  <div className="p-2 rounded-lg bg-delhi-primary/10">
+                    <BarChart3 className="h-6 w-6 text-delhi-primary" />
+                  </div>
+                  Analytics
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Track costs and performance
+                </p>
+              </CardHeader>
+              <CardContent className="p-0 space-y-4">
+                <AnalyticsCard shipments={shipments} />
+                <InvoiceCard shipments={shipments} />
+              </CardContent>
+            </Card>
+          </section>
+
+          {/* Profile & Account Section */}
+          <section className="max-w-md mx-auto">
+            <Card className="p-6 text-center">
+              <CardHeader className="p-0 pb-4">
+                <CardTitle className="flex items-center justify-center gap-3">
+                  <div className="p-2 rounded-lg bg-delhi-primary/10">
+                    <User className="h-5 w-5 text-delhi-primary" />
+                  </div>
+                  Account & Profile
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="flex gap-3 justify-center">
+                  <Link to="/profile">
+                    <Button variant="outline">
+                      Manage Profile
                     </Button>
                   </Link>
-                </CardContent>
-              </Card>
-
-              {/* Analytics Section */}
-              <Card className="p-6">
-                <CardHeader className="p-0 pb-4">
-                  <CardTitle className="flex items-center gap-2">
-                    <BarChart3 className="h-5 w-5" />
-                    Analytics
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-0 space-y-3">
-                  <AnalyticsCard shipments={shipments} />
-                  <InvoiceCard shipments={shipments} />
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Profile & Account Section */}
-            <div className="mt-8">
-              <Card className="p-6">
-                <CardHeader className="p-0 pb-4">
-                  <CardTitle className="flex items-center gap-2">
-                    <User className="h-5 w-5" />
-                    Account & Profile
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <div className="flex gap-3">
-                    <Link to="/profile">
-                      <Button variant="outline">
-                        Manage Profile
-                      </Button>
-                    </Link>
-                    <Button variant="ghost" onClick={logout}>
-                      Logout
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                  <Button variant="ghost" onClick={logout}>
+                    Logout
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </section>
         </div>
       </main>
