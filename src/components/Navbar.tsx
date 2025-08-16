@@ -88,9 +88,6 @@ const Navbar = () => {
               </NavLink>
               {userId ? (
                 <>
-                  <Link to={role === 'carrier' ? '/carrier-dashboard' : '/dashboard'}>
-                    <Button variant="default" size="sm">Dashboard</Button>
-                  </Link>
                   <Link to="/profile">
                     <Button variant="outline" size="sm">Profile</Button>
                   </Link>
