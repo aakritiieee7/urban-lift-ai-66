@@ -22,11 +22,11 @@ import CarrierTransit from "./pages/carrier/Transit";
 import CarrierTrack from "./pages/carrier/Track";
 import CarrierCommunity from "./pages/carrier/Community";
 import CarrierAnalytics from "./pages/carrier/Analytics";
-import ShipperHome from "./pages/shipper/Home";
 import ShipperTransit from "./pages/shipper/Transit";
 import ShipperTrack from "./pages/shipper/Track";
 import ShipperCommunity from "./pages/shipper/Community";
 import ShipperAnalytics from "./pages/shipper/Analytics";
+import ShipperHome from "./pages/shipper/Home";
 const queryClient = new QueryClient();
 
 const App = () => (
