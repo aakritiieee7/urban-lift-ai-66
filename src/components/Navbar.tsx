@@ -1,30 +1,34 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Truck, Users } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
 
-const Navbar = () => {
+const Navbar = memo(() => {
   const { userId } = useAuth();
   const [role, setRole] = useState<"shipper" | "carrier" | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     let mounted = true;
-    (async () => {
+    const getUserRole = async () => {
+      if (!userId) return;
+      
       const { data } = await supabase.auth.getUser();
       const r = (data.user?.user_metadata as any)?.role as "shipper" | "carrier" | undefined;
       if (mounted) setRole(r ?? null);
-    })();
+    };
+    
+    getUserRole();
     return () => { mounted = false; };
   }, [userId]);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     await supabase.auth.signOut();
     navigate("/");
-  };
+  }, [navigate]);
 
   return (
     <header className="w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -119,6 +123,8 @@ const Navbar = () => {
       </nav>
     </header>
   );
-};
+});
+
+Navbar.displayName = "Navbar";
 
 export default Navbar;
