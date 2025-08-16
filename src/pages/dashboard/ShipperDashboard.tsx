@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -10,11 +10,11 @@ import StatsRow from "@/components/dashboard/StatsRow";
 import CreateShipmentCard from "@/components/dashboard/CreateShipmentCard";
 import RecentShipmentsCard from "@/components/dashboard/RecentShipmentsCard";
 import LiveMapCard from "@/components/dashboard/LiveMapCard";
-import ExploreCard from "@/components/dashboard/ExploreCard";
 import PaymentCard from "@/components/dashboard/PaymentCard";
 import AnalyticsCard from "@/components/dashboard/AnalyticsCard";
-import BulkUploadCard from "@/components/dashboard/BulkUploadCard";
 import InvoiceCard from "@/components/dashboard/InvoiceCard";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 const ShipperDashboard = () => {
   const { userId } = useAuth();
   const { toast } = useToast();
@@ -100,33 +100,62 @@ const ShipperDashboard = () => {
             delivered={deliveredCount}
           />
 
-          <section className="space-y-4" aria-label="Create and manage shipments">
-            <CreateShipmentCard onCreated={load} />
-            <div className="grid gap-4 lg:grid-cols-2">
-              <BulkUploadCard onUploaded={load} />
-              <PaymentCard 
-                amount={2500} 
-                description="Platform subscription fee"
-                onPaymentSuccess={() => toast({ title: "Payment successful", description: "Thank you for your payment!" })}
-              />
-            </div>
-            <RecentShipmentsCard
-              shipments={shipments}
-              carriers={carriers}
-              onAssign={assign}
-            />
-          </section>
+          <section className="space-y-4" aria-label="Shipper dashboard navigation">
+            <Tabs defaultValue="shipments" className="space-y-4">
+              <TabsList className="flex flex-wrap gap-2">
+                <TabsTrigger value="shipments">Shipments</TabsTrigger>
+                <TabsTrigger value="pay">Pay & Schedule</TabsTrigger>
+                <TabsTrigger value="recent">Recent</TabsTrigger>
+                <TabsTrigger value="costs">Costs</TabsTrigger>
+                <TabsTrigger value="invoices">Invoices</TabsTrigger>
+                <TabsTrigger value="tracking">Tracking</TabsTrigger>
+                <TabsTrigger value="community">Community</TabsTrigger>
+              </TabsList>
 
-          <section className="space-y-4" aria-label="Analytics and insights">
-            <AnalyticsCard shipments={shipments} />
-            <div className="grid gap-4 lg:grid-cols-2">
-              <InvoiceCard shipments={shipments} />
-              <LiveMapCard />
-            </div>
-          </section>
+              <TabsContent value="shipments">
+                <CreateShipmentCard onCreated={load} />
+              </TabsContent>
 
-          <section className="space-y-4" aria-label="Explore and discover">
-            <ExploreCard />
+              <TabsContent value="pay">
+                <PaymentCard 
+                  amount={2500} 
+                  description="Platform subscription fee"
+                  onPaymentSuccess={() => toast({ title: "Payment successful", description: "Thank you for your payment!" })}
+                />
+              </TabsContent>
+
+              <TabsContent value="recent">
+                <RecentShipmentsCard
+                  shipments={shipments}
+                  carriers={carriers}
+                  onAssign={assign}
+                />
+              </TabsContent>
+
+              <TabsContent value="costs">
+                <AnalyticsCard shipments={shipments} />
+              </TabsContent>
+
+              <TabsContent value="invoices">
+                <InvoiceCard shipments={shipments} />
+              </TabsContent>
+
+              <TabsContent value="tracking">
+                <LiveMapCard />
+              </TabsContent>
+
+              <TabsContent value="community">
+                <div className="flex items-center justify-between rounded-lg border p-4">
+                  <div>
+                    <h3 className="text-lg font-semibold">Join the Community</h3>
+                    <p className="text-sm text-muted-foreground">Connect with other shippers. Leaderboard is not shown here.</p>
+                  </div>
+                  <Link to="/community">
+                    <Button variant="outline">Open Community</Button>
+                  </Link>
+                </div>
+              </TabsContent>
+            </Tabs>
           </section>
         </div>
       </main>
