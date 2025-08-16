@@ -13,8 +13,8 @@ import LiveMapCard from "@/components/dashboard/LiveMapCard";
 import PaymentCard from "@/components/dashboard/PaymentCard";
 import AnalyticsCard from "@/components/dashboard/AnalyticsCard";
 import InvoiceCard from "@/components/dashboard/InvoiceCard";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 const ShipperDashboard = () => {
   const { userId } = useAuth();
   const { toast } = useToast();
@@ -82,8 +82,8 @@ const ShipperDashboard = () => {
   return (
     <>
       <Helmet>
-        <title>Shipper Dashboard | UrbanLift.AI</title>
-        <meta name="description" content="Create and pool shipments. Track deliveries in real time." />
+        <title>Shipper Home | UrbanLift.AI</title>
+        <meta name="description" content="Your logistics command center. Create shipments, track deliveries, manage costs." />
         <link rel="canonical" href="/dashboard" />
       </Helmet>
       <Navbar />
@@ -100,62 +100,55 @@ const ShipperDashboard = () => {
             delivered={deliveredCount}
           />
 
-          <section className="space-y-4" aria-label="Shipper dashboard navigation">
-            <Tabs defaultValue="shipments" className="space-y-4">
-              <TabsList className="flex flex-wrap gap-2">
-                <TabsTrigger value="shipments">Shipments</TabsTrigger>
-                <TabsTrigger value="pay">Pay & Schedule</TabsTrigger>
-                <TabsTrigger value="recent">Recent</TabsTrigger>
-                <TabsTrigger value="costs">Costs</TabsTrigger>
-                <TabsTrigger value="invoices">Invoices</TabsTrigger>
-                <TabsTrigger value="tracking">Tracking</TabsTrigger>
-                <TabsTrigger value="community">Community</TabsTrigger>
-              </TabsList>
+          <section className="space-y-4" aria-label="Shipper navigation">
+            <div className="flex flex-wrap gap-2 p-4 bg-muted/30 rounded-lg">
+              <Link to="/dashboard">
+                <Button variant="default">Home</Button>
+              </Link>
+              <Link to="/shipments">
+                <Button variant="outline">Shipments</Button>
+              </Link>
+              <Link to="/payments">
+                <Button variant="outline">Pay & Schedule</Button>
+              </Link>
+              <Link to="/recent-shipments">
+                <Button variant="outline">Recent</Button>
+              </Link>
+              <Link to="/cost-analytics">
+                <Button variant="outline">Costs</Button>
+              </Link>
+              <Link to="/invoices">
+                <Button variant="outline">Invoices</Button>
+              </Link>
+              <Link to="/tracking">
+                <Button variant="outline">Tracking</Button>
+              </Link>
+              <Link to="/community">
+                <Button variant="outline">Community</Button>
+              </Link>
+            </div>
 
-              <TabsContent value="shipments">
+            {/* Home overview content */}
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold">Quick Actions</h2>
                 <CreateShipmentCard onCreated={load} />
-              </TabsContent>
-
-              <TabsContent value="pay">
-                <PaymentCard 
-                  amount={2500} 
-                  description="Platform subscription fee"
-                  onPaymentSuccess={() => toast({ title: "Payment successful", description: "Thank you for your payment!" })}
-                />
-              </TabsContent>
-
-              <TabsContent value="recent">
-                <RecentShipmentsCard
-                  shipments={shipments}
-                  carriers={carriers}
-                  onAssign={assign}
-                />
-              </TabsContent>
-
-              <TabsContent value="costs">
+              </div>
+              
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold">Overview</h2>
                 <AnalyticsCard shipments={shipments} />
-              </TabsContent>
+              </div>
+            </div>
 
-              <TabsContent value="invoices">
-                <InvoiceCard shipments={shipments} />
-              </TabsContent>
-
-              <TabsContent value="tracking">
-                <LiveMapCard />
-              </TabsContent>
-
-              <TabsContent value="community">
-                <div className="flex items-center justify-between rounded-lg border p-4">
-                  <div>
-                    <h3 className="text-lg font-semibold">Join the Community</h3>
-                    <p className="text-sm text-muted-foreground">Connect with other shippers. Leaderboard is not shown here.</p>
-                  </div>
-                  <Link to="/community">
-                    <Button variant="outline">Open Community</Button>
-                  </Link>
-                </div>
-              </TabsContent>
-            </Tabs>
+            <div className="mt-6">
+              <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
+              <RecentShipmentsCard
+                shipments={shipments.slice(0, 3)}
+                carriers={carriers}
+                onAssign={assign}
+              />
+            </div>
           </section>
         </div>
       </main>
