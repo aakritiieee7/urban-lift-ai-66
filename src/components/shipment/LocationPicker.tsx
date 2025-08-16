@@ -85,7 +85,7 @@ export const LocationPicker = ({ origin, destination, onOriginChange, onDestinat
     const t = setTimeout(async () => {
       const raw = await fetchSearch(originQuery.trim());
       if (originSearchRef.current !== id) return;
-      setOriginResults(raw.slice(0, 5).map(r => ({ name: r.display_name, lat: parseFloat(r.lat), lng: parseFloat(r.lon) })));
+      setOriginResults(raw.slice(0, 8).map(r => ({ name: r.display_name, lat: parseFloat(r.lat), lng: parseFloat(r.lon) })));
     }, 350);
     return () => clearTimeout(t);
   }, [originQuery]);
@@ -97,7 +97,7 @@ export const LocationPicker = ({ origin, destination, onOriginChange, onDestinat
     const t = setTimeout(async () => {
       const raw = await fetchSearch(destinationQuery.trim());
       if (destinationSearchRef.current !== id) return;
-      setDestinationResults(raw.slice(0, 5).map(r => ({ name: r.display_name, lat: parseFloat(r.lat), lng: parseFloat(r.lon) })));
+      setDestinationResults(raw.slice(0, 8).map(r => ({ name: r.display_name, lat: parseFloat(r.lat), lng: parseFloat(r.lon) })));
     }, 350);
     return () => clearTimeout(t);
   }, [destinationQuery]);
@@ -142,7 +142,7 @@ export const LocationPicker = ({ origin, destination, onOriginChange, onDestinat
             </button>
           </div>
           {originResults.length > 0 && (
-            <Card className="absolute z-[100] mt-1 w-full shadow-lg border-delhi-primary/20">
+            <Card className="absolute z-[100] mt-1 w-full shadow-lg border-delhi-primary/20 max-h-64 overflow-y-auto">
               <CardContent className="p-2 bg-card/95 backdrop-blur-sm">
                 {originResults.map((result, idx) => (
                   <button
@@ -188,7 +188,7 @@ export const LocationPicker = ({ origin, destination, onOriginChange, onDestinat
             </button>
           </div>
           {destinationResults.length > 0 && (
-            <Card className="absolute z-[100] mt-1 w-full shadow-lg border-delhi-primary/20">
+            <Card className="absolute z-[100] mt-1 w-full shadow-lg border-delhi-primary/20 max-h-64 overflow-y-auto">
               <CardContent className="p-2 bg-card/95 backdrop-blur-sm">
                 {destinationResults.map((result, idx) => (
                   <button
@@ -212,14 +212,14 @@ export const LocationPicker = ({ origin, destination, onOriginChange, onDestinat
       </div>
 
       {/* Interactive Map */}
-      <div className="space-y-3">
+      <div className="space-y-3 mt-8">
         {pickingMode && (
           <div className="rounded-lg bg-gradient-to-r from-delhi-primary/10 to-delhi-gold/10 border border-delhi-primary/20 p-3 text-sm">
             <span className="font-medium text-delhi-navy">Click on the map to select your {pickingMode === "origin" ? "pickup" : "drop-off"} location</span>
           </div>
         )}
         <div className="overflow-hidden rounded-lg border border-delhi-primary/20 shadow-lg">
-          <AnyMapContainer center={center} zoom={11} scrollWheelZoom={false} className="h-72 w-full">
+          <AnyMapContainer center={center} zoom={11} scrollWheelZoom={false} className="h-80 w-full">
             <AnyTileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
