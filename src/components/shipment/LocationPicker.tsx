@@ -115,54 +115,52 @@ export const LocationPicker = ({ origin, destination, onOriginChange, onDestinat
   };
 
   return (
-    <div className="space-y-8">
-      {/* Main Layout Grid */}
-      <div className="grid lg:grid-cols-2 gap-8 items-start">
+    <div className="min-h-screen w-full bg-background">
+      {/* Full Page Layout Grid */}
+      <div className="grid lg:grid-cols-2 h-screen">
         {/* Left Side - Location Inputs */}
-        <div className="space-y-6">
+        <div className="p-6 space-y-8 overflow-y-auto">
           {/* Pickup Location */}
           <div className="relative">
-            <div className="mb-4">
-              <h3 className="text-2xl font-bold bg-gradient-to-r from-delhi-navy to-delhi-primary bg-clip-text text-transparent flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-delhi-primary to-delhi-gold flex items-center justify-center">
-                  <MapPin className="h-4 w-4 text-white" />
-                </div>
+            <div className="mb-3">
+              <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-muted-foreground" />
                 Pickup Location
               </h3>
-              <p className="text-delhi-navy/60 text-sm mt-1">Where should we collect your shipment?</p>
+              <p className="text-xs text-muted-foreground mt-1">Where should we collect your shipment?</p>
             </div>
             <div className="relative">
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                <MapPin className="h-5 w-5" />
+                <MapPin className="h-4 w-4" />
               </div>
               <Input
                 id="origin"
-                placeholder="Enter pickup address or search location"
+                placeholder="Enter pickup address"
                 value={originQuery}
                 onChange={(e) => setOriginQuery(e.target.value)}
                 onFocus={() => setPickingMode("origin")}
-                className="pl-12 pr-12 h-12 text-base bg-gradient-to-r from-white to-delhi-primary/5 border-delhi-primary/20 focus:border-delhi-primary focus:ring-delhi-primary/20"
+                className="pl-10 pr-10 h-10 text-sm bg-background border-border"
               />
               <button
                 type="button"
                 onClick={() => setPickingMode("origin")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-delhi-primary transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
-                <Search className="h-5 w-5" />
+                <Search className="h-4 w-4" />
               </button>
             </div>
             {originResults.length > 0 && (
-              <Card className="absolute z-[9999] mt-2 w-full shadow-xl border-delhi-primary/20 max-h-72 overflow-y-auto">
-                <CardContent className="p-3 bg-card/95 backdrop-blur-sm">
+              <Card className="absolute z-[9999] mt-1 w-full shadow-lg max-h-64 overflow-y-auto">
+                <CardContent className="p-2">
                   {originResults.map((result, idx) => (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => selectOrigin(result)}
-                      className="block w-full rounded-lg px-4 py-3 text-left text-sm hover:bg-gradient-to-r hover:from-delhi-primary/10 hover:to-delhi-gold/10 hover:text-delhi-navy transition-all duration-200 border-b border-delhi-primary/10 last:border-0"
+                      className="block w-full rounded px-3 py-2 text-left text-xs hover:bg-muted transition-colors border-b border-border last:border-0"
                     >
                       <div className="flex items-start gap-2">
-                        <MapPin className="h-4 w-4 text-delhi-primary mt-0.5 flex-shrink-0" />
+                        <MapPin className="h-3 w-3 text-muted-foreground mt-0.5 flex-shrink-0" />
                         <span className="line-clamp-2">{result.name}</span>
                       </div>
                     </button>
@@ -171,58 +169,53 @@ export const LocationPicker = ({ origin, destination, onOriginChange, onDestinat
               </Card>
             )}
             {origin && (
-              <div className="mt-3 p-3 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200">
-                <div className="text-sm text-green-800 font-medium flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  Selected: {origin.address || `${origin.lat.toFixed(5)}, ${origin.lng.toFixed(5)}`}
-                </div>
+              <div className="mt-2 text-xs text-muted-foreground">
+                Selected: {origin.address || `${origin.lat.toFixed(5)}, ${origin.lng.toFixed(5)}`}
               </div>
             )}
           </div>
 
           {/* Drop-off Location */}
           <div className="relative">
-            <div className="mb-4">
-              <h3 className="text-2xl font-bold bg-gradient-to-r from-delhi-navy to-delhi-primary bg-clip-text text-transparent flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-delhi-gold to-delhi-primary flex items-center justify-center">
-                  <MapPin className="h-4 w-4 text-white" />
-                </div>
+            <div className="mb-3">
+              <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-muted-foreground" />
                 Drop-off Location
               </h3>
-              <p className="text-delhi-navy/60 text-sm mt-1">Where should we deliver your shipment?</p>
+              <p className="text-xs text-muted-foreground mt-1">Where should we deliver your shipment?</p>
             </div>
             <div className="relative">
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                <MapPin className="h-5 w-5" />
+                <MapPin className="h-4 w-4" />
               </div>
               <Input
                 id="destination"
-                placeholder="Enter drop-off address or search location"
+                placeholder="Enter drop-off address"
                 value={destinationQuery}
                 onChange={(e) => setDestinationQuery(e.target.value)}
                 onFocus={() => setPickingMode("destination")}
-                className="pl-12 pr-12 h-12 text-base bg-gradient-to-r from-white to-delhi-gold/5 border-delhi-gold/20 focus:border-delhi-gold focus:ring-delhi-gold/20"
+                className="pl-10 pr-10 h-10 text-sm bg-background border-border"
               />
               <button
                 type="button"
                 onClick={() => setPickingMode("destination")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-delhi-gold transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
-                <Search className="h-5 w-5" />
+                <Search className="h-4 w-4" />
               </button>
             </div>
             {destinationResults.length > 0 && (
-              <Card className="absolute z-[9999] mt-2 w-full shadow-xl border-delhi-gold/20 max-h-72 overflow-y-auto">
-                <CardContent className="p-3 bg-card/95 backdrop-blur-sm">
+              <Card className="absolute z-[9999] mt-1 w-full shadow-lg max-h-64 overflow-y-auto">
+                <CardContent className="p-2">
                   {destinationResults.map((result, idx) => (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => selectDestination(result)}
-                      className="block w-full rounded-lg px-4 py-3 text-left text-sm hover:bg-gradient-to-r hover:from-delhi-gold/10 hover:to-delhi-primary/10 hover:text-delhi-navy transition-all duration-200 border-b border-delhi-gold/10 last:border-0"
+                      className="block w-full rounded px-3 py-2 text-left text-xs hover:bg-muted transition-colors border-b border-border last:border-0"
                     >
                       <div className="flex items-start gap-2">
-                        <MapPin className="h-4 w-4 text-delhi-gold mt-0.5 flex-shrink-0" />
+                        <MapPin className="h-3 w-3 text-muted-foreground mt-0.5 flex-shrink-0" />
                         <span className="line-clamp-2">{result.name}</span>
                       </div>
                     </button>
@@ -231,43 +224,25 @@ export const LocationPicker = ({ origin, destination, onOriginChange, onDestinat
               </Card>
             )}
             {destination && (
-              <div className="mt-3 p-3 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200">
-                <div className="text-sm text-blue-800 font-medium flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                  Selected: {destination.address || `${destination.lat.toFixed(5)}, ${destination.lng.toFixed(5)}`}
-                </div>
+              <div className="mt-2 text-xs text-muted-foreground">
+                Selected: {destination.address || `${destination.lat.toFixed(5)}, ${destination.lng.toFixed(5)}`}
               </div>
             )}
           </div>
         </div>
 
         {/* Right Side - Interactive Map */}
-        <div className="space-y-4 lg:sticky lg:top-6">
-          <div className="mb-4">
-            <h3 className="text-2xl font-bold bg-gradient-to-r from-delhi-navy to-delhi-primary bg-clip-text text-transparent flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-delhi-primary to-delhi-navy flex items-center justify-center">
-                <Search className="h-4 w-4 text-white" />
-              </div>
-              Interactive Map
-            </h3>
-            <p className="text-delhi-navy/60 text-sm mt-1">Click on the map to select locations visually</p>
-          </div>
-          
+        <div className="relative">
           {pickingMode && (
-            <div className="rounded-lg bg-gradient-to-r from-delhi-primary/15 to-delhi-gold/15 border-2 border-delhi-primary/30 p-4 text-sm animate-pulse">
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 rounded-full bg-gradient-to-r from-delhi-primary to-delhi-gold flex items-center justify-center">
-                  <MapPin className="h-3 w-3 text-white" />
-                </div>
-                <span className="font-semibold text-delhi-navy">
-                  Click on the map to select your {pickingMode === "origin" ? "pickup" : "drop-off"} location
-                </span>
-              </div>
+            <div className="absolute top-4 left-4 right-4 z-10 bg-card border border-border rounded p-3 text-xs">
+              <span className="font-medium text-foreground">
+                Click on the map to select your {pickingMode === "origin" ? "pickup" : "drop-off"} location
+              </span>
             </div>
           )}
           
-          <div className="overflow-hidden rounded-xl border-2 border-delhi-primary/20 shadow-2xl">
-            <AnyMapContainer center={center} zoom={11} scrollWheelZoom={false} className="h-96 w-full">
+          <div className="h-full w-full">
+            <AnyMapContainer center={center} zoom={11} scrollWheelZoom={false} className="h-full w-full">
               <AnyTileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -276,8 +251,8 @@ export const LocationPicker = ({ origin, destination, onOriginChange, onDestinat
               {origin && (
                 <AnyMarker position={[origin.lat, origin.lng]}>
                   <AnyPopup>
-                    <div className="font-medium text-green-700">
-                      🟢 Pickup: {origin.address || `${origin.lat.toFixed(5)}, ${origin.lng.toFixed(5)}`}
+                    <div className="text-xs">
+                      Pickup: {origin.address || `${origin.lat.toFixed(5)}, ${origin.lng.toFixed(5)}`}
                     </div>
                   </AnyPopup>
                 </AnyMarker>
@@ -285,8 +260,8 @@ export const LocationPicker = ({ origin, destination, onOriginChange, onDestinat
               {destination && (
                 <AnyMarker position={[destination.lat, destination.lng]}>
                   <AnyPopup>
-                    <div className="font-medium text-blue-700">
-                      🔵 Drop-off: {destination.address || `${destination.lat.toFixed(5)}, ${destination.lng.toFixed(5)}`}
+                    <div className="text-xs">
+                      Drop-off: {destination.address || `${destination.lat.toFixed(5)}, ${destination.lng.toFixed(5)}`}
                     </div>
                   </AnyPopup>
                 </AnyMarker>
