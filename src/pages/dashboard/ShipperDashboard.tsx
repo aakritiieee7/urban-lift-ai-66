@@ -15,7 +15,7 @@ import AnalyticsCard from "@/components/dashboard/AnalyticsCard";
 import InvoiceCard from "@/components/dashboard/InvoiceCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { User } from "lucide-react";
+import { User, Truck, MapPin, Users, BarChart3 } from "lucide-react";
 const ShipperDashboard = () => {
   const { userId } = useAuth();
   const { toast } = useToast();
@@ -106,54 +106,70 @@ const ShipperDashboard = () => {
             delivered={deliveredCount}
           />
 
-          <section className="space-y-4" aria-label="Shipper navigation">
-            <div className="flex flex-wrap gap-2 p-4 bg-muted/30 rounded-lg">
-              <Link to="/dashboard">
-                <Button variant="default">Home</Button>
-              </Link>
-              <Link to="/shipments">
-                <Button variant="outline">Shipments</Button>
-              </Link>
-              <Link to="/payments">
-                <Button variant="outline">Pay & Schedule</Button>
-              </Link>
-              <Link to="/recent-shipments">
-                <Button variant="outline">Recent</Button>
-              </Link>
-              <Link to="/cost-analytics">
-                <Button variant="outline">Costs</Button>
-              </Link>
-              <Link to="/invoices">
-                <Button variant="outline">Invoices</Button>
-              </Link>
-              <Link to="/tracking">
-                <Button variant="outline">Tracking</Button>
-              </Link>
-              <Link to="/community">
-                <Button variant="outline">Community</Button>
-              </Link>
-            </div>
+          <section className="space-y-8" aria-label="Shipper dashboard sections">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {/* Transit Section */}
+              <Card className="p-6">
+                <CardHeader className="p-0 pb-4">
+                  <CardTitle className="flex items-center gap-2">
+                    <Truck className="h-5 w-5" />
+                    Transit
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0 space-y-3">
+                  <CreateShipmentCard onCreated={load} />
+                  <PaymentCard amount={5000} description="Default shipment amount" />
+                </CardContent>
+              </Card>
 
-            {/* Home overview content */}
-            <div className="grid gap-6 lg:grid-cols-2">
-              <div className="space-y-4">
-                <h2 className="text-xl font-semibold">Quick Actions</h2>
-                <CreateShipmentCard onCreated={load} />
-              </div>
-              
-              <div className="space-y-4">
-                <h2 className="text-xl font-semibold">Overview</h2>
-                <AnalyticsCard shipments={shipments} />
-              </div>
-            </div>
+              {/* Track Section */}
+              <Card className="p-6">
+                <CardHeader className="p-0 pb-4">
+                  <CardTitle className="flex items-center gap-2">
+                    <MapPin className="h-5 w-5" />
+                    Track
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0 space-y-3">
+                  <LiveMapCard />
+                  <RecentShipmentsCard
+                    shipments={shipments.slice(0, 3)}
+                    carriers={carriers}
+                    onAssign={assign}
+                  />
+                </CardContent>
+              </Card>
 
-            <div className="mt-6">
-              <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
-              <RecentShipmentsCard
-                shipments={shipments.slice(0, 3)}
-                carriers={carriers}
-                onAssign={assign}
-              />
+              {/* Community Section */}
+              <Card className="p-6">
+                <CardHeader className="p-0 pb-4">
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5" />
+                    Community
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <Link to="/community">
+                    <Button variant="outline" className="w-full">
+                      Join Community
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              {/* Analytics Section */}
+              <Card className="p-6">
+                <CardHeader className="p-0 pb-4">
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5" />
+                    Analytics
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0 space-y-3">
+                  <AnalyticsCard shipments={shipments} />
+                  <InvoiceCard shipments={shipments} />
+                </CardContent>
+              </Card>
             </div>
 
             {/* Profile & Account Section */}
