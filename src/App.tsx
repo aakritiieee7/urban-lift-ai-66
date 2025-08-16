@@ -22,6 +22,7 @@ import CarrierTransit from "./pages/carrier/Transit";
 import CarrierTrack from "./pages/carrier/Track";
 import CarrierCommunity from "./pages/carrier/Community";
 import CarrierAnalytics from "./pages/carrier/Analytics";
+import ShipperHome from "./pages/shipper/Home";
 import ShipperTransit from "./pages/shipper/Transit";
 import ShipperTrack from "./pages/shipper/Track";
 import ShipperCommunity from "./pages/shipper/Community";
@@ -50,10 +51,11 @@ const App = () => (
             <Route path="/profile-setup" element={<ProfileSetup />} />
 <Route path="/profile" element={<Profile />} />
 {/* Shipper section pages */}
-<Route path="/shipper/transit" element={<ShipperTransit />} />
-<Route path="/shipper/track" element={<ShipperTrack />} />
-<Route path="/shipper/community" element={<ShipperCommunity />} />
-<Route path="/shipper/analytics" element={<ShipperAnalytics />} />
+          <Route path="/shipper/home" element={<ShipperHome />} />
+          <Route path="/shipper/transit" element={<ShipperTransit />} />
+          <Route path="/shipper/track" element={<ShipperTrack />} />
+          <Route path="/shipper/community" element={<ShipperCommunity />} />
+          <Route path="/shipper/analytics" element={<ShipperAnalytics />} />
 {/* Carrier section pages */}
 <Route path="/carrier/transit" element={<CarrierTransit />} />
 <Route path="/carrier/track" element={<CarrierTrack />} />

@@ -36,6 +36,9 @@ const Navbar = () => {
         <div className="flex items-center gap-2">
           {userId && role === 'shipper' ? (
             <>
+              <NavLink to="/shipper/home" className="px-3 py-2 rounded-md hover:bg-accent">
+                Home
+              </NavLink>
               <NavLink to="/shipper/transit" className="px-3 py-2 rounded-md hover:bg-accent">
                 Transit
               </NavLink>
@@ -55,6 +58,9 @@ const Navbar = () => {
             </>
           ) : userId && role === 'carrier' ? (
             <>
+              <NavLink to="/carrier-dashboard" className="px-3 py-2 rounded-md hover:bg-accent">
+                Home
+              </NavLink>
               <NavLink to="/carrier/transit" className="px-3 py-2 rounded-md hover:bg-accent">
                 Transit
               </NavLink>
