@@ -97,7 +97,7 @@ const ShipperRegister = () => {
 
     setLoading(false);
     toast({ title: "Registration complete", description: "Welcome aboard!" });
-    navigate("/dashboard");
+    navigate("/shipper/home");
   };
 
   return (

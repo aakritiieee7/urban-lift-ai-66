@@ -15,7 +15,7 @@ import {
 import heroImage from "@/assets/hero-warehouse.jpg";
 import carrierImage from "@/assets/carrier-feature.jpg";
 import { useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
@@ -29,7 +29,7 @@ const Index = () => {
         .select("role")
         .eq("user_id", userId)
         .maybeSingle();
-      if (data?.role === "shipper") navigate("/dashboard", { replace: true });
+      if (data?.role === "shipper") navigate("/shipper/home", { replace: true });
       else if (data?.role === "carrier") navigate("/carrier-dashboard", { replace: true });
     })();
   }, [userId, loading, navigate]);

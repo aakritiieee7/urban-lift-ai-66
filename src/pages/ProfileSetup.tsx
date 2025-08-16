@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -67,7 +67,7 @@ const ProfileSetup = () => {
         // If role mismatches, keep existing but allow edit
         if (data.role && data.role !== role) {
           // Navigate to the user's saved role-specific dashboard
-          navigate(data.role === "shipper" ? "/dashboard" : "/carrier-dashboard", { replace: true });
+          navigate(data.role === "shipper" ? "/shipper/home" : "/carrier-dashboard", { replace: true });
           return;
         }
         // Populate form
@@ -136,7 +136,7 @@ const ProfileSetup = () => {
     }
 
     toast({ title: "Profile saved", description: "You're all set!" });
-    navigate(role === "shipper" ? "/dashboard" : "/carrier-dashboard");
+    navigate(role === "shipper" ? "/shipper/home" : "/carrier-dashboard");
   };
 
   return (

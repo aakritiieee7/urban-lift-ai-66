@@ -4,13 +4,14 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
+import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import ShipperLogin from "./pages/auth/ShipperLogin";
 import ShipperRegister from "./pages/auth/ShipperRegister";
 import CarrierLogin from "./pages/auth/CarrierLogin";
 import CarrierRegister from "./pages/auth/CarrierRegister";
-import ShipperDashboard from "./pages/dashboard/ShipperDashboard";
+
 import CarrierDashboard from "./pages/dashboard/CarrierDashboard";
 import Community from "./pages/Community";
 import Leaderboard from "./pages/Leaderboard";
@@ -36,13 +37,14 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <AuthProvider>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth/shipper/login" element={<ShipperLogin />} />
             <Route path="/auth/shipper/register" element={<ShipperRegister />} />
             <Route path="/auth/carrier/login" element={<CarrierLogin />} />
             <Route path="/auth/carrier/register" element={<CarrierRegister />} />
-            <Route path="/dashboard" element={<ShipperDashboard />} />
+            
             <Route path="/carrier-dashboard" element={<CarrierDashboard />} />
             <Route path="/community" element={<Community />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
@@ -64,6 +66,7 @@ const App = () => (
 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
 <Route path="*" element={<NotFound />} />
           </Routes>
+          </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
     </HelmetProvider>

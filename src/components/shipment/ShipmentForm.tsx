@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import MapPicker, { MapPickerValue } from "@/components/MapPicker";
 import { clusterShipments, type Shipment as AlgoShipment } from "@/lib/matching";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {

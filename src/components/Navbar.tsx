@@ -1,29 +1,13 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Truck, Users } from "lucide-react";
-import { useEffect, useState, memo, useCallback } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { memo, useCallback } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
-
 const Navbar = memo(() => {
-  const { userId } = useAuth();
-  const [role, setRole] = useState<"shipper" | "carrier" | null>(null);
+  const { userId, role } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    let mounted = true;
-    const getUserRole = async () => {
-      if (!userId) return;
-      
-      const { data } = await supabase.auth.getUser();
-      const r = (data.user?.user_metadata as any)?.role as "shipper" | "carrier" | undefined;
-      if (mounted) setRole(r ?? null);
-    };
-    
-    getUserRole();
-    return () => { mounted = false; };
-  }, [userId]);
 
   const logout = useCallback(async () => {
     await supabase.auth.signOut();
