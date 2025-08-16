@@ -22,6 +22,10 @@ import CarrierTransit from "./pages/carrier/Transit";
 import CarrierTrack from "./pages/carrier/Track";
 import CarrierCommunity from "./pages/carrier/Community";
 import CarrierAnalytics from "./pages/carrier/Analytics";
+import ShipperTransit from "./pages/shipper/Transit";
+import ShipperTrack from "./pages/shipper/Track";
+import ShipperCommunity from "./pages/shipper/Community";
+import ShipperAnalytics from "./pages/shipper/Analytics";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -45,6 +49,11 @@ const App = () => (
             <Route path="/ai-pooling" element={<AIPooling />} />
             <Route path="/profile-setup" element={<ProfileSetup />} />
 <Route path="/profile" element={<Profile />} />
+{/* Shipper section pages */}
+<Route path="/shipper/transit" element={<ShipperTransit />} />
+<Route path="/shipper/track" element={<ShipperTrack />} />
+<Route path="/shipper/community" element={<ShipperCommunity />} />
+<Route path="/shipper/analytics" element={<ShipperAnalytics />} />
 {/* Carrier section pages */}
 <Route path="/carrier/transit" element={<CarrierTransit />} />
 <Route path="/carrier/track" element={<CarrierTrack />} />

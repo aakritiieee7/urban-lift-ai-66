@@ -34,7 +34,26 @@ const Navbar = () => {
           <span className="text-base md:text-lg font-semibold">UrbanLift</span>
         </Link>
         <div className="flex items-center gap-2">
-          {userId && role === 'carrier' ? (
+          {userId && role === 'shipper' ? (
+            <>
+              <NavLink to="/shipper/transit" className="px-3 py-2 rounded-md hover:bg-accent">
+                Transit
+              </NavLink>
+              <NavLink to="/shipper/track" className="px-3 py-2 rounded-md hover:bg-accent">
+                Track
+              </NavLink>
+              <NavLink to="/shipper/community" className="px-3 py-2 rounded-md hover:bg-accent">
+                Community
+              </NavLink>
+              <NavLink to="/shipper/analytics" className="px-3 py-2 rounded-md hover:bg-accent">
+                Analytics
+              </NavLink>
+              <Link to="/profile">
+                <Button variant="outline" size="sm">Profile</Button>
+              </Link>
+              <Button variant="ghost" size="sm" onClick={logout}>Logout</Button>
+            </>
+          ) : userId && role === 'carrier' ? (
             <>
               <NavLink to="/carrier/transit" className="px-3 py-2 rounded-md hover:bg-accent">
                 Transit
