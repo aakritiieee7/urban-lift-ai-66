@@ -117,10 +117,10 @@ export const LocationPicker = ({ origin, destination, onOriginChange, onDestinat
   return (
     <div className="space-y-6">
       {/* Location Input Boxes */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2 p-4 bg-gradient-to-r from-delhi-primary/5 to-delhi-gold/5 rounded-lg border border-delhi-primary/10">
         {/* Origin */}
         <div className="relative">
-          <Label htmlFor="origin" className="text-sm font-medium">Pickup Location</Label>
+          <Label htmlFor="origin" className="text-sm font-semibold text-delhi-navy">Pickup Location</Label>
           <div className="relative mt-2">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
               <MapPin className="h-4 w-4" />
@@ -142,14 +142,14 @@ export const LocationPicker = ({ origin, destination, onOriginChange, onDestinat
             </button>
           </div>
           {originResults.length > 0 && (
-            <Card className="absolute z-50 mt-1 w-full">
-              <CardContent className="p-2">
+            <Card className="absolute z-[100] mt-1 w-full shadow-lg border-delhi-primary/20">
+              <CardContent className="p-2 bg-card/95 backdrop-blur-sm">
                 {originResults.map((result, idx) => (
                   <button
                     key={idx}
                     type="button"
                     onClick={() => selectOrigin(result)}
-                    className="block w-full rounded px-3 py-2 text-left text-sm hover:bg-accent"
+                    className="block w-full rounded px-3 py-2 text-left text-sm hover:bg-delhi-primary/10 hover:text-delhi-navy transition-colors"
                   >
                     {result.name}
                   </button>
@@ -166,7 +166,7 @@ export const LocationPicker = ({ origin, destination, onOriginChange, onDestinat
 
         {/* Destination */}
         <div className="relative">
-          <Label htmlFor="destination" className="text-sm font-medium">Drop-off Location</Label>
+          <Label htmlFor="destination" className="text-sm font-semibold text-delhi-navy">Drop-off Location</Label>
           <div className="relative mt-2">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
               <MapPin className="h-4 w-4" />
@@ -188,14 +188,14 @@ export const LocationPicker = ({ origin, destination, onOriginChange, onDestinat
             </button>
           </div>
           {destinationResults.length > 0 && (
-            <Card className="absolute z-50 mt-1 w-full">
-              <CardContent className="p-2">
+            <Card className="absolute z-[100] mt-1 w-full shadow-lg border-delhi-primary/20">
+              <CardContent className="p-2 bg-card/95 backdrop-blur-sm">
                 {destinationResults.map((result, idx) => (
                   <button
                     key={idx}
                     type="button"
                     onClick={() => selectDestination(result)}
-                    className="block w-full rounded px-3 py-2 text-left text-sm hover:bg-accent"
+                    className="block w-full rounded px-3 py-2 text-left text-sm hover:bg-delhi-primary/10 hover:text-delhi-navy transition-colors"
                   >
                     {result.name}
                   </button>
@@ -214,11 +214,11 @@ export const LocationPicker = ({ origin, destination, onOriginChange, onDestinat
       {/* Interactive Map */}
       <div className="space-y-3">
         {pickingMode && (
-          <div className="rounded-lg bg-primary/10 p-3 text-sm">
-            <span className="font-medium">Click on the map to select your {pickingMode === "origin" ? "pickup" : "drop-off"} location</span>
+          <div className="rounded-lg bg-gradient-to-r from-delhi-primary/10 to-delhi-gold/10 border border-delhi-primary/20 p-3 text-sm">
+            <span className="font-medium text-delhi-navy">Click on the map to select your {pickingMode === "origin" ? "pickup" : "drop-off"} location</span>
           </div>
         )}
-        <div className="overflow-hidden rounded-lg border">
+        <div className="overflow-hidden rounded-lg border border-delhi-primary/20 shadow-lg">
           <AnyMapContainer center={center} zoom={11} scrollWheelZoom={false} className="h-72 w-full">
             <AnyTileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors'
