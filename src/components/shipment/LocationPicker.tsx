@@ -142,7 +142,7 @@ export const LocationPicker = ({ origin, destination, onOriginChange, onDestinat
             </button>
           </div>
           {originResults.length > 0 && (
-            <Card className="absolute z-[100] mt-1 w-full shadow-lg border-delhi-primary/20 max-h-64 overflow-y-auto">
+            <Card className="absolute z-[9999] mt-1 w-full shadow-lg border-delhi-primary/20 max-h-64 overflow-y-auto">
               <CardContent className="p-2 bg-card/95 backdrop-blur-sm">
                 {originResults.map((result, idx) => (
                   <button
@@ -188,7 +188,7 @@ export const LocationPicker = ({ origin, destination, onOriginChange, onDestinat
             </button>
           </div>
           {destinationResults.length > 0 && (
-            <Card className="absolute z-[100] mt-1 w-full shadow-lg border-delhi-primary/20 max-h-64 overflow-y-auto">
+            <Card className="absolute z-[9999] mt-1 w-full shadow-lg border-delhi-primary/20 max-h-64 overflow-y-auto">
               <CardContent className="p-2 bg-card/95 backdrop-blur-sm">
                 {destinationResults.map((result, idx) => (
                   <button
