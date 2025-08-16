@@ -3,7 +3,7 @@ import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import LiveMap from "@/components/LiveMap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Package,
   Truck,
@@ -14,8 +14,25 @@ import {
 } from "lucide-react";
 import heroImage from "@/assets/hero-warehouse.jpg";
 import carrierImage from "@/assets/carrier-feature.jpg";
+import { useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
+  const navigate = useNavigate();
+  const { userId, loading } = useAuth();
+  useEffect(() => {
+    if (loading || !userId) return;
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("profiles")
+        .select("role")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (data?.role === "shipper") navigate("/dashboard", { replace: true });
+      else if (data?.role === "carrier") navigate("/carrier-dashboard", { replace: true });
+    })();
+  }, [userId, loading, navigate]);
   return (
     <>
       <Helmet>
