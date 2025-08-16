@@ -34,23 +34,20 @@ const Navbar = () => {
           <span className="text-base md:text-lg font-semibold">UrbanLift</span>
         </Link>
         <div className="flex items-center gap-2">
-          <NavLink to="/community" className="px-3 py-2 rounded-md hover:bg-accent">
-            Community
-          </NavLink>
-          <NavLink to="/leaderboard" className="px-3 py-2 rounded-md hover:bg-accent">
-            Leaderboard
-          </NavLink>
-          <NavLink to="/transits" className="px-3 py-2 rounded-md hover:bg-accent">
-            Transits
-          </NavLink>
-          <NavLink to="/ai-pooling" className="px-3 py-2 rounded-md hover:bg-accent">
-            AI Pooling
-          </NavLink>
-          {userId ? (
+          {userId && role === 'carrier' ? (
             <>
-              <Link to={role === 'carrier' ? '/carrier-dashboard' : '/dashboard'}>
-                <Button variant="default" size="sm">Dashboard</Button>
-              </Link>
+              <NavLink to="/carrier/transit" className="px-3 py-2 rounded-md hover:bg-accent">
+                Transit
+              </NavLink>
+              <NavLink to="/carrier/track" className="px-3 py-2 rounded-md hover:bg-accent">
+                Track
+              </NavLink>
+              <NavLink to="/carrier/community" className="px-3 py-2 rounded-md hover:bg-accent">
+                Community
+              </NavLink>
+              <NavLink to="/carrier/analytics" className="px-3 py-2 rounded-md hover:bg-accent">
+                Analytics
+              </NavLink>
               <Link to="/profile">
                 <Button variant="outline" size="sm">Profile</Button>
               </Link>
@@ -58,16 +55,42 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <Link to="/auth/shipper/login">
-                <Button variant="outline" size="sm" className="">
-                  <Users className="mr-2" /> Shipper Login
-                </Button>
-              </Link>
-              <Link to="/auth/carrier/login">
-                <Button variant="default" size="sm" className="">
-                  <Truck className="mr-2" /> Carrier Login
-                </Button>
-              </Link>
+              <NavLink to="/community" className="px-3 py-2 rounded-md hover:bg-accent">
+                Community
+              </NavLink>
+              <NavLink to="/leaderboard" className="px-3 py-2 rounded-md hover:bg-accent">
+                Leaderboard
+              </NavLink>
+              <NavLink to="/transits" className="px-3 py-2 rounded-md hover:bg-accent">
+                Transits
+              </NavLink>
+              <NavLink to="/ai-pooling" className="px-3 py-2 rounded-md hover:bg-accent">
+                AI Pooling
+              </NavLink>
+              {userId ? (
+                <>
+                  <Link to={role === 'carrier' ? '/carrier-dashboard' : '/dashboard'}>
+                    <Button variant="default" size="sm">Dashboard</Button>
+                  </Link>
+                  <Link to="/profile">
+                    <Button variant="outline" size="sm">Profile</Button>
+                  </Link>
+                  <Button variant="ghost" size="sm" onClick={logout}>Logout</Button>
+                </>
+              ) : (
+                <>
+                  <Link to="/auth/shipper/login">
+                    <Button variant="outline" size="sm" className="">
+                      <Users className="mr-2" /> Shipper Login
+                    </Button>
+                  </Link>
+                  <Link to="/auth/carrier/login">
+                    <Button variant="default" size="sm" className="">
+                      <Truck className="mr-2" /> Carrier Login
+                    </Button>
+                  </Link>
+                </>
+              )}
             </>
           )}
         </div>

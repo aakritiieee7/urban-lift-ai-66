@@ -18,6 +18,10 @@ import ProfileSetup from "./pages/ProfileSetup";
 import Profile from "./pages/Profile";
 import PublicTransits from "./pages/PublicTransits";
 import AIPooling from "./pages/AIPooling";
+import CarrierTransit from "./pages/carrier/Transit";
+import CarrierTrack from "./pages/carrier/Track";
+import CarrierCommunity from "./pages/carrier/Community";
+import CarrierAnalytics from "./pages/carrier/Analytics";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -40,9 +44,14 @@ const App = () => (
             <Route path="/transits" element={<PublicTransits />} />
             <Route path="/ai-pooling" element={<AIPooling />} />
             <Route path="/profile-setup" element={<ProfileSetup />} />
-            <Route path="/profile" element={<Profile />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
+<Route path="/profile" element={<Profile />} />
+{/* Carrier section pages */}
+<Route path="/carrier/transit" element={<CarrierTransit />} />
+<Route path="/carrier/track" element={<CarrierTrack />} />
+<Route path="/carrier/community" element={<CarrierCommunity />} />
+<Route path="/carrier/analytics" element={<CarrierAnalytics />} />
+{/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+<Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
