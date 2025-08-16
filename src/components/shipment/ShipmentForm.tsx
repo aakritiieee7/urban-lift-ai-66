@@ -1,36 +1,25 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import MapPicker, { MapPickerValue } from "@/components/MapPicker";
+import LocationPicker, { LocationData } from "@/components/shipment/LocationPicker";
 import { clusterShipments, type Shipment as AlgoShipment } from "@/lib/matching";
 import { useAuth } from "@/contexts/AuthContext";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Clock, User } from "lucide-react";
 
 export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
   const { userId } = useAuth();
   const { toast } = useToast();
-  const [map, setMap] = useState<MapPickerValue>({});
+  const [origin, setOrigin] = useState<LocationData | undefined>();
+  const [destination, setDestination] = useState<LocationData | undefined>();
   const [capacityKg, setCapacityKg] = useState<number | "">("");
   const [pickup, setPickup] = useState<string>("");
   const [dropoff, setDropoff] = useState<string>("");
-  const [assignTo, setAssignTo] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  const [carriers, setCarriers] = useState<Array<{ user_id: string; points: number }>>([]);
-
-  useEffect(() => {
-    (async () => {
-      const { data } = await supabase
-        .from("points_balances")
-        .select("user_id, points")
-        .order("points", { ascending: false })
-        .limit(50);
-      setCarriers(data ?? []);
-    })();
-  }, []);
 
   const create = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,13 +27,13 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
       toast({ title: "Login required", description: "Please login to create a shipment." });
       return;
     }
-    if (!map.origin || !map.destination) {
-      toast({ title: "Select locations", description: "Pick origin and destination on the map." });
+    if (!origin || !destination) {
+      toast({ title: "Select locations", description: "Pick pickup and drop-off locations." });
       return;
     }
     setLoading(true);
-    const originStr = map.origin.address ?? `${map.origin.lat},${map.origin.lng}`;
-    const destStr = map.destination.address ?? `${map.destination.lat},${map.destination.lng}`;
+    const originStr = origin.address ?? `${origin.lat},${origin.lng}`;
+    const destStr = destination.address ?? `${destination.lat},${destination.lng}`;
     const { error } = await supabase.from("shipments").insert({
       origin: originStr,
       destination: destStr,
@@ -52,8 +41,8 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
       capacity_kg: capacityKg === "" ? null : Number(capacityKg),
       pickup_time: pickup || null,
       dropoff_time: dropoff || null,
-      status: assignTo ? "assigned" : "pending",
-      carrier_id: assignTo || null,
+      status: "pending",
+      carrier_id: null,
     });
     if (error) {
       toast({ title: "Error", description: error.message });
@@ -99,57 +88,96 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
       }
     }
 
-    toast({ title: "Shipment created", description: assignTo ? "Assigned to driver." : "Created as pending." });
+    toast({ title: "Shipment created", description: "We'll assign the best available driver for you." });
     setLoading(false);
-    setMap({});
+    setOrigin(undefined);
+    setDestination(undefined);
     setCapacityKg("");
     setPickup("");
     setDropoff("");
-    setAssignTo("");
     onCreated?.();
   };
 
   return (
-    <Card>
+    <Card className="border-primary/20">
       <CardHeader>
-        <CardTitle>New Shipment</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          Review and Create Shipments in Transit
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={create} className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <Label htmlFor="pickup">Pickup time</Label>
-              <Input id="pickup" type="datetime-local" value={pickup} onChange={(e) => setPickup(e.target.value)} />
+        <form onSubmit={create} className="space-y-6">
+          {/* Location Selection */}
+          <LocationPicker
+            origin={origin}
+            destination={destination}
+            onOriginChange={setOrigin}
+            onDestinationChange={setDestination}
+          />
+
+          {/* Time Selection */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="pickup" className="flex items-center gap-2 text-sm font-medium">
+                <Clock className="h-4 w-4" />
+                Pickup Time
+              </Label>
+              <Input 
+                id="pickup" 
+                type="datetime-local" 
+                value={pickup} 
+                onChange={(e) => setPickup(e.target.value)}
+                className="text-sm"
+              />
             </div>
-            <div>
-              <Label htmlFor="dropoff">Dropoff due</Label>
-              <Input id="dropoff" type="datetime-local" value={dropoff} onChange={(e) => setDropoff(e.target.value)} />
-            </div>
-            <div className="sm:col-span-2">
-              <Label htmlFor="capacity">Capacity (kg)</Label>
-              <Input id="capacity" type="number" min={0} value={capacityKg} onChange={(e) => setCapacityKg(e.target.value === "" ? "" : Number(e.target.value))} />
-            </div>
-            <div className="sm:col-span-2">
-              <Label>Assign to driver (optional)</Label>
-              <Select value={assignTo} onValueChange={setAssignTo}>
-                <SelectTrigger className="w-full"><SelectValue placeholder="Select from available drivers" /></SelectTrigger>
-                <SelectContent>
-                  {carriers.map((c) => (
-                    <SelectItem key={c.user_id} value={c.user_id}>User {c.user_id.slice(0,8)} • {c.points} pts</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="space-y-2">
+              <Label htmlFor="dropoff" className="flex items-center gap-2 text-sm font-medium">
+                <Clock className="h-4 w-4" />
+                Drop-off Time
+              </Label>
+              <Input 
+                id="dropoff" 
+                type="datetime-local" 
+                value={dropoff} 
+                onChange={(e) => setDropoff(e.target.value)}
+                className="text-sm"
+              />
             </div>
           </div>
-          <MapPicker value={map} onChange={setMap} />
-          <div className="pt-2">
-            <Button type="submit" disabled={loading} variant="hero" size="xl">{loading ? "Creating..." : "Create Shipment"}</Button>
+
+          {/* Capacity */}
+          <div className="space-y-2">
+            <Label htmlFor="capacity" className="text-sm font-medium">Package Weight (kg)</Label>
+            <Input 
+              id="capacity" 
+              type="number" 
+              min={0} 
+              placeholder="Enter weight in kg"
+              value={capacityKg} 
+              onChange={(e) => setCapacityKg(e.target.value === "" ? "" : Number(e.target.value))}
+              className="text-sm"
+            />
           </div>
+
+          {/* Driver Assignment Info */}
+          <div className="rounded-lg border border-accent/50 bg-accent/20 p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <User className="h-4 w-4 text-primary" />
+              <span className="font-medium text-sm">Driver Assignment</span>
+            </div>
+            <p className="text-sm text-muted-foreground mb-2">
+              We'll automatically assign the best available driver for your shipment based on location and availability.
+            </p>
+            <Badge variant="secondary" className="text-xs">
+              Auto-Assignment Enabled
+            </Badge>
+          </div>
+
+          <Button type="submit" disabled={loading} className="w-full" size="lg">
+            {loading ? "Creating Shipment..." : "Create Shipment"}
+          </Button>
         </form>
       </CardContent>
-      <CardFooter className="text-sm text-muted-foreground">
-        Click map to set origin and destination. Use search to refine addresses.
-      </CardFooter>
     </Card>
   );
 };
