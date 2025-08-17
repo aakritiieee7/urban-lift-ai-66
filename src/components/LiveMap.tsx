@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, CircleMarker, Tooltip, Polyline } from "react-
 import type { LatLngExpression } from "leaflet";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
 import "leaflet/dist/leaflet.css";
 
 type Shipment = {
@@ -29,6 +30,11 @@ function parseCoordinates(coordStr: string): LatLngExpression | null {
   return [parseFloat(match[1]), parseFloat(match[2])];
 }
 
+interface LiveMapProps {
+  userRole?: 'shipper' | 'carrier';
+  showDelivered?: boolean;
+}
+
 const delhiCenter: LatLngExpression = [28.6139, 77.2090];
 
 const AnyMapContainer = MapContainer as any;
@@ -36,7 +42,7 @@ const AnyTileLayer = TileLayer as any;
 const AnyCircleMarker = CircleMarker as any;
 const AnyPolyline = Polyline as any;
 
-const LiveMap = () => {
+const LiveMap = ({ userRole = 'shipper', showDelivered = true }: LiveMapProps) => {
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [loading, setLoading] = useState(true);
   const { userId } = useAuth();
@@ -44,14 +50,25 @@ const LiveMap = () => {
   useEffect(() => {
     const fetchShipments = async () => {
       try {
-        const { data, error } = await supabase
+        let query = supabase
           .from("shipments")
           .select(`
             id, origin, destination, status, capacity_kg, created_at, pickup_time, dropoff_time,
             origin_lat, origin_lng, destination_lat, destination_lng, 
             origin_address, destination_address
-          `)
-          .eq("shipper_id", userId || "")
+          `);
+
+        // Filter based on user role
+        if (userRole === 'carrier') {
+          query = query.eq("carrier_id", userId || "");
+          if (!showDelivered) {
+            query = query.neq("status", "delivered");
+          }
+        } else {
+          query = query.eq("shipper_id", userId || "");
+        }
+
+        const { data, error } = await query
           .order("created_at", { ascending: false })
           .limit(10);
 
@@ -71,7 +88,7 @@ const LiveMap = () => {
     if (userId) {
       fetchShipments();
     }
-  }, [userId]);
+  }, [userId, userRole, showDelivered]);
 
   if (loading) {
     return (
@@ -126,6 +143,12 @@ const LiveMap = () => {
           
           if (!pickup || !drop) return null;
 
+          const openGoogleMapsNavigation = () => {
+            const [lat, lng] = drop as [number, number];
+            const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
+            window.open(googleMapsUrl, '_blank');
+          };
+
           return (
             <div key={shipment.id}>
               {/* Route line connecting pickup to drop */}
@@ -179,7 +202,7 @@ const LiveMap = () => {
                 }}
               >
                 <Tooltip>
-                  <div className="text-sm space-y-1">
+                  <div className="text-sm space-y-2">
                     <div className="font-bold text-destructive">🚚 DROP-OFF</div>
                     <div><strong>Order ID:</strong> {shipment.id.slice(0, 8)}</div>
                     <div><strong>Status:</strong> <span className="capitalize">{shipment.status}</span></div>
@@ -190,6 +213,15 @@ const LiveMap = () => {
                     <div><strong>Created:</strong> {new Date(shipment.created_at).toLocaleDateString()}</div>
                     {shipment.destination_address && (
                       <div><strong>Address:</strong> {shipment.destination_address}</div>
+                    )}
+                    {userRole === 'carrier' && shipment.status !== 'delivered' && (
+                      <Button
+                        size="sm"
+                        onClick={openGoogleMapsNavigation}
+                        className="w-full mt-2"
+                      >
+                        🧭 Navigate
+                      </Button>
                     )}
                   </div>
                 </Tooltip>

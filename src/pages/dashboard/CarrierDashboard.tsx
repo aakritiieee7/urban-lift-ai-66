@@ -71,8 +71,8 @@ const CarrierDashboard = () => {
         </section>
         <section className="grid gap-4 md:grid-cols-2">
           <div className="rounded-lg border p-4">
-            <h2 className="mb-3 text-xl font-medium">Live Map</h2>
-            <LiveMap />
+            <h2 className="mb-3 text-xl font-medium">Live Map - Undelivered Orders</h2>
+            <LiveMap userRole="carrier" showDelivered={false} />
           </div>
           <Card>
             <CardHeader>
