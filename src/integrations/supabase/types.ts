@@ -63,6 +63,7 @@ export type Database = {
         Row: {
           address: string | null
           auth_email: string | null
+          business_model: string | null
           business_name: string | null
           city: string | null
           company_name: string | null
@@ -78,6 +79,7 @@ export type Database = {
         Insert: {
           address?: string | null
           auth_email?: string | null
+          business_model?: string | null
           business_name?: string | null
           city?: string | null
           company_name?: string | null
@@ -93,6 +95,7 @@ export type Database = {
         Update: {
           address?: string | null
           auth_email?: string | null
+          business_model?: string | null
           business_name?: string | null
           city?: string | null
           company_name?: string | null
