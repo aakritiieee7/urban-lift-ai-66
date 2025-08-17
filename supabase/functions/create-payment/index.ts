@@ -32,10 +32,11 @@ serve(async (req) => {
     const { shipmentData, distanceKm } = await req.json();
     
     // Calculate payment amount based on weight and distance
-    // Base rate: ₹10 per kg + ₹5 per km
-    const weightCost = shipmentData.capacity_kg * 10; // ₹10 per kg
-    const distanceCost = distanceKm * 5; // ₹5 per km
-    const totalAmount = Math.round(weightCost + distanceCost); // Amount in rupees
+    // Base rate: ₹10 per kg + ₹5 per km + ₹50 base fee
+    const weightCost = (shipmentData.capacity_kg || 0) * 10; // ₹10 per kg
+    const distanceCost = (distanceKm || 0) * 5; // ₹5 per km
+    const basePrice = 50;
+    const totalAmount = Math.round(basePrice + weightCost + distanceCost); // Amount in rupees
     
     console.log(`Payment calculation: Weight(${shipmentData.capacity_kg}kg) = ₹${weightCost}, Distance(${distanceKm}km) = ₹${distanceCost}, Total = ₹${totalAmount}`);
 
