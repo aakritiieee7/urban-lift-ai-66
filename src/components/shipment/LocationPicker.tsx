@@ -116,10 +116,10 @@ export const LocationPicker = ({ origin, destination, onOriginChange, onDestinat
 
   return (
     <div className="min-h-screen w-full bg-background p-6">
-      {/* Balanced Layout Grid */}
-      <div className="grid grid-cols-2 gap-8 max-w-7xl mx-auto">
-        {/* Left Side - Location Inputs */}
-        <div className="space-y-8">
+      {/* Vertical Stack Layout */}
+      <div className="max-w-6xl mx-auto space-y-8">
+        {/* Location Inputs Section */}
+        <div className="grid grid-cols-2 gap-8">
           {/* Pickup Location */}
           <div className="relative">
             <div className="mb-4">
