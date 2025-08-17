@@ -22,6 +22,13 @@ type Props = {
   destination?: LocationData;
   onOriginChange: (location: LocationData) => void;
   onDestinationChange: (location: LocationData) => void;
+  shipmentDetails?: {
+    orderId?: string;
+    pickupTime?: string;
+    deliveryTime?: string;
+    packageType?: string;
+    weight?: string;
+  };
 };
 
 const delhiCenter = [28.6139, 77.209] as [number, number];
@@ -50,7 +57,7 @@ const fetchSearch = async (q: string) => {
   return (await res.json()) as Array<{ display_name: string; lat: string; lon: string }>;
 };
 
-export const LocationPicker = ({ origin, destination, onOriginChange, onDestinationChange }: Props) => {
+export const LocationPicker = ({ origin, destination, onOriginChange, onDestinationChange, shipmentDetails }: Props) => {
   const [pickingMode, setPickingMode] = useState<"origin" | "destination" | null>(null);
   const [originQuery, setOriginQuery] = useState("");
   const [destinationQuery, setDestinationQuery] = useState("");
@@ -251,8 +258,17 @@ export const LocationPicker = ({ origin, destination, onOriginChange, onDestinat
               {origin && (
                 <AnyMarker position={[origin.lat, origin.lng]}>
                   <AnyPopup>
-                    <div className="text-sm text-foreground">
-                      Pickup: {origin.address || `${origin.lat.toFixed(5)}, ${origin.lng.toFixed(5)}`}
+                    <div className="text-sm text-foreground space-y-1 min-w-[200px]">
+                      <div className="font-semibold text-foreground">📦 Pickup Location</div>
+                      <div className="text-foreground">{origin.address || `${origin.lat.toFixed(5)}, ${origin.lng.toFixed(5)}`}</div>
+                      {shipmentDetails?.orderId && (
+                        <div className="pt-2 border-t border-border">
+                          <div><span className="font-medium">Order ID:</span> {shipmentDetails.orderId}</div>
+                          {shipmentDetails.pickupTime && <div><span className="font-medium">Pickup Time:</span> {shipmentDetails.pickupTime}</div>}
+                          {shipmentDetails.packageType && <div><span className="font-medium">Package:</span> {shipmentDetails.packageType}</div>}
+                          {shipmentDetails.weight && <div><span className="font-medium">Weight:</span> {shipmentDetails.weight}</div>}
+                        </div>
+                      )}
                     </div>
                   </AnyPopup>
                 </AnyMarker>
@@ -260,8 +276,17 @@ export const LocationPicker = ({ origin, destination, onOriginChange, onDestinat
               {destination && (
                 <AnyMarker position={[destination.lat, destination.lng]}>
                   <AnyPopup>
-                    <div className="text-sm text-foreground">
-                      Drop-off: {destination.address || `${destination.lat.toFixed(5)}, ${destination.lng.toFixed(5)}`}
+                    <div className="text-sm text-foreground space-y-1 min-w-[200px]">
+                      <div className="font-semibold text-foreground">🚚 Drop-off Location</div>
+                      <div className="text-foreground">{destination.address || `${destination.lat.toFixed(5)}, ${destination.lng.toFixed(5)}`}</div>
+                      {shipmentDetails?.orderId && (
+                        <div className="pt-2 border-t border-border">
+                          <div><span className="font-medium">Order ID:</span> {shipmentDetails.orderId}</div>
+                          {shipmentDetails.deliveryTime && <div><span className="font-medium">Expected Delivery:</span> {shipmentDetails.deliveryTime}</div>}
+                          {shipmentDetails.packageType && <div><span className="font-medium">Package:</span> {shipmentDetails.packageType}</div>}
+                          {shipmentDetails.weight && <div><span className="font-medium">Weight:</span> {shipmentDetails.weight}</div>}
+                        </div>
+                      )}
                     </div>
                   </AnyPopup>
                 </AnyMarker>
