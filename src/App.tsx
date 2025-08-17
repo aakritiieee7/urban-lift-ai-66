@@ -13,6 +13,7 @@ import CarrierLogin from "./pages/auth/CarrierLogin";
 import CarrierRegister from "./pages/auth/CarrierRegister";
 
 import CarrierDashboard from "./pages/dashboard/CarrierDashboard";
+import AvailableShipments from "./pages/carrier/AvailableShipments";
 import Community from "./pages/Community";
 import Leaderboard from "./pages/Leaderboard";
 import ProfileSetup from "./pages/ProfileSetup";
@@ -46,6 +47,7 @@ const App = () => (
             <Route path="/auth/carrier/register" element={<CarrierRegister />} />
             
             <Route path="/carrier-dashboard" element={<CarrierDashboard />} />
+            <Route path="/carrier/available" element={<AvailableShipments />} />
             <Route path="/community" element={<Community />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/transits" element={<PublicTransits />} />

@@ -49,7 +49,7 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
       return;
     }
 
-    const { error } = await supabase.from("shipments").insert({
+    const { data: newShipment, error } = await supabase.from("shipments").insert({
       origin: originStr,
       destination: destStr,
       origin_lat: origin.lat,
@@ -64,11 +64,23 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
       dropoff_time: dropoff || null,
       status: "pending",
       carrier_id: null,
-    });
+    }).select().single();
+    
     if (error) {
       toast({ title: "Error", description: error.message });
       setLoading(false);
       return;
+    }
+
+    // Trigger automatic carrier assignment
+    try {
+      const { data: assignmentResult } = await supabase.functions.invoke('auto-assign-carrier', {
+        body: { shipmentId: newShipment.id }
+      });
+      console.log('Assignment result:', assignmentResult);
+    } catch (assignmentError) {
+      console.error('Auto-assignment failed:', assignmentError);
+      // Don't fail the shipment creation if assignment fails
     }
 
     // Award points (shipper earns for creating)
