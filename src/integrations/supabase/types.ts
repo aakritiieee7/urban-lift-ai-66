@@ -30,6 +30,7 @@ export type Database = {
           phone: string | null
           role: string
           service_areas: string[] | null
+          service_regions: string | null
           specialties: string | null
           state: string | null
           updated_at: string
@@ -56,6 +57,7 @@ export type Database = {
           phone?: string | null
           role?: string
           service_areas?: string[] | null
+          service_regions?: string | null
           specialties?: string | null
           state?: string | null
           updated_at?: string
@@ -82,6 +84,7 @@ export type Database = {
           phone?: string | null
           role?: string
           service_areas?: string[] | null
+          service_regions?: string | null
           specialties?: string | null
           state?: string | null
           updated_at?: string
