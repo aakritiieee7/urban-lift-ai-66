@@ -101,8 +101,7 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
           years_experience,
           service_areas,
           service_regions
-        `)
-        .not('business_name', 'is', null);
+        `);
 
       if (error) {
         console.error('Error fetching carriers:', error);
@@ -110,18 +109,8 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
       }
 
       if (!carriers || carriers.length === 0) {
-        console.log('No carriers found in database, creating fallback carrier');
-        // Create fallback carrier when database is empty
-        return [{
-          user_id: '689d0778-97f5-4b9d-99ac-2cb504e307d0', // Use real UUID from database
-          business_name: 'Professional Logistics',
-          phone: '+91-98765-43210',
-          vehicle_type: 'Commercial Van',
-          vehicle_capacity_kg: 500,
-          years_experience: 5,
-          distance: 8.5 + Math.random() * 10, // 8-18km realistic range
-          score: 0.75 + Math.random() * 0.2 // 75-95% score range
-        }];
+        console.log('No carriers found in database');
+        return [];
       }
 
       // Calculate distance and score for each carrier
@@ -136,10 +125,10 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
 
         return {
           user_id: carrier.user_id,
-          business_name: carrier.business_name || carrier.company_name,
-          phone: carrier.phone || carrier.contact_phone,
-          vehicle_type: carrier.vehicle_type || carrier.vehicle_types,
-          vehicle_capacity_kg: carrier.vehicle_capacity_kg,
+          business_name: carrier.business_name || carrier.company_name || 'Carrier',
+          phone: carrier.phone || carrier.contact_phone || 'Not provided',
+          vehicle_type: carrier.vehicle_type || carrier.vehicle_types || 'Vehicle',
+          vehicle_capacity_kg: carrier.vehicle_capacity_kg || 500,
           years_experience: carrier.years_experience || 1,
           distance,
           score
