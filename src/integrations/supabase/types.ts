@@ -26,7 +26,7 @@ export type Database = {
           created_at: string
           gstin: string | null
           insurance_number: string | null
-          licenses: string[] | null
+          licenses: string | null
           phone: string | null
           role: string
           service_areas: string[] | null
@@ -54,7 +54,7 @@ export type Database = {
           created_at?: string
           gstin?: string | null
           insurance_number?: string | null
-          licenses?: string[] | null
+          licenses?: string | null
           phone?: string | null
           role?: string
           service_areas?: string[] | null
@@ -82,7 +82,7 @@ export type Database = {
           created_at?: string
           gstin?: string | null
           insurance_number?: string | null
-          licenses?: string[] | null
+          licenses?: string | null
           phone?: string | null
           role?: string
           service_areas?: string[] | null
