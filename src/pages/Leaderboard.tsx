@@ -17,8 +17,8 @@ const Leaderboard = () => {
   const load = async () => {
     const { data: balances } = await supabase
       .from("points_balances")
-      .select("user_id, points")
-      .order("points", { ascending: false })
+      .select("user_id, total_points")
+      .order("total_points", { ascending: false })
       .limit(50);
     const rowsBase = balances ?? [];
     if (rowsBase.length === 0) { setRows([]); return; }
@@ -33,7 +33,7 @@ const Leaderboard = () => {
       nameMap[p.user_id] = p.username || p.business_name || p.company_name || null;
       companyMap[p.user_id] = p.company_name || p.business_name || null;
     });
-    setRows(rowsBase.map(b => ({ ...b, name: nameMap[b.user_id] ?? null, owner: nameMap[b.user_id] ?? null, company: companyMap[b.user_id] ?? null })));
+    setRows(rowsBase.map(b => ({ ...b, points: b.total_points, name: nameMap[b.user_id] ?? null, owner: nameMap[b.user_id] ?? null, company: companyMap[b.user_id] ?? null })));
 
   };
 
