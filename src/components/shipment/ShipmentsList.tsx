@@ -24,6 +24,16 @@ interface Shipment {
   dropoff_time?: string | null;
 }
 
+interface CarrierProfile {
+  user_id: string;
+  business_name?: string;
+  company_name?: string;
+  phone?: string;
+  contact_phone?: string;
+  vehicle_type?: string;
+  vehicle_types?: string;
+}
+
 interface ShipmentsListProps {
   refresh: boolean;
   onRefreshComplete: () => void;
@@ -33,6 +43,7 @@ const ShipmentsList = ({ refresh, onRefreshComplete }: ShipmentsListProps) => {
   const { userId } = useAuth();
   const { toast } = useToast();
   const [shipments, setShipments] = useState<Shipment[]>([]);
+  const [carrierProfiles, setCarrierProfiles] = useState<{ [key: string]: CarrierProfile }>({});
   const [loading, setLoading] = useState(false);
   const [rating, setRating] = useState<number>(5);
   const [review, setReview] = useState<string>("");
@@ -52,6 +63,26 @@ const ShipmentsList = ({ refresh, onRefreshComplete }: ShipmentsListProps) => {
       toast({ title: "Error", description: error.message });
     } else {
       setShipments(data || []);
+      
+      // Fetch carrier profiles for assigned shipments
+      const carrierIds = (data || [])
+        .filter(shipment => shipment.carrier_id)
+        .map(shipment => shipment.carrier_id);
+      
+      if (carrierIds.length > 0) {
+        const { data: carriers, error: carriersError } = await supabase
+          .from("carrier_profiles")
+          .select("user_id, business_name, company_name, phone, contact_phone, vehicle_type, vehicle_types")
+          .in("user_id", carrierIds);
+        
+        if (!carriersError && carriers) {
+          const profilesMap: { [key: string]: CarrierProfile } = {};
+          carriers.forEach(carrier => {
+            profilesMap[carrier.user_id] = carrier;
+          });
+          setCarrierProfiles(profilesMap);
+        }
+      }
     }
     setLoading(false);
   };
@@ -179,6 +210,32 @@ const ShipmentsList = ({ refresh, onRefreshComplete }: ShipmentsListProps) => {
                   {shipment.status}
                 </Badge>
               </div>
+
+              {/* Carrier Information */}
+              {shipment.carrier_id && carrierProfiles[shipment.carrier_id] && (
+                <div className="bg-primary/5 rounded-md p-3 border border-primary/10">
+                  <div className="text-sm font-medium text-primary mb-1">
+                    Assigned Carrier
+                  </div>
+                  <div className="text-sm space-y-1">
+                    <div className="font-medium">
+                      {carrierProfiles[shipment.carrier_id].business_name || 
+                       carrierProfiles[shipment.carrier_id].company_name || 
+                       'Carrier'}
+                    </div>
+                    {(carrierProfiles[shipment.carrier_id].phone || carrierProfiles[shipment.carrier_id].contact_phone) && (
+                      <div className="text-muted-foreground">
+                        📞 {carrierProfiles[shipment.carrier_id].phone || carrierProfiles[shipment.carrier_id].contact_phone}
+                      </div>
+                    )}
+                    {(carrierProfiles[shipment.carrier_id].vehicle_type || carrierProfiles[shipment.carrier_id].vehicle_types) && (
+                      <div className="text-muted-foreground">
+                        🚛 {carrierProfiles[shipment.carrier_id].vehicle_type || carrierProfiles[shipment.carrier_id].vehicle_types}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               <div className="flex items-center gap-2 flex-wrap">
                 {shipment.status !== "delivered" && (
