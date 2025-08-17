@@ -29,6 +29,9 @@ interface CarrierProfile {
   };
   distance?: number;
   score?: number;
+  isRecommended?: boolean;
+  assignmentScore?: number;
+  assignmentReasons?: string[];
 }
 
 export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
@@ -220,23 +223,94 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
       }
     }
 
-    // Step 3: Matching carriers
-    setCurrentStep('matching');
-    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate processing time
+  // Step 3: Intelligent Carrier Assignment
+  setCurrentStep('matching');
+  
+  try {
+    // Call auto-assignment edge function
+    const { data: assignmentResult, error: assignError } = await supabase.functions.invoke('auto-assign-carrier', {
+      body: { shipmentId: newShipment.id }
+    });
 
+    if (assignError) {
+      console.error('Auto-assignment error:', assignError);
+      // Fallback to manual selection
+      const availableCarriers = await fetchAvailableCarriers(
+        origin.lat,
+        origin.lng,
+        Number(capacityKg) || 0
+      );
+      setCarriers(availableCarriers.slice(0, 4));
+      setCurrentStep('selection');
+    } else {
+      // Assignment successful - show the assigned carrier and alternatives
+      const assignedCarrierId = assignmentResult?.carrierId;
+      
+      if (assignedCarrierId) {
+        // Get all carriers for display
+        const allCarriers = await fetchAvailableCarriers(
+          origin.lat,
+          origin.lng,
+          Number(capacityKg) || 0
+        );
+        
+        // Mark the assigned carrier as recommended
+        const enhancedCarriers = allCarriers.map(carrier => ({
+          ...carrier,
+          isRecommended: carrier.user_id === assignedCarrierId,
+          assignmentScore: carrier.user_id === assignedCarrierId ? assignmentResult.score : carrier.score,
+          assignmentReasons: carrier.user_id === assignedCarrierId ? assignmentResult.reasons : []
+        }));
+
+        // Sort to put recommended first
+        enhancedCarriers.sort((a, b) => {
+          if (a.isRecommended) return -1;
+          if (b.isRecommended) return 1;
+          return b.score - a.score;
+        });
+
+        setCarriers(enhancedCarriers.slice(0, 4));
+        
+        // Auto-select the recommended carrier
+        const recommendedCarrier = enhancedCarriers.find(c => c.isRecommended);
+        if (recommendedCarrier) {
+          setSelectedCarrier(recommendedCarrier);
+        }
+        
+        toast({ 
+          title: "Smart Assignment Complete", 
+          description: `Recommended carrier found with ${Math.round((assignmentResult.score || 0.8) * 100)}% match score` 
+        });
+      } else {
+        // No suitable carrier found
+        const availableCarriers = await fetchAvailableCarriers(
+          origin.lat,
+          origin.lng,
+          Number(capacityKg) || 0
+        );
+        setCarriers(availableCarriers.slice(0, 4));
+        toast({ 
+          title: "Manual Selection Required", 
+          description: "No optimal carrier found automatically. Please select manually." 
+        });
+      }
+      
+      setCurrentStep('selection');
+    }
+  } catch (error) {
+    console.error('Assignment process failed:', error);
+    // Fallback to manual selection
     const availableCarriers = await fetchAvailableCarriers(
       origin.lat,
       origin.lng,
       Number(capacityKg) || 0
     );
-
-    setCarriers(availableCarriers.slice(0, 4)); // Show top 4 carriers
-
-    // Award points for creating shipment
-    await supabase.rpc("award_points", { _user_id: userId, _points: 5, _source: "shipment_created" });
-
-    // Step 4: Show selection
+    setCarriers(availableCarriers.slice(0, 4));
     setCurrentStep('selection');
+  }
+
+  // Award points for creating shipment
+  await supabase.rpc("award_points", { _user_id: userId, _points: 5, _source: "shipment_created" });
   };
 
   const selectCarrier = async (carrier: CarrierProfile) => {
@@ -381,11 +455,19 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
                   <div className="w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center">
                     <span className="text-white text-xs">✨</span>
                   </div>
-                  <span className="font-semibold text-amber-700 dark:text-amber-300">Why recommended:</span>
+                  <span className="font-semibold text-amber-700 dark:text-amber-300">Smart AI Assignment:</span>
                 </div>
                 <p className="text-sm text-amber-800 dark:text-amber-200">
-                  Optimized route • {savingsPercentage}% cost savings • High reliability score • {recommended.distance?.toFixed(1)}km away
+                  {recommended.assignmentReasons && recommended.assignmentReasons.length > 0 
+                    ? recommended.assignmentReasons.join(' • ') 
+                    : `Optimized route • ${savingsPercentage}% cost savings • High reliability score • ${recommended.distance?.toFixed(1)}km away`
+                  }
                 </p>
+                {recommended.assignmentScore && (
+                  <div className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+                    🤖 AI Match Score: {Math.round(recommended.assignmentScore * 100)}%
+                  </div>
+                )}
               </div>
               
               <Button 

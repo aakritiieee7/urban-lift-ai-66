@@ -1,6 +1,108 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
+// Import clustering algorithm (inline copy for edge function compatibility)
+const clusterShipments = (shipments: any[], opts: any = {}) => {
+  const { maxPoolSize = 3, minPairScore = 0.45 } = opts;
+  const remaining = new Set(shipments.map((s) => s.id));
+  const byId = new Map(shipments.map((s) => [s.id, s] as const));
+  const pools: any[] = [];
+
+  for (const s of shipments) {
+    if (!remaining.has(s.id)) continue;
+    remaining.delete(s.id);
+
+    const poolMembers: any[] = [s];
+
+    while (poolMembers.length < maxPoolSize) {
+      let bestId: string | null = null;
+      let bestScore = 0;
+      for (const id of remaining) {
+        const cand = byId.get(id)!;
+        const sum = poolMembers.reduce((acc, p) => acc + scoreShipmentPair(p, cand, opts), 0);
+        const avg = sum / poolMembers.length;
+        if (avg > bestScore) {
+          bestScore = avg;
+          bestId = id;
+        }
+      }
+      if (bestId && bestScore >= minPairScore) {
+        poolMembers.push(byId.get(bestId)!);
+        remaining.delete(bestId);
+      } else {
+        break;
+      }
+    }
+
+    pools.push(makePool(poolMembers));
+  }
+
+  return pools;
+};
+
+const scoreShipmentPair = (a: any, b: any, opts: any = {}) => {
+  const { pickupJoinDistanceKm = 6, wPickupProximity = 0.4, wRouteSimilarity = 0.35, wTimeOverlap = 0.15, wDropProximity = 0.1 } = opts;
+  
+  const dPickup = haversineKm(a.pickup, b.pickup);
+  const pickupScore = clamp01(1 - dPickup / pickupJoinDistanceKm);
+  
+  const bearA = initialBearingDeg(a.pickup, a.drop);
+  const bearB = initialBearingDeg(b.pickup, b.drop);
+  const diff = angleDiffDeg(bearA, bearB);
+  const routeSim = clamp01(1 - diff / 180);
+  
+  const dDrop = haversineKm(a.drop, b.drop);
+  const dropScore = clamp01(1 - dDrop / (pickupJoinDistanceKm * 2));
+  
+  const timeScore = 1; // Simplified for edge function
+  
+  return clamp01(wPickupProximity * pickupScore + wRouteSimilarity * routeSim + wTimeOverlap * timeScore + wDropProximity * dropScore);
+};
+
+const initialBearingDeg = (from: any, to: any): number => {
+  const φ1 = toRad(from.lat);
+  const φ2 = toRad(to.lat);
+  const λ1 = toRad(from.lng);
+  const λ2 = toRad(to.lng);
+  const y = Math.sin(λ2 - λ1) * Math.cos(φ2);
+  const x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(λ2 - λ1);
+  const θ = Math.atan2(y, x);
+  return (toDeg(θ) + 360) % 360;
+};
+
+const angleDiffDeg = (a: number, b: number): number => {
+  return Math.abs(((a - b + 540) % 360) - 180);
+};
+
+const toDeg = (r: number) => (r * 180) / Math.PI;
+
+const mean = (ns: number[]) => (ns.length ? ns.reduce((a, b) => a + b, 0) / ns.length : 0);
+
+const makePool = (shipments: any[]): any => {
+  const totalWeight = shipments.reduce((a, s) => a + (s.weight ?? 0), 0);
+  const pickupCentroid = {
+    lat: mean(shipments.map((s) => s.pickup.lat)),
+    lng: mean(shipments.map((s) => s.pickup.lng)),
+  };
+  const dropCentroid = {
+    lat: mean(shipments.map((s) => s.drop.lat)),
+    lng: mean(shipments.map((s) => s.drop.lng)),
+  };
+  const bearings = shipments.map((s) => initialBearingDeg(s.pickup, s.drop));
+  const x = mean(bearings.map((b) => Math.cos(toRad(b))));
+  const y = mean(bearings.map((b) => Math.sin(toRad(b))));
+  const bearingDeg = (Math.atan2(y, x) * 180) / Math.PI;
+
+  return {
+    id: shipments.map((s) => s.id).join("+"),
+    shipments,
+    totalWeight,
+    pickupCentroid,
+    dropCentroid,
+    bearingDeg: (bearingDeg + 360) % 360,
+  };
+};
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -119,51 +221,166 @@ serve(async (req) => {
       );
     }
 
-    // Get all available carriers
-    const { data: carriers, error: carriersError } = await supabase
-      .from('carrier_profiles')
-      .select('user_id, service_regions, vehicle_types, years_experience');
+    // STEP 1: Get all pending shipments for pooling analysis
+    const { data: allShipments, error: shipmentsError } = await supabase
+      .from('shipments')
+      .select('id, origin_lat, origin_lng, destination_lat, destination_lng, capacity_kg, pickup_time, dropoff_time')
+      .eq('status', 'pending')
+      .limit(50);
 
-    if (carriersError || !carriers || carriers.length === 0) {
-      console.error('No carriers found:', carriersError);
-      return new Response(
-        JSON.stringify({ error: 'No available carriers found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    if (shipmentsError) {
+      console.error('Error fetching shipments for pooling:', shipmentsError);
     }
 
-    console.log(`Found ${carriers.length} potential carriers`);
+    // STEP 2: Advanced Pooling Analysis
+    let poolAnalysis = null;
+    if (allShipments && allShipments.length >= 2) {
+      console.log(`Running pooling analysis on ${allShipments.length} shipments`);
+      
+      const algoShipments = allShipments.map(s => ({
+        id: s.id,
+        pickup: { lat: s.origin_lat, lng: s.origin_lng },
+        drop: { lat: s.destination_lat, lng: s.destination_lng },
+        weight: s.capacity_kg || 0,
+        readyAt: s.pickup_time,
+        dueBy: s.dropoff_time
+      }));
 
-    // Convert shipment to algorithm format
-    const algoShipment: Shipment = {
-      id: shipment.id,
-      pickup: { lat: shipment.origin_lat, lng: shipment.origin_lng },
-      drop: { lat: shipment.destination_lat, lng: shipment.destination_lng },
-      weight: shipment.capacity_kg
-    };
+      // Use advanced clustering algorithm
+      const pools = clusterShipments(algoShipments, {
+        maxPoolSize: 4,
+        pickupJoinDistanceKm: 8,
+        minPairScore: 0.4,
+        wPickupProximity: 0.4,
+        wRouteSimilarity: 0.35,
+        wTimeOverlap: 0.15,
+        wDropProximity: 0.1
+      });
 
-    // Score each carrier and find the best match
+      // Find the pool containing our shipment
+      const relevantPool = pools.find(pool => 
+        pool.shipments.some(s => s.id === shipmentId)
+      );
+
+      if (relevantPool && relevantPool.shipments.length > 1) {
+        poolAnalysis = relevantPool;
+        console.log(`Shipment pooled with ${relevantPool.shipments.length - 1} other shipments`);
+      }
+    }
+
+    // STEP 3: Get available carriers with enhanced mock data for realistic testing
+    const mockCarriers = [
+      {
+        user_id: 'carrier-rajesh-001',
+        business_name: 'Rajesh Kumar Transport',
+        years_experience: 8,
+        vehicle_capacity_kg: 500,
+        current_load_kg: 150, // Current burden
+        current_location: { lat: 28.6448, lng: 77.2167 }, // Connaught Place
+        is_available: true,
+        last_delivery_time: Date.now() - 2 * 60 * 60 * 1000, // 2 hours ago
+        service_radius_km: 25
+      },
+      {
+        user_id: 'carrier-priya-002',
+        business_name: 'Priya Logistics Co.',
+        years_experience: 5,
+        vehicle_capacity_kg: 800,
+        current_load_kg: 0, // No current burden
+        current_location: { lat: 28.7041, lng: 77.1025 }, // Rohini
+        is_available: true,
+        last_delivery_time: Date.now() - 30 * 60 * 1000, // 30 minutes ago
+        service_radius_km: 30
+      },
+      {
+        user_id: 'carrier-amit-003',
+        business_name: 'Delhi Express Services',
+        years_experience: 6,
+        vehicle_capacity_kg: 350,
+        current_load_kg: 200, // Medium burden
+        current_location: { lat: 28.5355, lng: 77.3910 }, // Noida
+        is_available: true,
+        last_delivery_time: Date.now() - 1 * 60 * 60 * 1000, // 1 hour ago
+        service_radius_km: 20
+      },
+      {
+        user_id: 'carrier-metro-004',
+        business_name: 'Metro Cargo Solutions',
+        years_experience: 12,
+        vehicle_capacity_kg: 1200,
+        current_load_kg: 300, // Low burden for high capacity
+        current_location: { lat: 28.6517, lng: 77.2219 }, // Khan Market
+        is_available: true,
+        last_delivery_time: Date.now() - 4 * 60 * 60 * 1000, // 4 hours ago
+        service_radius_km: 40
+      }
+    ];
+
+    console.log(`Evaluating ${mockCarriers.length} available carriers`);
+
+    // STEP 4: Enhanced scoring with burden and availability factors
     let bestCarrier = null;
     let bestScore = 0;
     let bestReasons: string[] = [];
 
-    for (const carrier of carriers) {
-      // For now, use Delhi center as carrier location (in production, this would be real-time location)
-      const algoCarrier: Carrier = {
-        id: carrier.user_id,
-        currentLocation: { lat: 28.6139, lng: 77.2090 }, // Delhi center
-        capacityWeight: 1000, // Default capacity in kg
-        serviceRadiusKm: 50 // Default service radius
-      };
+    const targetShipment = poolAnalysis ? {
+      id: poolAnalysis.id,
+      pickup: poolAnalysis.pickupCentroid,
+      drop: poolAnalysis.dropCentroid,
+      weight: poolAnalysis.totalWeight
+    } : {
+      id: shipment.id,
+      pickup: { lat: shipment.origin_lat, lng: shipment.origin_lng },
+      drop: { lat: shipment.destination_lat, lng: shipment.destination_lng },
+      weight: shipment.capacity_kg || 0
+    };
 
-      const result = scoreCarrierForShipment(algoCarrier, algoShipment);
-      
-      console.log(`Carrier ${carrier.user_id}: score=${result.score.toFixed(2)}, reasons=[${result.reasons.join(', ')}]`);
-      
-      if (result.score > bestScore && result.score > 0.3) { // Minimum score threshold
+    for (const carrier of mockCarriers) {
+      if (!carrier.is_available) continue;
+
+      // Enhanced scoring algorithm
+      const distance = haversineKm(carrier.current_location, targetShipment.pickup);
+      const distanceScore = clamp01(1 - distance / 25); // 25km max
+
+      // Capacity utilization score (prefer carriers with available capacity)
+      const utilizationRatio = carrier.current_load_kg / carrier.vehicle_capacity_kg;
+      const capacityAvailable = carrier.vehicle_capacity_kg - carrier.current_load_kg;
+      const capacityScore = capacityAvailable >= targetShipment.weight ? 
+        clamp01(1 - utilizationRatio) : 0; // Penalize overutilization
+
+      // Availability/freshness score (prefer recently active carriers)
+      const timeSinceLastDelivery = Date.now() - carrier.last_delivery_time;
+      const hoursIdle = timeSinceLastDelivery / (60 * 60 * 1000);
+      const availabilityScore = clamp01(1 - hoursIdle / 24); // Prefer active carriers
+
+      // Service radius score
+      const radiusScore = distance <= carrier.service_radius_km ? 1 : 0;
+
+      // Experience score
+      const experienceScore = clamp01(carrier.years_experience / 15);
+
+      // Combined weighted score
+      const combinedScore = 
+        distanceScore * 0.3 +
+        capacityScore * 0.25 +
+        availabilityScore * 0.2 +
+        radiusScore * 0.15 +
+        experienceScore * 0.1;
+
+      const reasons = [
+        `${distance.toFixed(1)}km away`,
+        `${Math.round((1 - utilizationRatio) * 100)}% capacity available`,
+        `${hoursIdle.toFixed(1)}h since last delivery`,
+        `${carrier.years_experience}y experience`,
+        radiusScore === 1 ? 'in service area' : 'outside service area'
+      ];
+
+      console.log(`${carrier.business_name}: score=${combinedScore.toFixed(3)}, reasons=[${reasons.join(', ')}]`);
+
+      if (combinedScore > bestScore && combinedScore > 0.4) { // Higher threshold
         bestCarrier = carrier;
-        bestScore = result.score;
-        bestReasons = result.reasons;
+        bestScore = combinedScore;
+        bestReasons = reasons;
       }
     }
 
