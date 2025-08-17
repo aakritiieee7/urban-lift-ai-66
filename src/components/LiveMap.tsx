@@ -43,27 +43,23 @@ const LiveMap = () => {
   useEffect(() => {
     const fetchShipments = async () => {
       try {
-        // Mock shipments data since coordinate columns don't exist yet
-        const mockShipments = [
-          {
-            id: "1",
-            origin: "Delhi Hub",
-            destination: "Mumbai Hub", 
-            status: "in_transit",
-            capacity_kg: 50,
-            created_at: new Date().toISOString(),
-            pickup_time: new Date().toISOString(),
-            dropoff_time: null,
-            origin_lat: 28.6139,
-            origin_lng: 77.2090,
-            destination_lat: 19.0760,
-            destination_lng: 72.8777,
-            origin_address: "Connaught Place, Delhi",
-            destination_address: "Bandra West, Mumbai"
-          }
-        ];
+        const { data, error } = await supabase
+          .from("shipments")
+          .select(`
+            id, origin, destination, status, capacity_kg, created_at, pickup_time, dropoff_time,
+            origin_lat, origin_lng, destination_lat, destination_lng, 
+            origin_address, destination_address
+          `)
+          .eq("shipper_id", userId || "")
+          .order("created_at", { ascending: false })
+          .limit(10);
 
-        setShipments(mockShipments);
+        if (error) {
+          console.error("Error fetching shipments:", error);
+          return;
+        }
+
+        setShipments(data || []);
       } catch (error) {
         console.error("Error:", error);
       } finally {

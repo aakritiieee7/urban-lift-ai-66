@@ -64,76 +64,98 @@ export const Forum = ({ userRole }: ForumProps) => {
   }, [userRole]);
 
   const fetchPosts = async () => {
-    // Mock forum posts since forum tables don't exist yet
-    const mockPosts = [
-      {
-        id: "1",
-        title: "Best practices for efficient deliveries",
-        content: "I've been in the logistics business for 5 years and wanted to share some tips that have helped me optimize my delivery routes...",
-        image_url: null,
-        created_at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-        user_id: "mock-user",
-        profiles: {
-          username: "LogisticsPro",
-          business_name: "Delhi Express Services",
-          role: userRole
-        },
-        reply_count: 3
-      },
-      {
-        id: "2", 
-        title: "How to handle difficult customers?",
-        content: "Sometimes customers can be challenging to work with. What strategies do you use to maintain professionalism?",
-        image_url: null,
-        created_at: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
-        user_id: "mock-user-2",
-        profiles: {
-          username: "NewCarrier",
-          business_name: "Mumbai Logistics",
-          role: userRole
-        },
-        reply_count: 7
-      }
-    ];
+    const { data: posts, error } = await supabase
+      .from("forum_posts")
+      .select("*")
+      .eq("forum_type", userRole)
+      .order("created_at", { ascending: false });
 
-    setPosts(mockPosts);
+    if (error) {
+      toast({ title: "Error", description: "Failed to load forum posts" });
+      return;
+    }
+
+    // Get profiles and reply counts separately
+    const postsWithData = [];
+    if (posts) {
+      for (const post of posts) {
+        let profile = null;
+        if (post.user_id) {
+          const { data: shipperProfile } = await supabase.from("shipper_profiles").select("username, business_name, role").eq("user_id", post.user_id).single();
+          const { data: carrierProfile } = await supabase.from("carrier_profiles").select("username, business_name, role").eq("user_id", post.user_id).single();
+          profile = shipperProfile || carrierProfile;
+        }
+
+        const { count } = await supabase
+          .from("forum_replies")
+          .select("*", { count: "exact", head: true })
+          .eq("post_id", post.id);
+        
+        postsWithData.push({
+          ...post,
+          profiles: profile,
+          reply_count: count || 0
+        });
+      }
+    }
+
+    setPosts(postsWithData);
   };
 
   const fetchReplies = async (postId: string) => {
-    // Mock replies since forum tables don't exist yet
-    const mockReplies = [
-      {
-        id: "1",
-        content: "Great tips! I've been using similar strategies and they really work.",
-        image_url: null,
-        created_at: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
-        user_id: "mock-reply-user",
-        profiles: {
-          username: "ExpDriver",
-          business_name: "QuickShip Co",
-          role: userRole
-        }
-      },
-      {
-        id: "2",
-        content: "Thanks for sharing! This will definitely help new drivers like me.",
-        image_url: null,
-        created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-        user_id: "mock-reply-user-2",
-        profiles: {
-          username: "NewDriver",
-          business_name: "Starter Logistics",
-          role: userRole
-        }
-      }
-    ];
+    const { data: replies, error } = await supabase
+      .from("forum_replies")
+      .select("*")
+      .eq("post_id", postId)
+      .order("created_at", { ascending: true });
 
-    setReplies(mockReplies);
+    if (error) {
+      toast({ title: "Error", description: "Failed to load replies" });
+      return;
+    }
+
+    // Fetch profiles separately
+    const repliesWithProfiles = [];
+    if (replies) {
+      for (const reply of replies) {
+        let profile = null;
+        if (reply.user_id) {
+          const { data: shipperProfile } = await supabase.from("shipper_profiles").select("username, business_name, role").eq("user_id", reply.user_id).single();
+          const { data: carrierProfile } = await supabase.from("carrier_profiles").select("username, business_name, role").eq("user_id", reply.user_id).single();
+          profile = shipperProfile || carrierProfile;
+        }
+        
+        repliesWithProfiles.push({
+          ...reply,
+          profiles: profile
+        });
+      }
+    }
+
+    setReplies(repliesWithProfiles);
   };
 
   const uploadImage = async (file: File, folder: string): Promise<string | null> => {
-    // Mock image upload - storage not configured yet
-    return null;
+    if (!userId) return null;
+
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${userId}/${Date.now()}.${fileExt}`;
+    const filePath = `${folder}/${fileName}`;
+
+    const { error } = await supabase.storage
+      .from('forum-attachments')
+      .upload(filePath, file);
+
+    if (error) {
+      toast({ title: "Error", description: "Failed to upload image" });
+      return null;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('forum-attachments')
+      .getPublicUrl(filePath);
+
+    return publicUrl;
   };
 
   const createPost = async (e: React.FormEvent) => {
@@ -141,29 +163,33 @@ export const Forum = ({ userRole }: ForumProps) => {
     if (!newPost.title.trim() || !newPost.content.trim() || !userId) return;
 
     setLoading(true);
-    
-    // Mock post creation
-    const newPostData = {
-      id: Date.now().toString(),
+    let imageUrl = null;
+
+    if (imageFile) {
+      imageUrl = await uploadImage(imageFile, 'posts');
+      if (!imageUrl && imageFile) {
+        setLoading(false);
+        return;
+      }
+    }
+
+    const { error } = await supabase.from("forum_posts").insert({
       title: newPost.title.trim(),
       content: newPost.content.trim(),
-      image_url: null,
-      created_at: new Date().toISOString(),
+      forum_type: userRole,
       user_id: userId,
-      profiles: {
-        username: "You",
-        business_name: "Your Business",
-        role: userRole
-      },
-      reply_count: 0
-    };
-    
-    setPosts(prev => [newPostData, ...prev]);
-    toast({ title: "Success", description: "Post created successfully" });
-    setNewPost({ title: "", content: "" });
-    setImageFile(null);
-    setShowCreatePost(false);
-    
+      image_url: imageUrl,
+    });
+
+    if (error) {
+      toast({ title: "Error", description: "Failed to create post" });
+    } else {
+      toast({ title: "Success", description: "Post created successfully" });
+      setNewPost({ title: "", content: "" });
+      setImageFile(null);
+      setShowCreatePost(false);
+      fetchPosts();
+    }
     setLoading(false);
   };
 
@@ -172,26 +198,30 @@ export const Forum = ({ userRole }: ForumProps) => {
     if (!newReply.trim() || !selectedPost || !userId) return;
 
     setLoading(true);
-    
-    // Mock reply creation
-    const newReplyData = {
-      id: Date.now().toString(),
-      content: newReply.trim(),
-      image_url: null,
-      created_at: new Date().toISOString(),
-      user_id: userId,
-      profiles: {
-        username: "You",
-        business_name: "Your Business",
-        role: userRole
+    let imageUrl = null;
+
+    if (replyImageFile) {
+      imageUrl = await uploadImage(replyImageFile, 'replies');
+      if (!imageUrl && replyImageFile) {
+        setLoading(false);
+        return;
       }
-    };
-    
-    setReplies(prev => [...prev, newReplyData]);
-    setNewReply("");
-    setReplyImageFile(null);
-    toast({ title: "Success", description: "Reply posted successfully" });
-    
+    }
+
+    const { error } = await supabase.from("forum_replies").insert({
+      post_id: selectedPost.id,
+      content: newReply.trim(),
+      user_id: userId,
+      image_url: imageUrl,
+    });
+
+    if (error) {
+      toast({ title: "Error", description: "Failed to create reply" });
+    } else {
+      setNewReply("");
+      setReplyImageFile(null);
+      fetchReplies(selectedPost.id);
+    }
     setLoading(false);
   };
 

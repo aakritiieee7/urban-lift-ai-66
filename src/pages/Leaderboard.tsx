@@ -15,16 +15,30 @@ const Leaderboard = () => {
   const [rows, setRows] = useState<Row[]>([]);
 
   const load = async () => {
-    // Mock leaderboard data since required tables/columns don't exist
-    const mockRows = [
-      { user_id: "mock-1", points: 150, name: "Rajesh Kumar", company: "Delhi Express Logistics" },
-      { user_id: "mock-2", points: 120, name: "Priya Sharma", company: "Mumbai Fast Transport" },
-      { user_id: "mock-3", points: 95, name: "Amit Gupta", company: "NCR Quick Delivery" },
-      { user_id: "mock-4", points: 80, name: "Neha Singh", company: "Capital City Carriers" },
-      { user_id: "mock-5", points: 65, name: "Rohit Verma", company: "Metro Logistics Co" }
-    ];
-    
-    setRows(mockRows.map(r => ({ ...r, owner: r.name })));
+    const { data: balances } = await supabase
+      .from("points_balances")
+      .select("user_id, total_points")
+      .order("total_points", { ascending: false })
+      .limit(50);
+    const rowsBase = balances ?? [];
+    if (rowsBase.length === 0) { setRows([]); return; }
+    const ids = rowsBase.map(b => b.user_id);
+    const { data: shipperProfiles } = await supabase
+      .from("shipper_profiles")
+      .select("*");
+    const { data: carrierProfiles } = await supabase
+      .from("carrier_profiles")
+      .select("user_id, company_name, business_name, username")
+      .in("user_id", ids);
+    const nameMap: Record<string, string | null> = {};
+    const companyMap: Record<string, string | null> = {};
+    const allProfiles = [...(shipperProfiles || []), ...(carrierProfiles || [])];
+    allProfiles.forEach((p: any) => {
+      nameMap[p.user_id] = p.username || p.business_name || p.company_name || null;
+      companyMap[p.user_id] = p.company_name || p.business_name || null;
+    });
+    setRows(rowsBase.map(b => ({ ...b, points: b.total_points, name: nameMap[b.user_id] ?? null, owner: nameMap[b.user_id] ?? null, company: companyMap[b.user_id] ?? null })));
+
   };
 
   useEffect(() => {
