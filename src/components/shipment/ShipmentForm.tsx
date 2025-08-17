@@ -135,9 +135,9 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
         };
       });
 
-      // Filter by capacity requirement and sort by score
+      // Filter by capacity requirement and sort by score (treat null capacity as unlimited)
       return carriersWithMetrics
-        .filter(carrier => carrier.vehicle_capacity_kg >= (requiredCapacity || 0))
+        .filter(carrier => !carrier.vehicle_capacity_kg || carrier.vehicle_capacity_kg >= (requiredCapacity || 0))
         .sort((a, b) => b.score - a.score);
         
     } catch (error) {
