@@ -36,6 +36,12 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
     const originStr = origin.address ?? `${origin.lat},${origin.lng}`;
     const destStr = destination.address ?? `${destination.lat},${destination.lng}`;
     
+    // Debug logging
+    console.log("Creating shipment with coordinates:", {
+      origin: { lat: origin.lat, lng: origin.lng, address: origin.address },
+      destination: { lat: destination.lat, lng: destination.lng, address: destination.address }
+    });
+
     const { error } = await supabase.from("shipments").insert({
       origin: originStr,
       destination: destStr,
