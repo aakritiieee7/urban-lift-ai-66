@@ -83,57 +83,66 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
   };
 
   const fetchAvailableCarriers = async (originLat: number, originLng: number, requiredCapacity: number) => {
-    // Since carrier_profiles table doesn't exist or has issues, use mock data
-    console.log('Fetching carriers for capacity:', requiredCapacity);
-    
-    // Return enhanced mock carriers with realistic data
-    const mockCarriers = [
-      {
-        user_id: 'mock-1',
-        business_name: 'Rajesh Kumar Transport',
-        phone: '+91-9876543210',
-        vehicle_type: 'Commercial Van',
-        vehicle_capacity_kg: 500,
-        years_experience: 8,
-        distance: 12.5,
-        score: 0.92
-      },
-      {
-        user_id: 'mock-2', 
-        business_name: 'Priya Logistics Co.',
-        phone: '+91-9876543211',
-        vehicle_type: 'Mini Truck',
-        vehicle_capacity_kg: 800,
-        years_experience: 5,
-        distance: 15.2,
-        score: 0.88
-      },
-      {
-        user_id: 'mock-3',
-        business_name: 'Delhi Express Services',
-        phone: '+91-9876543212', 
-        vehicle_type: 'Pickup Van',
-        vehicle_capacity_kg: 350,
-        years_experience: 6,
-        distance: 18.1,
-        score: 0.84
-      },
-      {
-        user_id: 'mock-4',
-        business_name: 'Metro Cargo Solutions',
-        phone: '+91-9876543213',
-        vehicle_type: 'Heavy Truck',
-        vehicle_capacity_kg: 1200,
-        years_experience: 12,
-        distance: 22.3,
-        score: 0.90
-      }
-    ];
+    try {
+      // Fetch real carriers from the database
+      const { data: carriers, error } = await supabase
+        .from('carrier_profiles')
+        .select(`
+          user_id,
+          business_name,
+          company_name,
+          phone,
+          contact_phone,
+          vehicle_type,
+          vehicle_types,
+          vehicle_capacity_kg,
+          years_experience,
+          service_areas,
+          service_regions
+        `)
+        .not('business_name', 'is', null);
 
-    // Filter by capacity requirement and sort by score
-    return mockCarriers
-      .filter(carrier => carrier.vehicle_capacity_kg >= (requiredCapacity || 0))
-      .sort((a, b) => b.score - a.score);
+      if (error) {
+        console.error('Error fetching carriers:', error);
+        return [];
+      }
+
+      if (!carriers || carriers.length === 0) {
+        console.log('No carriers found in database');
+        return [];
+      }
+
+      // Calculate distance and score for each carrier
+      const carriersWithMetrics = carriers.map(carrier => {
+        // Calculate distance (using random locations for demo since we don't have carrier locations)
+        const distance = 10 + Math.random() * 20; // 10-30km range
+        
+        // Calculate score based on capacity match, experience, etc.
+        const capacityMatch = carrier.vehicle_capacity_kg >= requiredCapacity ? 1 : 0.5;
+        const experienceScore = Math.min(carrier.years_experience / 10, 1);
+        const score = (capacityMatch * 0.6 + experienceScore * 0.4) * (0.8 + Math.random() * 0.2);
+
+        return {
+          user_id: carrier.user_id,
+          business_name: carrier.business_name || carrier.company_name,
+          phone: carrier.phone || carrier.contact_phone,
+          vehicle_type: carrier.vehicle_type || carrier.vehicle_types,
+          vehicle_capacity_kg: carrier.vehicle_capacity_kg,
+          years_experience: carrier.years_experience || 1,
+          distance,
+          score
+        };
+      });
+
+      // Filter by capacity requirement and sort by score
+      return carriersWithMetrics
+        .filter(carrier => carrier.vehicle_capacity_kg >= (requiredCapacity || 0))
+        .sort((a, b) => b.score - a.score);
+        
+    } catch (error) {
+      console.error('Failed to fetch carriers:', error);
+      return [];
+    }
   };
 
   const create = async (e: React.FormEvent) => {
@@ -395,8 +404,8 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
   if (currentStep === 'selection' && carriers.length > 0) {
     const recommended = carriers[0];
     const alternatives = carriers.slice(1, 3); // Only show 2 alternatives
-    const savingsPercentage = Math.round(10 + Math.random() * 15); // 10-25% savings
-    const reliabilityScore = Math.round(85 + Math.random() * 14); // 85-99% reliability
+    const savingsPercentage = 18; // Consistent 18% savings
+    const reliabilityScore = 94; // Consistent 94% reliability
 
     return (
       <Card className="border-primary/20 shadow-xl">
