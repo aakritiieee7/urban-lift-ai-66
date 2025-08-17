@@ -31,7 +31,7 @@ const AvailableShipments = () => {
   const loadAvailableShipments = async () => {
     const { data } = await supabase
       .from("shipments")
-      .select("id, origin, destination, origin_address, destination_address, capacity_kg, pickup_time, dropoff_time, created_at, status")
+      .select("id, origin, destination, capacity_kg, pickup_time, dropoff_time, created_at, status")
       .is("carrier_id", null)
       .eq("status", "pending")
       .order("created_at", { ascending: false })

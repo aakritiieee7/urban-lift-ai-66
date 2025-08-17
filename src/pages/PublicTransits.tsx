@@ -86,7 +86,7 @@ const PublicTransits = () => {
 
   const finalizePooled = async (id: string) => {
     if (!userId) { toast({ title: "Login required", description: "Please login to finalize." }); return; }
-    const { data, error } = await supabase.rpc('mark_pooled_and_delivered', { _shipment_ids: [id], _carrier_id: userId });
+    const { data, error } = await supabase.rpc('mark_pooled_and_delivered', { _shipment_id: id, _user_id: userId });
     if (error) {
       toast({ title: "Not finalized", description: error.message });
     } else {
