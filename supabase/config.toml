@@ -1,4 +1,1 @@
 project_id = "utjkkxrinjrvzfwlmnaz"
-
-[functions.auto-assign-carrier]
-verify_jwt = false
