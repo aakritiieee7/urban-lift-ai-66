@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, CircleMarker, Tooltip, Polyline } from "react-leaflet";
+import { MapContainer, TileLayer, CircleMarker, Tooltip, Popup, Polyline } from "react-leaflet";
 import type { LatLngExpression } from "leaflet";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -201,20 +201,20 @@ const LiveMap = ({ userRole = 'shipper', showDelivered = true }: LiveMapProps) =
                   weight: 3
                 }}
               >
-                <Tooltip>
-                  <div className="text-sm space-y-2">
-                    <div className="font-bold text-destructive">🚚 DROP-OFF</div>
-                    <div><strong>Order ID:</strong> {shipment.id.slice(0, 8)}</div>
-                    <div><strong>Status:</strong> <span className="capitalize">{shipment.status}</span></div>
-                    <div><strong>Weight:</strong> {shipment.capacity_kg}kg</div>
-                    {shipment.dropoff_time && (
-                      <div><strong>Drop Time:</strong> {new Date(shipment.dropoff_time).toLocaleString()}</div>
-                    )}
-                    <div><strong>Created:</strong> {new Date(shipment.created_at).toLocaleDateString()}</div>
-                    {shipment.destination_address && (
-                      <div><strong>Address:</strong> {shipment.destination_address}</div>
-                    )}
-                    {userRole === 'carrier' && shipment.status !== 'delivered' && (
+                {userRole === 'carrier' && shipment.status !== 'delivered' ? (
+                  <Popup>
+                    <div className="text-sm space-y-2">
+                      <div className="font-bold text-destructive">🚚 DROP-OFF</div>
+                      <div><strong>Order ID:</strong> {shipment.id.slice(0, 8)}</div>
+                      <div><strong>Status:</strong> <span className="capitalize">{shipment.status}</span></div>
+                      <div><strong>Weight:</strong> {shipment.capacity_kg}kg</div>
+                      {shipment.dropoff_time && (
+                        <div><strong>Drop Time:</strong> {new Date(shipment.dropoff_time).toLocaleString()}</div>
+                      )}
+                      <div><strong>Created:</strong> {new Date(shipment.created_at).toLocaleDateString()}</div>
+                      {shipment.destination_address && (
+                        <div><strong>Address:</strong> {shipment.destination_address}</div>
+                      )}
                       <Button
                         size="sm"
                         onClick={openGoogleMapsNavigation}
@@ -222,9 +222,25 @@ const LiveMap = ({ userRole = 'shipper', showDelivered = true }: LiveMapProps) =
                       >
                         🧭 Navigate
                       </Button>
-                    )}
-                  </div>
-                </Tooltip>
+                    </div>
+                  </Popup>
+                ) : (
+                  <Tooltip>
+                    <div className="text-sm space-y-2">
+                      <div className="font-bold text-destructive">🚚 DROP-OFF</div>
+                      <div><strong>Order ID:</strong> {shipment.id.slice(0, 8)}</div>
+                      <div><strong>Status:</strong> <span className="capitalize">{shipment.status}</span></div>
+                      <div><strong>Weight:</strong> {shipment.capacity_kg}kg</div>
+                      {shipment.dropoff_time && (
+                        <div><strong>Drop Time:</strong> {new Date(shipment.dropoff_time).toLocaleString()}</div>
+                      )}
+                      <div><strong>Created:</strong> {new Date(shipment.created_at).toLocaleDateString()}</div>
+                      {shipment.destination_address && (
+                        <div><strong>Address:</strong> {shipment.destination_address}</div>
+                      )}
+                    </div>
+                  </Tooltip>
+                )}
               </AnyCircleMarker>
             </div>
           );
