@@ -115,11 +115,11 @@ export const LocationPicker = ({ origin, destination, onOriginChange, onDestinat
   };
 
   return (
-    <div className="min-h-screen w-full bg-background p-8">
-      {/* Wide Layout Grid */}
-      <div className="grid grid-cols-7 gap-16 max-w-full mx-auto px-8">
-        {/* Left Side - Location Inputs (3 columns) */}
-        <div className="col-span-3 space-y-12">
+    <div className="min-h-screen w-full bg-background p-6">
+      {/* Balanced Layout Grid */}
+      <div className="grid grid-cols-2 gap-8 max-w-7xl mx-auto">
+        {/* Left Side - Location Inputs */}
+        <div className="space-y-8">
           {/* Pickup Location */}
           <div className="relative">
             <div className="mb-4">
@@ -231,8 +231,8 @@ export const LocationPicker = ({ origin, destination, onOriginChange, onDestinat
           </div>
         </div>
 
-        {/* Right Side - Interactive Map (4 columns) */}
-        <div className="col-span-4 relative">
+        {/* Right Side - Interactive Map */}
+        <div className="relative">
           {pickingMode && (
             <div className="absolute top-6 left-6 right-6 z-10 bg-background border border-border rounded-lg p-4 text-sm shadow-lg">
               <span className="font-medium text-foreground">
