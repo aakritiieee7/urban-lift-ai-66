@@ -1,7 +1,9 @@
 import Navbar from "@/components/Navbar";
 import { Helmet } from "react-helmet-async";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MessageCircle, Users } from "lucide-react";
+import { Chatroom } from "@/components/community/Chatroom";
+import { Forum } from "@/components/community/Forum";
 
 const CarrierCommunity = () => {
   return (
@@ -16,14 +18,29 @@ const CarrierCommunity = () => {
         <section className="container mx-auto px-4 py-10">
           <header className="mb-8 text-center">
             <h1 className="text-3xl md:text-4xl font-bold">Carrier Community</h1>
-            <p className="text-muted-foreground mt-2">Connect with other carriers and share best practices.</p>
+            <p className="text-muted-foreground mt-2">Connect with other carriers and MSME owners to share best practices.</p>
           </header>
-          <section className="mx-auto max-w-2xl rounded-lg border p-6 text-center">
-            <p className="text-sm text-muted-foreground mb-4">Explore discussions, tips, and Q&A in our public community.</p>
-            <Link to="/community">
-              <Button variant="outline">Go to Public Community</Button>
-            </Link>
-          </section>
+          
+          <Tabs defaultValue="chat" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="chat" className="flex items-center gap-2">
+                <MessageCircle className="h-4 w-4" />
+                Live Chat
+              </TabsTrigger>
+              <TabsTrigger value="forum" className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                Discussion Forum
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="chat" className="mt-6">
+              <Chatroom userRole="carrier" />
+            </TabsContent>
+            
+            <TabsContent value="forum" className="mt-6">
+              <Forum userRole="carrier" />
+            </TabsContent>
+          </Tabs>
         </section>
       </main>
     </>

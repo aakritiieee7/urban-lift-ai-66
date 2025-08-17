@@ -1,5 +1,9 @@
 import Layout from "@/components/Layout";
 import { Helmet } from "react-helmet-async";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MessageCircle, Users } from "lucide-react";
+import { Chatroom } from "@/components/community/Chatroom";
+import { Forum } from "@/components/community/Forum";
 
 const Community = () => {
   return (
@@ -16,10 +20,27 @@ const Community = () => {
               <h1 className="text-3xl md:text-4xl font-bold">Shipper Community</h1>
               <p className="text-muted-foreground mt-2">Connect with fellow shippers and share experiences.</p>
             </header>
-            <section className="rounded-lg border p-6">
-              <h2 className="text-lg font-medium mb-3">Community Features</h2>
-              <p className="text-muted-foreground">Community functionality will be available here.</p>
-            </section>
+            
+            <Tabs defaultValue="chat" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="chat" className="flex items-center gap-2">
+                  <MessageCircle className="h-4 w-4" />
+                  Live Chat
+                </TabsTrigger>
+                <TabsTrigger value="forum" className="flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  Discussion Forum
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="chat" className="mt-6">
+                <Chatroom userRole="shipper" />
+              </TabsContent>
+              
+              <TabsContent value="forum" className="mt-6">
+                <Forum userRole="shipper" />
+              </TabsContent>
+            </Tabs>
           </section>
         </main>
       </Layout>
