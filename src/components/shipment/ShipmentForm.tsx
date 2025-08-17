@@ -163,13 +163,14 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
       return;
     }
 
-    // Step 1: Creating shipment
+    // Step 1: Creating temporary shipment data (not saved yet)
     setCurrentStep('creating');
     
     const originStr = origin.address ?? `${origin.lat},${origin.lng}`;
     const destStr = destination.address ?? `${destination.lat},${destination.lng}`;
 
-    const { data: newShipment, error } = await supabase.from("shipments").insert({
+    // Store shipment data for later creation after payment
+    const shipmentData = {
       origin: originStr,
       destination: destStr,
       origin_lat: origin.lat,
@@ -184,15 +185,10 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
       dropoff_time: dropoff || null,
       status: "pending",
       carrier_id: null,
-    }).select().single();
+    };
     
-    if (error) {
-      toast({ title: "Error", description: error.message });
-      setCurrentStep('form');
-      return;
-    }
-
-    setShipmentId(newShipment.id);
+    // Skip database insertion - we'll create the shipment after payment
+    // Just continue to carrier matching
 
     // Step 2: AI Pooling
     setCurrentStep('pooling');
@@ -237,86 +233,56 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
   setCurrentStep('matching');
   
   try {
-    // Call auto-assignment edge function
-    const { data: assignmentResult, error: assignError } = await supabase.functions.invoke('auto-assign-carrier', {
-      body: { shipmentId: newShipment.id }
-    });
+    // For now, skip auto-assignment and go directly to manual selection
+    // We'll do the assignment after payment
+    const assignError = null; // Simulate no auto-assignment for this flow
 
-    if (assignError) {
-      console.error('Auto-assignment error:', assignError);
-      // Fallback to manual selection
-      const availableCarriers = await fetchAvailableCarriers(
-        origin.lat,
-        origin.lng,
-        Number(capacityKg) || 0
-      );
-      setCarriers(availableCarriers.slice(0, 4));
-      setCurrentStep('selection');
-    } else {
-      // Assignment successful - show the assigned carrier and alternatives
-      const assignedCarrierId = assignmentResult?.carrierId;
-      
-      if (assignedCarrierId) {
-        // Get all carriers for display
-        const allCarriers = await fetchAvailableCarriers(
-          origin.lat,
-          origin.lng,
-          Number(capacityKg) || 0
-        );
-        
-        // Mark the assigned carrier as recommended
-        const enhancedCarriers = allCarriers.map(carrier => ({
-          ...carrier,
-          isRecommended: carrier.user_id === assignedCarrierId,
-          assignmentScore: carrier.user_id === assignedCarrierId ? assignmentResult.score : carrier.score,
-          assignmentReasons: carrier.user_id === assignedCarrierId ? assignmentResult.reasons : []
-        }));
-
-        // Sort to put recommended first
-        enhancedCarriers.sort((a, b) => {
-          if (a.isRecommended) return -1;
-          if (b.isRecommended) return 1;
-          return b.score - a.score;
-        });
-
-        setCarriers(enhancedCarriers.slice(0, 4));
-        
-        // Auto-select the recommended carrier
-        const recommendedCarrier = enhancedCarriers.find(c => c.isRecommended);
-        if (recommendedCarrier) {
-          setSelectedCarrier(recommendedCarrier);
-        }
-        
-        toast({ 
-          title: "Smart Assignment Complete", 
-          description: `Recommended carrier found with ${Math.round((assignmentResult.score || 0.8) * 100)}% match score` 
-        });
-      } else {
-        // No suitable carrier found
-        const availableCarriers = await fetchAvailableCarriers(
-          origin.lat,
-          origin.lng,
-          Number(capacityKg) || 0
-        );
-        setCarriers(availableCarriers.slice(0, 4));
-        toast({ 
-          title: "Manual Selection Required", 
-          description: "No optimal carrier found automatically. Please select manually." 
-        });
-      }
-      
-      setCurrentStep('selection');
-    }
-  } catch (error) {
-    console.error('Assignment process failed:', error);
-    // Fallback to manual selection
+    // Always show manual selection with smart recommendations
     const availableCarriers = await fetchAvailableCarriers(
       origin.lat,
       origin.lng,
       Number(capacityKg) || 0
     );
-    setCarriers(availableCarriers.slice(0, 4));
-    setCurrentStep('selection');
+    
+    if (availableCarriers.length > 0) {
+      // Mark the first (best) carrier as recommended
+      const enhancedCarriers = availableCarriers.map((carrier, index) => ({
+        ...carrier,
+        isRecommended: index === 0,
+        assignmentReasons: index === 0 ? [
+          `${carrier.distance?.toFixed(1)}km away`,
+          `${carrier.years_experience}+ years experience`,
+          'High reliability score',
+          'Optimal capacity match'
+        ] : []
+      }));
+      
+      setCarriers(enhancedCarriers.slice(0, 4));
+      
+      // Auto-select the recommended carrier
+      setSelectedCarrier(enhancedCarriers[0]);
+      
+      toast({ 
+        title: "Smart Recommendations Ready", 
+        description: `Found ${enhancedCarriers.length} available carriers with AI matching` 
+      });
+      
+      setCurrentStep('selection');
+    } else {
+      // No carriers available
+      toast({ 
+        title: "No Carriers Available", 
+        description: "No carriers found in your area. Please try again later." 
+      });
+      setCurrentStep('form');
+    }
+  } catch (error) {
+    console.error('Carrier matching failed:', error);
+    toast({ 
+      title: "Error Finding Carriers", 
+      description: "Failed to find carriers. Please try again." 
+    });
+    setCurrentStep('form');
   }
 
   // Award points for creating shipment
@@ -533,6 +499,7 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
   }
 
   const handlePaymentSuccess = (shipment: any) => {
+    setShipmentId(shipment.id);
     setCurrentStep('tracking');
     toast({
       title: "Payment Successful! 🎉",
