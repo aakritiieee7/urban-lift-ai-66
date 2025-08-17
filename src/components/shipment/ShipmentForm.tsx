@@ -11,7 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
 import { Clock, User, Loader2, Star, Truck, CreditCard } from "lucide-react";
 
-type ProcessingStep = 'form' | 'creating' | 'pooling' | 'matching' | 'selection' | 'payment';
+type ProcessingStep = 'form' | 'creating' | 'pooling' | 'matching' | 'selection' | 'payment' | 'tracking';
 
 interface CarrierProfile {
   user_id: string;
@@ -279,13 +279,20 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
   };
 
   const proceedToPayment = () => {
-    toast({ title: "Payment Flow", description: "Redirecting to payment..." });
+    toast({ title: "Payment Flow", description: "Processing payment..." });
     // Here you would integrate with a payment gateway
     setTimeout(() => {
-      toast({ title: "Shipment confirmed!", description: "Driver will contact you shortly." });
-      resetForm();
-      onCreated?.();
+      toast({ 
+        title: "Payment Successful! 🎉", 
+        description: "Your shipment is confirmed. Tracking your carrier now..." 
+      });
+      setCurrentStep('tracking');
     }, 2000);
+  };
+
+  const finishFlow = () => {
+    resetForm();
+    onCreated?.();
   };
 
   // Render different UI based on current step
@@ -518,6 +525,85 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
           <Button onClick={proceedToPayment} className="w-full" size="lg">
             Proceed to Payment
           </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (currentStep === 'tracking' && selectedCarrier) {
+    return (
+      <Card className="border-primary/20 shadow-xl">
+        <CardHeader className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-950/30 dark:to-blue-950/30">
+          <CardTitle className="flex items-center gap-2 text-green-700 dark:text-green-300">
+            <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+              <span className="text-white text-sm">✓</span>
+            </div>
+            Shipment Confirmed & Live Tracking
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 space-y-6">
+          {/* Carrier Details */}
+          <div className="bg-gradient-to-r from-white via-green-50/30 to-blue-50/30 dark:from-gray-800/60 dark:via-green-950/20 dark:to-blue-950/20 rounded-xl p-5 border border-green-200/50 dark:border-green-800/30">
+            <h4 className="font-bold text-lg mb-4 text-green-700 dark:text-green-300">Your Assigned Carrier</h4>
+            <div className="flex items-center gap-4 mb-4">
+              <div className="relative">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary via-primary/90 to-primary/80 flex items-center justify-center text-white font-bold text-xl border-4 border-white shadow-lg">
+                  {selectedCarrier.business_name?.charAt(0) || 'C'}
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white flex items-center justify-center animate-pulse">
+                  <div className="w-2 h-2 bg-white rounded-full"></div>
+                </div>
+              </div>
+              <div className="flex-1">
+                <h5 className="text-xl font-bold">{selectedCarrier.business_name}</h5>
+                <p className="text-muted-foreground">{selectedCarrier.vehicle_type} • {selectedCarrier.phone}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                  <span className="font-medium">{(selectedCarrier.score! * 5).toFixed(1)} Rating</span>
+                  <Badge variant="outline" className="ml-2 bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300">
+                    Live
+                  </Badge>
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="bg-white/60 dark:bg-gray-800/60 rounded-lg p-3">
+                <span className="text-muted-foreground">Distance:</span>
+                <div className="font-semibold text-lg">{selectedCarrier.distance?.toFixed(1)} km</div>
+              </div>
+              <div className="bg-white/60 dark:bg-gray-800/60 rounded-lg p-3">
+                <span className="text-muted-foreground">ETA:</span>
+                <div className="font-semibold text-lg text-green-600">{calculateETA(selectedCarrier.distance!)} min</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Live Map Placeholder */}
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-xl p-6 border border-blue-200/50 dark:border-blue-800/30 min-h-[200px] flex items-center justify-center">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+                <span className="text-white text-2xl">🚛</span>
+              </div>
+              <h4 className="font-semibold text-blue-700 dark:text-blue-300 mb-2">Live Tracking Active</h4>
+              <p className="text-blue-600 dark:text-blue-400 text-sm mb-3">
+                Your carrier is on the way to pickup location
+              </p>
+              <div className="text-xs text-blue-500">
+                📍 Real-time GPS tracking • 📱 SMS updates • 🔔 Push notifications
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="grid grid-cols-2 gap-3">
+            <Button variant="outline" className="h-12">
+              📞 Call Carrier
+            </Button>
+            <Button onClick={finishFlow} className="h-12 bg-green-600 hover:bg-green-700">
+              View Full Tracking
+            </Button>
+          </div>
         </CardContent>
       </Card>
     );
