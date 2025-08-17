@@ -14,397 +14,138 @@ export type Database = {
   }
   public: {
     Tables: {
-      carrier_profiles: {
+      points_balances: {
         Row: {
+          points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          points?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          address: string | null
           auth_email: string | null
           business_model: string | null
           business_name: string | null
-          city: string | null
           company_name: string | null
           contact_email: string | null
           contact_phone: string | null
           created_at: string
           gstin: string | null
-          insurance_number: string | null
+          id: string
           licenses: string | null
-          phone: string | null
-          role: string
-          service_areas: string[] | null
+          role: string | null
           service_regions: string | null
           specialties: string | null
-          state: string | null
           updated_at: string
           user_id: string
           username: string | null
-          vehicle_capacity_kg: number | null
-          vehicle_type: string | null
           vehicle_types: string | null
           website: string | null
           years_experience: number | null
-          zip_code: string | null
         }
         Insert: {
+          address?: string | null
           auth_email?: string | null
           business_model?: string | null
           business_name?: string | null
-          city?: string | null
           company_name?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
           gstin?: string | null
-          insurance_number?: string | null
+          id?: string
           licenses?: string | null
-          phone?: string | null
-          role?: string
-          service_areas?: string[] | null
+          role?: string | null
           service_regions?: string | null
           specialties?: string | null
-          state?: string | null
           updated_at?: string
           user_id: string
           username?: string | null
-          vehicle_capacity_kg?: number | null
-          vehicle_type?: string | null
           vehicle_types?: string | null
           website?: string | null
           years_experience?: number | null
-          zip_code?: string | null
         }
         Update: {
+          address?: string | null
           auth_email?: string | null
           business_model?: string | null
           business_name?: string | null
-          city?: string | null
           company_name?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
           gstin?: string | null
-          insurance_number?: string | null
+          id?: string
           licenses?: string | null
-          phone?: string | null
-          role?: string
-          service_areas?: string[] | null
+          role?: string | null
           service_regions?: string | null
           specialties?: string | null
-          state?: string | null
           updated_at?: string
           user_id?: string
           username?: string | null
-          vehicle_capacity_kg?: number | null
-          vehicle_type?: string | null
           vehicle_types?: string | null
           website?: string | null
           years_experience?: number | null
-          zip_code?: string | null
-        }
-        Relationships: []
-      }
-      chat_messages: {
-        Row: {
-          chatroom_id: string
-          created_at: string
-          id: string
-          message: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          chatroom_id: string
-          created_at?: string
-          id?: string
-          message: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          chatroom_id?: string
-          created_at?: string
-          id?: string
-          message?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "chat_messages_chatroom_id_fkey"
-            columns: ["chatroom_id"]
-            isOneToOne: false
-            referencedRelation: "chatrooms"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      chatrooms: {
-        Row: {
-          created_at: string
-          description: string | null
-          id: string
-          name: string
-          type: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          id?: string
-          name: string
-          type: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          id?: string
-          name?: string
-          type?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      community_posts: {
-        Row: {
-          content: string
-          created_at: string
-          id: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          content: string
-          created_at?: string
-          id?: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          content?: string
-          created_at?: string
-          id?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      forum_posts: {
-        Row: {
-          content: string
-          created_at: string
-          forum_type: string
-          id: string
-          image_url: string | null
-          title: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          content: string
-          created_at?: string
-          forum_type: string
-          id?: string
-          image_url?: string | null
-          title: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          content?: string
-          created_at?: string
-          forum_type?: string
-          id?: string
-          image_url?: string | null
-          title?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      forum_replies: {
-        Row: {
-          content: string
-          created_at: string
-          id: string
-          image_url: string | null
-          post_id: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          content: string
-          created_at?: string
-          id?: string
-          image_url?: string | null
-          post_id: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          content?: string
-          created_at?: string
-          id?: string
-          image_url?: string | null
-          post_id?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "forum_replies_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "forum_posts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      points_balances: {
-        Row: {
-          created_at: string
-          total_points: number
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          total_points?: number
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          total_points?: number
-          updated_at?: string
-          user_id?: string
         }
         Relationships: []
       }
       shipments: {
         Row: {
-          capacity_kg: number
+          capacity_kg: number | null
           carrier_id: string | null
           created_at: string
           destination: string
-          destination_address: string | null
-          destination_lat: number | null
-          destination_lng: number | null
           dropoff_time: string | null
           id: string
           origin: string
-          origin_address: string | null
-          origin_lat: number | null
-          origin_lng: number | null
           pickup_time: string | null
+          pool_id: string | null
           pooled: boolean
           shipper_id: string
           status: string
           updated_at: string
         }
         Insert: {
-          capacity_kg: number
+          capacity_kg?: number | null
           carrier_id?: string | null
           created_at?: string
           destination: string
-          destination_address?: string | null
-          destination_lat?: number | null
-          destination_lng?: number | null
           dropoff_time?: string | null
           id?: string
           origin: string
-          origin_address?: string | null
-          origin_lat?: number | null
-          origin_lng?: number | null
           pickup_time?: string | null
+          pool_id?: string | null
           pooled?: boolean
           shipper_id: string
           status?: string
           updated_at?: string
         }
         Update: {
-          capacity_kg?: number
+          capacity_kg?: number | null
           carrier_id?: string | null
           created_at?: string
           destination?: string
-          destination_address?: string | null
-          destination_lat?: number | null
-          destination_lng?: number | null
           dropoff_time?: string | null
           id?: string
           origin?: string
-          origin_address?: string | null
-          origin_lat?: number | null
-          origin_lng?: number | null
           pickup_time?: string | null
+          pool_id?: string | null
           pooled?: boolean
           shipper_id?: string
           status?: string
           updated_at?: string
-        }
-        Relationships: []
-      }
-      shipper_profiles: {
-        Row: {
-          address: string | null
-          auth_email: string | null
-          business_model: string | null
-          business_name: string | null
-          city: string | null
-          company_name: string | null
-          contact_email: string | null
-          contact_phone: string | null
-          created_at: string
-          gstin: string | null
-          phone: string | null
-          role: string
-          specialties: string | null
-          state: string | null
-          updated_at: string
-          user_id: string
-          username: string | null
-          website: string | null
-          zip_code: string | null
-        }
-        Insert: {
-          address?: string | null
-          auth_email?: string | null
-          business_model?: string | null
-          business_name?: string | null
-          city?: string | null
-          company_name?: string | null
-          contact_email?: string | null
-          contact_phone?: string | null
-          created_at?: string
-          gstin?: string | null
-          phone?: string | null
-          role: string
-          specialties?: string | null
-          state?: string | null
-          updated_at?: string
-          user_id: string
-          username?: string | null
-          website?: string | null
-          zip_code?: string | null
-        }
-        Update: {
-          address?: string | null
-          auth_email?: string | null
-          business_model?: string | null
-          business_name?: string | null
-          city?: string | null
-          company_name?: string | null
-          contact_email?: string | null
-          contact_phone?: string | null
-          created_at?: string
-          gstin?: string | null
-          phone?: string | null
-          role?: string
-          specialties?: string | null
-          state?: string | null
-          updated_at?: string
-          user_id?: string
-          username?: string | null
-          website?: string | null
-          zip_code?: string | null
         }
         Relationships: []
       }
@@ -414,16 +155,12 @@ export type Database = {
     }
     Functions: {
       award_points: {
-        Args: { _points: number; _source: string; _user_id: string }
+        Args: { _points: number; _source?: string; _user_id: string }
         Returns: undefined
-      }
-      get_user_role: {
-        Args: { user_uuid: string }
-        Returns: string
       }
       mark_pooled_and_delivered: {
-        Args: { _carrier_id: string; _shipment_ids: string[] }
-        Returns: undefined
+        Args: { _shipment_id: string; _user_id: string }
+        Returns: number
       }
     }
     Enums: {
