@@ -268,55 +268,43 @@ serve(async (req) => {
       }
     }
 
-    // STEP 3: Get available carriers with enhanced mock data for realistic testing
-    const mockCarriers = [
-      {
-        user_id: 'carrier-rajesh-001',
-        business_name: 'Rajesh Kumar Transport',
-        years_experience: 8,
-        vehicle_capacity_kg: 500,
-        current_load_kg: 150, // Current burden
-        current_location: { lat: 28.6448, lng: 77.2167 }, // Connaught Place
-        is_available: true,
-        last_delivery_time: Date.now() - 2 * 60 * 60 * 1000, // 2 hours ago
-        service_radius_km: 25
-      },
-      {
-        user_id: 'carrier-priya-002',
-        business_name: 'Priya Logistics Co.',
-        years_experience: 5,
-        vehicle_capacity_kg: 800,
-        current_load_kg: 0, // No current burden
-        current_location: { lat: 28.7041, lng: 77.1025 }, // Rohini
-        is_available: true,
-        last_delivery_time: Date.now() - 30 * 60 * 1000, // 30 minutes ago
-        service_radius_km: 30
-      },
-      {
-        user_id: 'carrier-amit-003',
-        business_name: 'Delhi Express Services',
-        years_experience: 6,
-        vehicle_capacity_kg: 350,
-        current_load_kg: 200, // Medium burden
-        current_location: { lat: 28.5355, lng: 77.3910 }, // Noida
-        is_available: true,
-        last_delivery_time: Date.now() - 1 * 60 * 60 * 1000, // 1 hour ago
-        service_radius_km: 20
-      },
-      {
-        user_id: 'carrier-metro-004',
-        business_name: 'Metro Cargo Solutions',
-        years_experience: 12,
-        vehicle_capacity_kg: 1200,
-        current_load_kg: 300, // Low burden for high capacity
-        current_location: { lat: 28.6517, lng: 77.2219 }, // Khan Market
-        is_available: true,
-        last_delivery_time: Date.now() - 4 * 60 * 60 * 1000, // 4 hours ago
-        service_radius_km: 40
-      }
-    ];
+    // STEP 3: Get available carriers from database and enhance with mock operational data
+    const { data: realCarriers, error: carriersError } = await supabase
+      .from('carrier_profiles')
+      .select('user_id, business_name, years_experience, vehicle_capacity_kg')
+      .limit(10);
 
-    console.log(`Evaluating ${mockCarriers.length} available carriers`);
+    if (carriersError) {
+      console.error('Error fetching carriers:', carriersError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to fetch carriers' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Enhance real carriers with mock operational data for simulation
+    const enhancedCarriers = (realCarriers || []).map((carrier, index) => {
+      const mockLocations = [
+        { lat: 28.6448, lng: 77.2167 }, // Connaught Place
+        { lat: 28.7041, lng: 77.1025 }, // Rohini
+        { lat: 28.5355, lng: 77.3910 }, // Noida
+        { lat: 28.6517, lng: 77.2219 }, // Khan Market
+      ];
+      
+      return {
+        user_id: carrier.user_id,
+        business_name: carrier.business_name || `Carrier ${index + 1}`,
+        years_experience: carrier.years_experience || (5 + index * 2),
+        vehicle_capacity_kg: carrier.vehicle_capacity_kg || (300 + index * 200),
+        current_load_kg: Math.floor(Math.random() * 200), // Random current load
+        current_location: mockLocations[index % mockLocations.length],
+        is_available: true,
+        last_delivery_time: Date.now() - Math.random() * 5 * 60 * 60 * 1000, // Random 0-5 hours ago
+        service_radius_km: 25 + index * 5
+      };
+    });
+
+    console.log(`Evaluating ${enhancedCarriers.length} available carriers`);
 
     // STEP 4: Enhanced scoring with burden and availability factors
     let bestCarrier = null;
@@ -335,7 +323,7 @@ serve(async (req) => {
       weight: shipment.capacity_kg || 0
     };
 
-    for (const carrier of mockCarriers) {
+    for (const carrier of enhancedCarriers) {
       if (!carrier.is_available) continue;
 
       // Enhanced scoring algorithm
