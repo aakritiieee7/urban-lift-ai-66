@@ -151,8 +151,8 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
           {/* Time Selection */}
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="pickup" className="flex items-center gap-2 text-sm font-medium">
-                <Clock className="h-4 w-4" />
+              <Label htmlFor="pickup" className="flex items-center gap-2 text-lg font-semibold">
+                <Clock className="h-5 w-5" />
                 Pickup Time
               </Label>
               <Input 
@@ -160,12 +160,12 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
                 type="datetime-local" 
                 value={pickup} 
                 onChange={(e) => setPickup(e.target.value)}
-                className="text-sm"
+                className="text-base"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="dropoff" className="flex items-center gap-2 text-sm font-medium">
-                <Clock className="h-4 w-4" />
+              <Label htmlFor="dropoff" className="flex items-center gap-2 text-lg font-semibold">
+                <Clock className="h-5 w-5" />
                 Drop-off Time
               </Label>
               <Input 
@@ -173,14 +173,14 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
                 type="datetime-local" 
                 value={dropoff} 
                 onChange={(e) => setDropoff(e.target.value)}
-                className="text-sm"
+                className="text-base"
               />
             </div>
           </div>
 
           {/* Capacity */}
           <div className="space-y-2">
-            <Label htmlFor="capacity" className="text-sm font-medium">Package Weight (kg)</Label>
+            <Label htmlFor="capacity" className="text-lg font-semibold">Package Weight (kg)</Label>
             <Input 
               id="capacity" 
               type="number" 
@@ -188,22 +188,118 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
               placeholder="Enter weight in kg"
               value={capacityKg} 
               onChange={(e) => setCapacityKg(e.target.value === "" ? "" : Number(e.target.value))}
-              className="text-sm"
+              className="text-base"
             />
           </div>
 
-          {/* Driver Assignment Info */}
-          <div className="rounded-lg border border-accent/50 bg-accent/20 p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <User className="h-4 w-4 text-primary" />
-              <span className="font-medium text-sm">Driver Assignment</span>
+          {/* Hybrid Driver Assignment */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-foreground">Add Hybrid Driver Assignment to UrbanLift.AI</h3>
+            
+            {/* Recommended Carrier */}
+            <div className="relative p-6 rounded-xl border-2 border-amber-400/50 bg-gradient-to-br from-amber-50/80 to-orange-50/80 dark:from-amber-950/30 dark:to-orange-950/30 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+              <div className="absolute -top-2 left-4">
+                <Badge className="bg-amber-500 text-white font-medium px-3 py-1">
+                  Recommended
+                </Badge>
+              </div>
+              
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-white font-bold text-xl">
+                  RK
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-semibold text-lg">Rajesh Kumar</h4>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      ⭐ 4.8 Rating
+                    </span>
+                    <span>•</span>
+                    <span className="text-green-600 font-medium">98% Reliable</span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-xl font-bold text-primary">₹2,450</div>
+                  <div className="text-sm text-muted-foreground">ETA: 25 min</div>
+                </div>
+              </div>
+              
+              <div className="bg-white/60 dark:bg-gray-800/60 rounded-lg p-3 mb-4">
+                <p className="text-sm font-medium text-foreground">
+                  🎯 Optimized route, 18% cost savings, high reliability
+                </p>
+              </div>
+              
+              <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3">
+                Accept Recommended Carrier
+              </Button>
             </div>
-            <p className="text-sm text-muted-foreground mb-2">
-              We'll automatically assign the best available driver for your shipment based on location and availability.
-            </p>
-            <Badge variant="secondary" className="text-xs">
-              Auto-Assignment Enabled
-            </Badge>
+
+            {/* Alternative Carriers */}
+            <div className="space-y-3">
+              <h4 className="text-base font-medium text-muted-foreground">Alternative Options</h4>
+              <div className="grid gap-3 md:grid-cols-3">
+                {/* Alternative 1 */}
+                <div className="p-4 rounded-lg border border-border hover:border-primary/50 bg-card hover:shadow-md transition-all duration-200 cursor-pointer group">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-sm font-bold">
+                      PS
+                    </div>
+                    <div className="flex-1">
+                      <h5 className="font-medium text-sm">Priya Sharma</h5>
+                      <div className="text-xs text-muted-foreground">⭐ 4.6 • 95% Reliable</div>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-primary">₹2,680</span>
+                    <span className="text-xs text-muted-foreground">ETA: 30 min</span>
+                  </div>
+                  <Badge variant="outline" className="mt-2 text-xs">
+                    Trusted
+                  </Badge>
+                </div>
+
+                {/* Alternative 2 */}
+                <div className="p-4 rounded-lg border border-border hover:border-primary/50 bg-card hover:shadow-md transition-all duration-200 cursor-pointer group">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-sm font-bold">
+                      AS
+                    </div>
+                    <div className="flex-1">
+                      <h5 className="font-medium text-sm">Amit Singh</h5>
+                      <div className="text-xs text-muted-foreground">⭐ 4.4 • 92% Reliable</div>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-primary">₹2,550</span>
+                    <span className="text-xs text-muted-foreground">ETA: 35 min</span>
+                  </div>
+                  <Badge variant="outline" className="mt-2 text-xs">
+                    Eco-Friendly
+                  </Badge>
+                </div>
+
+                {/* Alternative 3 */}
+                <div className="p-4 rounded-lg border border-border hover:border-primary/50 bg-card hover:shadow-md transition-all duration-200 cursor-pointer group">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-sm font-bold">
+                      VG
+                    </div>
+                    <div className="flex-1">
+                      <h5 className="font-medium text-sm">Vikash Gupta</h5>
+                      <div className="text-xs text-muted-foreground">⭐ 4.7 • 96% Reliable</div>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-primary">₹2,380</span>
+                    <span className="text-xs text-muted-foreground">ETA: 40 min</span>
+                  </div>
+                  <Badge variant="outline" className="mt-2 text-xs">
+                    Budget
+                  </Badge>
+                </div>
+              </div>
+            </div>
           </div>
 
           <Button type="submit" disabled={loading} className="w-full" size="lg">
