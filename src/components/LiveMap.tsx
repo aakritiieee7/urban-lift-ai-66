@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, CircleMarker, Tooltip } from "react-leaflet";
+import { MapContainer, TileLayer, CircleMarker, Tooltip, Polyline } from "react-leaflet";
 import type { LatLngExpression } from "leaflet";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -34,6 +34,7 @@ const delhiCenter: LatLngExpression = [28.6139, 77.2090];
 const AnyMapContainer = MapContainer as any;
 const AnyTileLayer = TileLayer as any;
 const AnyCircleMarker = CircleMarker as any;
+const AnyPolyline = Polyline as any;
 
 const LiveMap = () => {
   const [shipments, setShipments] = useState<Shipment[]>([]);
@@ -127,6 +128,17 @@ const LiveMap = () => {
 
           return (
             <div key={shipment.id}>
+              {/* Route line connecting pickup to drop */}
+              <AnyPolyline
+                positions={[pickup, drop]}
+                pathOptions={{
+                  color: shipment.status === 'delivered' ? "hsl(var(--success))" : "hsl(var(--primary))",
+                  weight: 3,
+                  opacity: 0.7,
+                  dashArray: shipment.status === 'pending' ? "10, 10" : undefined
+                }}
+              />
+
               {/* Pickup marker */}
               <AnyCircleMarker 
                 center={pickup} 
