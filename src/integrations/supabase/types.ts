@@ -62,6 +62,7 @@ export type Database = {
       profiles: {
         Row: {
           address: string | null
+          auth_email: string | null
           business_name: string | null
           city: string | null
           company_name: string | null
@@ -71,10 +72,12 @@ export type Database = {
           state: string | null
           updated_at: string
           user_id: string
+          username: string | null
           zip_code: string | null
         }
         Insert: {
           address?: string | null
+          auth_email?: string | null
           business_name?: string | null
           city?: string | null
           company_name?: string | null
@@ -84,10 +87,12 @@ export type Database = {
           state?: string | null
           updated_at?: string
           user_id: string
+          username?: string | null
           zip_code?: string | null
         }
         Update: {
           address?: string | null
+          auth_email?: string | null
           business_name?: string | null
           city?: string | null
           company_name?: string | null
@@ -97,6 +102,7 @@ export type Database = {
           state?: string | null
           updated_at?: string
           user_id?: string
+          username?: string | null
           zip_code?: string | null
         }
         Relationships: []
