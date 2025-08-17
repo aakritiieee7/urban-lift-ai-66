@@ -70,6 +70,7 @@ export type Database = {
           contact_email: string | null
           contact_phone: string | null
           created_at: string
+          gstin: string | null
           phone: string | null
           role: string
           state: string | null
@@ -88,6 +89,7 @@ export type Database = {
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
+          gstin?: string | null
           phone?: string | null
           role: string
           state?: string | null
@@ -106,6 +108,7 @@ export type Database = {
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
+          gstin?: string | null
           phone?: string | null
           role?: string
           state?: string | null
