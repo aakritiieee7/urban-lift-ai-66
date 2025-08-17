@@ -68,6 +68,7 @@ export type Database = {
           city: string | null
           company_name: string | null
           contact_email: string | null
+          contact_phone: string | null
           created_at: string
           phone: string | null
           role: string
@@ -85,6 +86,7 @@ export type Database = {
           city?: string | null
           company_name?: string | null
           contact_email?: string | null
+          contact_phone?: string | null
           created_at?: string
           phone?: string | null
           role: string
@@ -102,6 +104,7 @@ export type Database = {
           city?: string | null
           company_name?: string | null
           contact_email?: string | null
+          contact_phone?: string | null
           created_at?: string
           phone?: string | null
           role?: string
