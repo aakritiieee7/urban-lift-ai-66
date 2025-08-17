@@ -32,11 +32,19 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
       return;
     }
     setLoading(true);
+    // Store both legacy string format and new coordinate format
     const originStr = origin.address ?? `${origin.lat},${origin.lng}`;
     const destStr = destination.address ?? `${destination.lat},${destination.lng}`;
+    
     const { error } = await supabase.from("shipments").insert({
       origin: originStr,
       destination: destStr,
+      origin_lat: origin.lat,
+      origin_lng: origin.lng,
+      origin_address: origin.address,
+      destination_lat: destination.lat,
+      destination_lng: destination.lng,
+      destination_address: destination.address,
       shipper_id: userId,
       capacity_kg: capacityKg === "" ? null : Number(capacityKg),
       pickup_time: pickup || null,

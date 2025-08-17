@@ -73,10 +73,12 @@ export type Database = {
           gstin: string | null
           phone: string | null
           role: string
+          specialties: string | null
           state: string | null
           updated_at: string
           user_id: string
           username: string | null
+          website: string | null
           zip_code: string | null
         }
         Insert: {
@@ -92,10 +94,12 @@ export type Database = {
           gstin?: string | null
           phone?: string | null
           role: string
+          specialties?: string | null
           state?: string | null
           updated_at?: string
           user_id: string
           username?: string | null
+          website?: string | null
           zip_code?: string | null
         }
         Update: {
@@ -111,10 +115,12 @@ export type Database = {
           gstin?: string | null
           phone?: string | null
           role?: string
+          specialties?: string | null
           state?: string | null
           updated_at?: string
           user_id?: string
           username?: string | null
+          website?: string | null
           zip_code?: string | null
         }
         Relationships: []
@@ -125,9 +131,15 @@ export type Database = {
           carrier_id: string | null
           created_at: string
           destination: string
+          destination_address: string | null
+          destination_lat: number | null
+          destination_lng: number | null
           dropoff_time: string | null
           id: string
           origin: string
+          origin_address: string | null
+          origin_lat: number | null
+          origin_lng: number | null
           pickup_time: string | null
           pooled: boolean
           shipper_id: string
@@ -139,9 +151,15 @@ export type Database = {
           carrier_id?: string | null
           created_at?: string
           destination: string
+          destination_address?: string | null
+          destination_lat?: number | null
+          destination_lng?: number | null
           dropoff_time?: string | null
           id?: string
           origin: string
+          origin_address?: string | null
+          origin_lat?: number | null
+          origin_lng?: number | null
           pickup_time?: string | null
           pooled?: boolean
           shipper_id: string
@@ -153,9 +171,15 @@ export type Database = {
           carrier_id?: string | null
           created_at?: string
           destination?: string
+          destination_address?: string | null
+          destination_lat?: number | null
+          destination_lng?: number | null
           dropoff_time?: string | null
           id?: string
           origin?: string
+          origin_address?: string | null
+          origin_lat?: number | null
+          origin_lng?: number | null
           pickup_time?: string | null
           pooled?: boolean
           shipper_id?: string
