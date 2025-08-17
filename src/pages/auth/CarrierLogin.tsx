@@ -37,7 +37,7 @@ const CarrierLogin = () => {
       return;
     }
     const { data: profile } = await (supabase as any)
-      .from("profiles")
+      .from("carrier_profiles")
       .select("role")
       .eq("user_id", uid)
       .maybeSingle();

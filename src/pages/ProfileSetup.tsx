@@ -59,7 +59,7 @@ const ProfileSetup = () => {
     if (!userId) return;
     (async () => {
       const { data } = await (supabase as any)
-        .from("profiles")
+        .from(role === "shipper" ? "shipper_profiles" : "carrier_profiles")
         .select("*")
         .eq("user_id", userId)
         .maybeSingle();
@@ -127,7 +127,7 @@ const ProfileSetup = () => {
           };
 
     const { error } = await (supabase as any)
-      .from("profiles")
+      .from(role === "shipper" ? "shipper_profiles" : "carrier_profiles")
       .upsert(payload, { onConflict: "user_id" });
 
     if (error) {

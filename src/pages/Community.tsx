@@ -47,7 +47,7 @@ const load = async () => {
   const ids = Array.from(new Set(rows.map(r => r.user_id)));
   if (ids.length) {
     const { data: profs } = await supabase
-      .from("profiles")
+      .from("shipper_profiles")
       .select("user_id, business_name, company_name")
       .in("user_id", ids);
     const map: Record<string, string> = {};

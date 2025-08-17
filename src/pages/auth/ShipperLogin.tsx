@@ -37,7 +37,7 @@ const ShipperLogin = () => {
       return;
     }
     const { data: profile } = await (supabase as any)
-      .from("profiles")
+      .from("shipper_profiles")
       .select("role")
       .eq("user_id", uid)
       .maybeSingle();

@@ -14,7 +14,7 @@ export const signInWithIdentifier = async (identifier: string, password: string)
   if (!isEmail) {
     // Resolve username -> auth email (case-insensitive exact match)
     const { data, error } = await (supabase as any)
-      .from("profiles")
+      .from("shipper_profiles")
       .select("auth_email, username")
       .ilike("username", trimmed)
       .maybeSingle();

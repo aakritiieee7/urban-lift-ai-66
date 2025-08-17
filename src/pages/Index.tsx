@@ -25,7 +25,7 @@ const Index = () => {
     if (loading || !userId) return;
     (async () => {
       const { data } = await (supabase as any)
-        .from("profiles")
+        .from("shipper_profiles")
         .select("role")
         .eq("user_id", userId)
         .maybeSingle();

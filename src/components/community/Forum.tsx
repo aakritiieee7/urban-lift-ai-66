@@ -79,11 +79,12 @@ export const Forum = ({ userRole }: ForumProps) => {
     const postsWithData = [];
     if (posts) {
       for (const post of posts) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("username, business_name, role")
-          .eq("user_id", post.user_id)
-          .single();
+        let profile = null;
+        if (post.user_id) {
+          const { data: shipperProfile } = await supabase.from("shipper_profiles").select("username, business_name, role").eq("user_id", post.user_id).single();
+          const { data: carrierProfile } = await supabase.from("carrier_profiles").select("username, business_name, role").eq("user_id", post.user_id).single();
+          profile = shipperProfile || carrierProfile;
+        }
 
         const { count } = await supabase
           .from("forum_replies")
@@ -117,11 +118,12 @@ export const Forum = ({ userRole }: ForumProps) => {
     const repliesWithProfiles = [];
     if (replies) {
       for (const reply of replies) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("username, business_name, role")
-          .eq("user_id", reply.user_id)
-          .single();
+        let profile = null;
+        if (reply.user_id) {
+          const { data: shipperProfile } = await supabase.from("shipper_profiles").select("username, business_name, role").eq("user_id", reply.user_id).single();
+          const { data: carrierProfile } = await supabase.from("carrier_profiles").select("username, business_name, role").eq("user_id", reply.user_id).single();
+          profile = shipperProfile || carrierProfile;
+        }
         
         repliesWithProfiles.push({
           ...reply,

@@ -86,7 +86,7 @@ const ShipperRegister = () => {
       } as any;
 
     const { error: upsertError } = await (supabase as any)
-      .from("profiles")
+      .from("shipper_profiles")
       .upsert(payload, { onConflict: "user_id" });
 
     if (upsertError) {

@@ -17,7 +17,7 @@ const CarrierDashboard = () => {
     const check = async () => {
       if (!userId) return;
       const { data } = await (supabase as any)
-        .from("profiles")
+        .from("carrier_profiles")
         .select("user_id, role")
         .eq("user_id", userId)
         .maybeSingle();

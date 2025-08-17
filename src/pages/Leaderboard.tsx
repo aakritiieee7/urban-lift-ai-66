@@ -23,13 +23,17 @@ const Leaderboard = () => {
     const rowsBase = balances ?? [];
     if (rowsBase.length === 0) { setRows([]); return; }
     const ids = rowsBase.map(b => b.user_id);
-    const { data: profiles } = await supabase
-      .from("profiles")
+    const { data: shipperProfiles } = await supabase
+      .from("shipper_profiles")
+      .select("*");
+    const { data: carrierProfiles } = await supabase
+      .from("carrier_profiles")
       .select("user_id, company_name, business_name, username")
       .in("user_id", ids);
     const nameMap: Record<string, string | null> = {};
     const companyMap: Record<string, string | null> = {};
-    profiles?.forEach((p: any) => {
+    const allProfiles = [...(shipperProfiles || []), ...(carrierProfiles || [])];
+    allProfiles.forEach((p: any) => {
       nameMap[p.user_id] = p.username || p.business_name || p.company_name || null;
       companyMap[p.user_id] = p.company_name || p.business_name || null;
     });

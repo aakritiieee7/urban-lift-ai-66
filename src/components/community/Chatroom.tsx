@@ -97,11 +97,12 @@ export const Chatroom = ({ userRole }: ChatroomProps) => {
     const messagesWithProfiles = [];
     if (messages) {
       for (const message of messages) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("username, business_name")
-          .eq("user_id", message.user_id)
-          .single();
+        let profile = null;
+        if (message.user_id) {
+          const { data: shipperProfile } = await supabase.from("shipper_profiles").select("username, business_name").eq("user_id", message.user_id).single();
+          const { data: carrierProfile } = await supabase.from("carrier_profiles").select("username, business_name").eq("user_id", message.user_id).single();
+          profile = shipperProfile || carrierProfile;
+        }
         
         messagesWithProfiles.push({
           ...message,
@@ -135,11 +136,12 @@ export const Chatroom = ({ userRole }: ChatroomProps) => {
             .single();
 
           if (message) {
-            const { data: profile } = await supabase
-              .from("profiles")
-              .select("username, business_name")
-              .eq("user_id", message.user_id)
-              .single();
+            let profile = null;
+            if (message.user_id) {
+              const { data: shipperProfile } = await supabase.from("shipper_profiles").select("username, business_name").eq("user_id", message.user_id).single();
+              const { data: carrierProfile } = await supabase.from("carrier_profiles").select("username, business_name").eq("user_id", message.user_id).single();
+              profile = shipperProfile || carrierProfile;
+            }
 
             setMessages((prev) => [...prev, { ...message, profiles: profile }]);
           }

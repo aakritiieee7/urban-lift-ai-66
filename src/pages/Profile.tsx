@@ -62,7 +62,7 @@ const activities = useMemo(() => {
     (async () => {
       if (!userId) return;
       const { data: p } = await (supabase as any)
-        .from("profiles")
+        .from("shipper_profiles")
         .select("*")
         .eq("user_id", userId)
         .maybeSingle();

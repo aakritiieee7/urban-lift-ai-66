@@ -14,6 +14,87 @@ export type Database = {
   }
   public: {
     Tables: {
+      carrier_profiles: {
+        Row: {
+          auth_email: string | null
+          business_model: string | null
+          business_name: string | null
+          city: string | null
+          company_name: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          gstin: string | null
+          insurance_number: string | null
+          licenses: string[] | null
+          phone: string | null
+          role: string
+          service_areas: string[] | null
+          specialties: string | null
+          state: string | null
+          updated_at: string
+          user_id: string
+          username: string | null
+          vehicle_capacity_kg: number | null
+          vehicle_type: string | null
+          website: string | null
+          years_experience: number | null
+          zip_code: string | null
+        }
+        Insert: {
+          auth_email?: string | null
+          business_model?: string | null
+          business_name?: string | null
+          city?: string | null
+          company_name?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          gstin?: string | null
+          insurance_number?: string | null
+          licenses?: string[] | null
+          phone?: string | null
+          role?: string
+          service_areas?: string[] | null
+          specialties?: string | null
+          state?: string | null
+          updated_at?: string
+          user_id: string
+          username?: string | null
+          vehicle_capacity_kg?: number | null
+          vehicle_type?: string | null
+          website?: string | null
+          years_experience?: number | null
+          zip_code?: string | null
+        }
+        Update: {
+          auth_email?: string | null
+          business_model?: string | null
+          business_name?: string | null
+          city?: string | null
+          company_name?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          gstin?: string | null
+          insurance_number?: string | null
+          licenses?: string[] | null
+          phone?: string | null
+          role?: string
+          service_areas?: string[] | null
+          specialties?: string | null
+          state?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+          vehicle_capacity_kg?: number | null
+          vehicle_type?: string | null
+          website?: string | null
+          years_experience?: number | null
+          zip_code?: string | null
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           chatroom_id: string
@@ -192,7 +273,70 @@ export type Database = {
         }
         Relationships: []
       }
-      profiles: {
+      shipments: {
+        Row: {
+          capacity_kg: number
+          carrier_id: string | null
+          created_at: string
+          destination: string
+          destination_address: string | null
+          destination_lat: number | null
+          destination_lng: number | null
+          dropoff_time: string | null
+          id: string
+          origin: string
+          origin_address: string | null
+          origin_lat: number | null
+          origin_lng: number | null
+          pickup_time: string | null
+          pooled: boolean
+          shipper_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          capacity_kg: number
+          carrier_id?: string | null
+          created_at?: string
+          destination: string
+          destination_address?: string | null
+          destination_lat?: number | null
+          destination_lng?: number | null
+          dropoff_time?: string | null
+          id?: string
+          origin: string
+          origin_address?: string | null
+          origin_lat?: number | null
+          origin_lng?: number | null
+          pickup_time?: string | null
+          pooled?: boolean
+          shipper_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          capacity_kg?: number
+          carrier_id?: string | null
+          created_at?: string
+          destination?: string
+          destination_address?: string | null
+          destination_lat?: number | null
+          destination_lng?: number | null
+          dropoff_time?: string | null
+          id?: string
+          origin?: string
+          origin_address?: string | null
+          origin_lat?: number | null
+          origin_lng?: number | null
+          pickup_time?: string | null
+          pooled?: boolean
+          shipper_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      shipper_profiles: {
         Row: {
           address: string | null
           auth_email: string | null
@@ -255,69 +399,6 @@ export type Database = {
           username?: string | null
           website?: string | null
           zip_code?: string | null
-        }
-        Relationships: []
-      }
-      shipments: {
-        Row: {
-          capacity_kg: number
-          carrier_id: string | null
-          created_at: string
-          destination: string
-          destination_address: string | null
-          destination_lat: number | null
-          destination_lng: number | null
-          dropoff_time: string | null
-          id: string
-          origin: string
-          origin_address: string | null
-          origin_lat: number | null
-          origin_lng: number | null
-          pickup_time: string | null
-          pooled: boolean
-          shipper_id: string
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          capacity_kg: number
-          carrier_id?: string | null
-          created_at?: string
-          destination: string
-          destination_address?: string | null
-          destination_lat?: number | null
-          destination_lng?: number | null
-          dropoff_time?: string | null
-          id?: string
-          origin: string
-          origin_address?: string | null
-          origin_lat?: number | null
-          origin_lng?: number | null
-          pickup_time?: string | null
-          pooled?: boolean
-          shipper_id: string
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          capacity_kg?: number
-          carrier_id?: string | null
-          created_at?: string
-          destination?: string
-          destination_address?: string | null
-          destination_lat?: number | null
-          destination_lng?: number | null
-          dropoff_time?: string | null
-          id?: string
-          origin?: string
-          origin_address?: string | null
-          origin_lat?: number | null
-          origin_lng?: number | null
-          pickup_time?: string | null
-          pooled?: boolean
-          shipper_id?: string
-          status?: string
-          updated_at?: string
         }
         Relationships: []
       }
