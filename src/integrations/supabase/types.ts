@@ -7,26 +7,53 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "13.0.4"
   }
   public: {
     Tables: {
-      points_balances: {
+      community_posts: {
         Row: {
-          points: number
+          content: string
+          created_at: string
+          id: string
           updated_at: string
           user_id: string
         }
         Insert: {
-          points?: number
+          content: string
+          created_at?: string
+          id?: string
           updated_at?: string
           user_id: string
         }
         Update: {
-          points?: number
+          content?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      points_balances: {
+        Row: {
+          created_at: string
+          total_points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          total_points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          total_points?: number
           updated_at?: string
           user_id?: string
         }
@@ -35,75 +62,48 @@ export type Database = {
       profiles: {
         Row: {
           address: string | null
-          auth_email: string | null
-          business_model: string | null
           business_name: string | null
+          city: string | null
           company_name: string | null
-          contact_email: string | null
-          contact_phone: string | null
           created_at: string
-          gstin: string | null
-          id: string
-          licenses: string | null
-          role: string | null
-          service_regions: string | null
-          specialties: string | null
+          phone: string | null
+          role: string
+          state: string | null
           updated_at: string
           user_id: string
-          username: string | null
-          vehicle_types: string | null
-          website: string | null
-          years_experience: number | null
+          zip_code: string | null
         }
         Insert: {
           address?: string | null
-          auth_email?: string | null
-          business_model?: string | null
           business_name?: string | null
+          city?: string | null
           company_name?: string | null
-          contact_email?: string | null
-          contact_phone?: string | null
           created_at?: string
-          gstin?: string | null
-          id?: string
-          licenses?: string | null
-          role?: string | null
-          service_regions?: string | null
-          specialties?: string | null
+          phone?: string | null
+          role: string
+          state?: string | null
           updated_at?: string
           user_id: string
-          username?: string | null
-          vehicle_types?: string | null
-          website?: string | null
-          years_experience?: number | null
+          zip_code?: string | null
         }
         Update: {
           address?: string | null
-          auth_email?: string | null
-          business_model?: string | null
           business_name?: string | null
+          city?: string | null
           company_name?: string | null
-          contact_email?: string | null
-          contact_phone?: string | null
           created_at?: string
-          gstin?: string | null
-          id?: string
-          licenses?: string | null
-          role?: string | null
-          service_regions?: string | null
-          specialties?: string | null
+          phone?: string | null
+          role?: string
+          state?: string | null
           updated_at?: string
           user_id?: string
-          username?: string | null
-          vehicle_types?: string | null
-          website?: string | null
-          years_experience?: number | null
+          zip_code?: string | null
         }
         Relationships: []
       }
       shipments: {
         Row: {
-          capacity_kg: number | null
+          capacity_kg: number
           carrier_id: string | null
           created_at: string
           destination: string
@@ -111,14 +111,13 @@ export type Database = {
           id: string
           origin: string
           pickup_time: string | null
-          pool_id: string | null
           pooled: boolean
           shipper_id: string
           status: string
           updated_at: string
         }
         Insert: {
-          capacity_kg?: number | null
+          capacity_kg: number
           carrier_id?: string | null
           created_at?: string
           destination: string
@@ -126,14 +125,13 @@ export type Database = {
           id?: string
           origin: string
           pickup_time?: string | null
-          pool_id?: string | null
           pooled?: boolean
           shipper_id: string
           status?: string
           updated_at?: string
         }
         Update: {
-          capacity_kg?: number | null
+          capacity_kg?: number
           carrier_id?: string | null
           created_at?: string
           destination?: string
@@ -141,7 +139,6 @@ export type Database = {
           id?: string
           origin?: string
           pickup_time?: string | null
-          pool_id?: string | null
           pooled?: boolean
           shipper_id?: string
           status?: string
@@ -155,12 +152,12 @@ export type Database = {
     }
     Functions: {
       award_points: {
-        Args: { _user_id: string; _points: number; _source?: string }
+        Args: { _points: number; _source: string; _user_id: string }
         Returns: undefined
       }
       mark_pooled_and_delivered: {
-        Args: { _shipment_id: string; _user_id: string }
-        Returns: number
+        Args: { _carrier_id: string; _shipment_ids: string[] }
+        Returns: undefined
       }
     }
     Enums: {
