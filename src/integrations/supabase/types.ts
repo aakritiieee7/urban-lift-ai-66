@@ -38,6 +38,7 @@ export type Database = {
           username: string | null
           vehicle_capacity_kg: number | null
           vehicle_type: string | null
+          vehicle_types: string | null
           website: string | null
           years_experience: number | null
           zip_code: string | null
@@ -65,6 +66,7 @@ export type Database = {
           username?: string | null
           vehicle_capacity_kg?: number | null
           vehicle_type?: string | null
+          vehicle_types?: string | null
           website?: string | null
           years_experience?: number | null
           zip_code?: string | null
@@ -92,6 +94,7 @@ export type Database = {
           username?: string | null
           vehicle_capacity_kg?: number | null
           vehicle_type?: string | null
+          vehicle_types?: string | null
           website?: string | null
           years_experience?: number | null
           zip_code?: string | null
