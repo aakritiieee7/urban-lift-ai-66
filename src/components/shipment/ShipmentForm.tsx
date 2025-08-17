@@ -42,6 +42,13 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
       destination: { lat: destination.lat, lng: destination.lng, address: destination.address }
     });
 
+    // Validate coordinates exist
+    if (!origin.lat || !origin.lng || !destination.lat || !destination.lng) {
+      toast({ title: "Missing coordinates", description: "Please select locations on the map by clicking or searching." });
+      setLoading(false);
+      return;
+    }
+
     const { error } = await supabase.from("shipments").insert({
       origin: originStr,
       destination: destStr,
