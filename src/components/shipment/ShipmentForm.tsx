@@ -10,6 +10,7 @@ import { clusterShipments, type Shipment as AlgoShipment } from "@/lib/matching"
 import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
 import { Clock, User, Loader2, Star, Truck, CreditCard } from "lucide-react";
+import RazorpayPayment from "@/components/payment/RazorpayPayment";
 
 type ProcessingStep = 'form' | 'creating' | 'pooling' | 'matching' | 'selection' | 'payment' | 'tracking';
 
@@ -324,33 +325,10 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
 
   const selectCarrier = async (carrier: CarrierProfile) => {
     setSelectedCarrier(carrier);
-    
-    // Update shipment with selected carrier
-    const { error } = await supabase
-      .from('shipments')
-      .update({ carrier_id: carrier.user_id })
-      .eq('id', shipmentId);
-
-    if (error) {
-      toast({ title: "Error", description: "Failed to assign carrier" });
-      return;
-    }
-
-    // Move to payment step
+    // Move to payment step (don't assign carrier yet, will be done after payment)
     setCurrentStep('payment');
   };
 
-  const proceedToPayment = () => {
-    toast({ title: "Payment Flow", description: "Processing payment..." });
-    // Here you would integrate with a payment gateway
-    setTimeout(() => {
-      toast({ 
-        title: "Payment Successful! 🎉", 
-        description: "Your shipment is confirmed. Tracking your carrier now..." 
-      });
-      setCurrentStep('tracking');
-    }, 2000);
-  };
 
   const finishFlow = () => {
     resetForm();
@@ -554,49 +532,78 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
     );
   }
 
-  if (currentStep === 'payment' && selectedCarrier) {
+  const handlePaymentSuccess = (shipment: any) => {
+    setCurrentStep('tracking');
+    toast({
+      title: "Payment Successful! 🎉",
+      description: "Your shipment has been created and carrier assigned.",
+    });
+  };
+
+  const handlePaymentFailure = () => {
+    toast({
+      title: "Payment Failed",
+      description: "Please try again or select a different carrier.",
+      variant: "destructive",
+    });
+    setCurrentStep('selection');
+  };
+
+  if (currentStep === 'payment' && selectedCarrier && origin && destination) {
+    // Calculate distance for payment
+    const distanceKm = calculateDistance(origin.lat!, origin.lng!, destination.lat!, destination.lng!);
+    
+    // Prepare shipment data for payment
+    const shipmentData = {
+      origin: origin.address ?? `${origin.lat},${origin.lng}`,
+      destination: destination.address ?? `${destination.lat},${destination.lng}`,
+      origin_lat: origin.lat,
+      origin_lng: origin.lng,
+      origin_address: origin.address,
+      destination_lat: destination.lat,
+      destination_lng: destination.lng,
+      destination_address: destination.address,
+      shipper_id: userId,
+      capacity_kg: capacityKg === "" ? null : Number(capacityKg),
+      pickup_time: pickup || null,
+      dropoff_time: dropoff || null,
+      carrier_id: selectedCarrier.user_id,
+    };
+
     return (
-      <Card className="border-primary/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CreditCard className="h-5 w-5" />
-            Payment & Confirmation
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg">
-            <h4 className="font-semibold text-green-700 dark:text-green-300 mb-2">Carrier Selected</h4>
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-white font-bold">
-                {selectedCarrier.business_name?.charAt(0) || 'C'}
+      <div className="space-y-6">
+        {/* Selected Carrier Info */}
+        <Card className="border-primary/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5" />
+              Payment & Confirmation
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="bg-green-50 dark:bg-green-950/30 p-4 rounded-lg">
+              <h4 className="font-semibold text-green-700 dark:text-green-300 mb-2">Selected Carrier</h4>
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-white font-bold">
+                  {selectedCarrier.business_name?.charAt(0) || 'C'}
+                </div>
+                <div>
+                  <p className="font-medium">{selectedCarrier.business_name}</p>
+                  <p className="text-sm text-muted-foreground">{selectedCarrier.vehicle_type} • {selectedCarrier.phone}</p>
+                </div>
               </div>
-              <div>
-                <p className="font-medium">{selectedCarrier.business_name}</p>
-                <p className="text-sm text-muted-foreground">{selectedCarrier.vehicle_type} • {selectedCarrier.phone}</p>
-              </div>
             </div>
-          </div>
+          </CardContent>
+        </Card>
 
-          <div className="space-y-3">
-            <div className="flex justify-between">
-              <span>Distance:</span>
-              <span>{selectedCarrier.distance?.toFixed(1)} km</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Estimated Time:</span>
-              <span>{calculateETA(selectedCarrier.distance!)} minutes</span>
-            </div>
-            <div className="flex justify-between font-semibold text-lg border-t pt-3">
-              <span>Total Amount:</span>
-              <span className="text-primary">₹{calculatePrice(selectedCarrier.distance!, Number(capacityKg) || 10)}</span>
-            </div>
-          </div>
-
-          <Button onClick={proceedToPayment} className="w-full" size="lg">
-            Proceed to Payment
-          </Button>
-        </CardContent>
-      </Card>
+        {/* Razorpay Payment Component */}
+        <RazorpayPayment
+          shipmentData={shipmentData}
+          distanceKm={distanceKm}
+          onPaymentSuccess={handlePaymentSuccess}
+          onPaymentFailure={handlePaymentFailure}
+        />
+      </div>
     );
   }
 

@@ -258,6 +258,53 @@ export type Database = {
           },
         ]
       }
+      payment_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string | null
+          id: string
+          payment_id: string | null
+          payment_method: string | null
+          payment_status: string | null
+          shipment_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string | null
+          id?: string
+          payment_id?: string | null
+          payment_method?: string | null
+          payment_status?: string | null
+          shipment_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string | null
+          id?: string
+          payment_id?: string | null
+          payment_method?: string | null
+          payment_status?: string | null
+          shipment_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_transactions_shipment_id_fkey"
+            columns: ["shipment_id"]
+            isOneToOne: false
+            referencedRelation: "shipments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       points_balances: {
         Row: {
           created_at: string
@@ -288,12 +335,16 @@ export type Database = {
           destination_address: string | null
           destination_lat: number | null
           destination_lng: number | null
+          distance_km: number | null
           dropoff_time: string | null
           id: string
           origin: string
           origin_address: string | null
           origin_lat: number | null
           origin_lng: number | null
+          payment_amount: number | null
+          payment_id: string | null
+          payment_status: string | null
           pickup_time: string | null
           pooled: boolean
           shipper_id: string
@@ -308,12 +359,16 @@ export type Database = {
           destination_address?: string | null
           destination_lat?: number | null
           destination_lng?: number | null
+          distance_km?: number | null
           dropoff_time?: string | null
           id?: string
           origin: string
           origin_address?: string | null
           origin_lat?: number | null
           origin_lng?: number | null
+          payment_amount?: number | null
+          payment_id?: string | null
+          payment_status?: string | null
           pickup_time?: string | null
           pooled?: boolean
           shipper_id: string
@@ -328,12 +383,16 @@ export type Database = {
           destination_address?: string | null
           destination_lat?: number | null
           destination_lng?: number | null
+          distance_km?: number | null
           dropoff_time?: string | null
           id?: string
           origin?: string
           origin_address?: string | null
           origin_lat?: number | null
           origin_lng?: number | null
+          payment_amount?: number | null
+          payment_id?: string | null
+          payment_status?: string | null
           pickup_time?: string | null
           pooled?: boolean
           shipper_id?: string
