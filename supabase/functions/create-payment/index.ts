@@ -53,8 +53,14 @@ serve(async (req) => {
       created_at: Math.floor(Date.now() / 1000)
     };
 
-    // Store payment transaction in database
-    const { data: paymentTransaction, error: paymentError } = await supabaseClient
+    // Store payment transaction in database using service role for RLS bypass
+    const supabaseService = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
+    );
+
+    const { data: paymentTransaction, error: paymentError } = await supabaseService
       .from('payment_transactions')
       .insert({
         user_id: user.id,
