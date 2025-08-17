@@ -1,8 +1,20 @@
 import Layout from "@/components/Layout";
 import { Helmet } from "react-helmet-async";
 import ShipmentForm from "@/components/shipment/ShipmentForm";
+import ShipmentsList from "@/components/shipment/ShipmentsList";
+import { useState } from "react";
 
 const Transit = () => {
+  const [refreshShipments, setRefreshShipments] = useState(false);
+
+  const handleShipmentCreated = () => {
+    setRefreshShipments(true);
+  };
+
+  const handleRefreshComplete = () => {
+    setRefreshShipments(false);
+  };
+
   return (
     <>
       <Helmet>
@@ -17,8 +29,12 @@ const Transit = () => {
               <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-delhi-navy to-delhi-primary bg-clip-text text-transparent">Review and Create Shipments in Transit</h1>
               <p className="text-delhi-navy/70 mt-2 text-lg">Create shipment requests with intelligent driver assignment.</p>
             </header>
-            <section className="max-w-4xl mx-auto">
-              <ShipmentForm />
+            <section className="max-w-4xl mx-auto space-y-8">
+              <ShipmentForm onCreated={handleShipmentCreated} />
+              <ShipmentsList 
+                refresh={refreshShipments} 
+                onRefreshComplete={handleRefreshComplete} 
+              />
             </section>
           </section>
         </main>
