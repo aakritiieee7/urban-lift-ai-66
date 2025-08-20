@@ -30,17 +30,7 @@ const ShipperHome = () => {
       <Layout>
         <main className="min-h-screen">
           {/* Hero Section */}
-          <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
-            <div 
-              className="absolute inset-0 bg-contain bg-center bg-no-repeat"
-              style={{ 
-                backgroundImage: `url("/lovable-uploads/2a758667-ca55-4d0f-836e-449ffc0ce7e1.png")`,
-                backgroundSize: '80% auto'
-              }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-delhi-navy/30 via-delhi-primary/20 to-delhi-navy/40"></div>
-            </div>
-            
+          <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-delhi-navy via-delhi-primary to-delhi-navy">
             <div className="relative z-10 container mx-auto px-4 py-20 text-center">
               <div className="max-w-4xl mx-auto space-y-8">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-sm font-medium text-white mb-6 backdrop-blur-sm">
