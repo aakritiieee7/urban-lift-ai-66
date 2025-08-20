@@ -3,7 +3,21 @@ import Layout from "@/components/Layout";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Truck, MapPin, Users, BarChart3, Package } from "lucide-react";
+import { 
+  Truck, 
+  MapPin, 
+  Users, 
+  BarChart3, 
+  Package, 
+  Zap, 
+  CheckCircle, 
+  ArrowRight,
+  Route,
+  Clock,
+  Leaf,
+  TrendingUp,
+  Target
+} from "lucide-react";
 
 const ShipperHome = () => {
   return (
@@ -14,129 +28,231 @@ const ShipperHome = () => {
         <link rel="canonical" href="/shipper/home" />
       </Helmet>
       <Layout>
-        <main className="min-h-screen bg-background">
-          <div className="container mx-auto px-4 py-12">
-            {/* Hero Section */}
-            <section className="text-center mb-16">
-              <div className="mb-8">
-                <Package className="h-16 w-16 text-delhi-primary mx-auto mb-4" />
+        <main className="min-h-screen">
+          {/* Hero Section */}
+          <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
+            <div 
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              style={{ 
+                backgroundImage: `linear-gradient(135deg, hsl(var(--delhi-navy))/0.9, hsl(var(--delhi-primary))/0.8), url(${"/src/assets/hero-warehouse.jpg"})` 
+              }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-delhi-navy/90 via-delhi-primary/80 to-delhi-navy/90"></div>
+            </div>
+            
+            <div className="relative z-10 container mx-auto px-4 py-20 text-center">
+              <div className="max-w-4xl mx-auto space-y-8">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-sm font-medium text-white mb-6 backdrop-blur-sm">
+                  <Zap className="w-4 h-4" />
+                  AI-Powered Logistics for Modern Businesses
+                </div>
+                
+                <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight">
+                  Power Your Logistics with{" "}
+                  <span className="bg-gradient-to-r from-delhi-gold to-delhi-orange bg-clip-text text-transparent">
+                    UrbanLift
+                  </span>
+                </h1>
+                
+                <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed">
+                  A smarter platform for seamless shipping, real-time tracking, collaborative 
+                  logistics, and performance analytics — all in one place.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
+                  <Link to="/shipper/transit">
+                    <Button 
+                      size="xl" 
+                      className="bg-delhi-primary hover:bg-delhi-primary/90 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border-0"
+                    >
+                      <Package className="mr-2" />
+                      Start Shipping
+                    </Button>
+                  </Link>
+                  <Link to="/shipper/track">
+                    <Button 
+                      size="xl" 
+                      variant="outline"
+                      className="bg-white/10 border-white/30 text-white hover:bg-white/20 backdrop-blur-sm"
+                    >
+                      Track Shipment
+                    </Button>
+                  </Link>
+                </div>
               </div>
-              <h1 className="text-4xl md:text-6xl font-bold text-delhi-navy mb-6">
-                Welcome to UrbanLift
-              </h1>
-              <p className="text-xl text-delhi-navy/70 max-w-3xl mx-auto mb-8">
-                Your complete logistics solution. Create shipments, track deliveries, 
-                connect with carriers, and analyze your shipping performance all in one place.
-              </p>
-              <Link to="/shipper/transit">
-                <Button size="lg" className="text-lg px-8 py-4">
-                  Create Your First Shipment
-                </Button>
-              </Link>
-            </section>
+            </div>
+          </section>
 
-            {/* Main Features Grid */}
-            <section className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 mb-16">
-              {/* Transit */}
-              <Link to="/shipper/transit">
-                <Card className="p-6 hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer">
-                  <CardHeader className="p-0 pb-4">
-                    <div className="p-3 rounded-lg bg-delhi-primary/10 w-fit">
-                      <Truck className="h-8 w-8 text-delhi-primary" />
-                    </div>
-                    <CardTitle className="text-2xl">Transit</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    <p className="text-muted-foreground mb-4">
-                      Create and manage your shipments with ease
-                    </p>
-                    <Button variant="outline" className="w-full">
-                      Manage Shipments
-                    </Button>
-                  </CardContent>
-                </Card>
-              </Link>
-
-              {/* Track */}
-              <Link to="/shipper/track">
-                <Card className="p-6 hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer">
-                  <CardHeader className="p-0 pb-4">
-                    <div className="p-3 rounded-lg bg-delhi-primary/10 w-fit">
-                      <MapPin className="h-8 w-8 text-delhi-primary" />
-                    </div>
-                    <CardTitle className="text-2xl">Track</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    <p className="text-muted-foreground mb-4">
-                      Monitor your deliveries in real-time
-                    </p>
-                    <Button variant="outline" className="w-full">
-                      Track Shipments
-                    </Button>
-                  </CardContent>
-                </Card>
-              </Link>
-
-              {/* Community */}
-              <Link to="/shipper/community">
-                <Card className="p-6 hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer">
-                  <CardHeader className="p-0 pb-4">
-                    <div className="p-3 rounded-lg bg-delhi-primary/10 w-fit">
-                      <Users className="h-8 w-8 text-delhi-primary" />
-                    </div>
-                    <CardTitle className="text-2xl">Community</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    <p className="text-muted-foreground mb-4">
-                      Connect with other shippers and carriers
-                    </p>
-                    <Button variant="outline" className="w-full">
-                      Join Community
-                    </Button>
-                  </CardContent>
-                </Card>
-              </Link>
-
-              {/* Analytics */}
-              <Link to="/shipper/analytics">
-                <Card className="p-6 hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer">
-                  <CardHeader className="p-0 pb-4">
-                    <div className="p-3 rounded-lg bg-delhi-primary/10 w-fit">
-                      <BarChart3 className="h-8 w-8 text-delhi-primary" />
-                    </div>
-                    <CardTitle className="text-2xl">Analytics</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    <p className="text-muted-foreground mb-4">
-                      Track costs and shipping performance
-                    </p>
-                    <Button variant="outline" className="w-full">
-                      View Analytics
-                    </Button>
-                  </CardContent>
-                </Card>
-              </Link>
-            </section>
-
-            {/* Quick Actions */}
-            <section className="text-center">
-              <h2 className="text-3xl font-bold text-delhi-navy mb-8">
-                Get Started Today
-              </h2>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/shipper/transit">
-                  <Button size="lg" variant="default">
-                    Create Shipment
-                  </Button>
-                </Link>
-                <Link to="/shipper/community">
-                  <Button size="lg" variant="outline">
-                    Explore Community
-                  </Button>
-                </Link>
+          {/* AI-Powered Features Section */}
+          <section className="py-24 bg-gradient-to-b from-background to-muted/20">
+            <div className="container mx-auto px-4">
+              <div className="text-center space-y-4 mb-16">
+                <h2 className="text-4xl md:text-5xl font-bold text-delhi-navy">
+                  AI-Powered Shipping Features
+                </h2>
+                <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+                  Our advanced AI algorithms optimize every aspect of your shipping operations
+                </p>
               </div>
-            </section>
-          </div>
+              
+              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+                {/* AI Route Engine */}
+                <Card className="group p-8 hover:shadow-[var(--shadow-delhi)] transition-all duration-300 hover:scale-105 border-0 bg-gradient-to-br from-blue-50 to-blue-100/50">
+                  <CardHeader className="p-0 pb-6">
+                    <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 w-fit mb-4 group-hover:scale-110 transition-transform duration-300">
+                      <Route className="h-8 w-8 text-white" />
+                    </div>
+                    <CardTitle className="text-xl font-bold text-delhi-navy">AI Route Engine</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0 space-y-4">
+                    <p className="text-muted-foreground">
+                      Smart, restriction-aware routing but smart. Our engine guarantees safe and legal trips by automatically avoiding roads with heavy vehicle restrictions.
+                    </p>
+                    <Link to="/shipper/transit" className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium">
+                      Optimize routes →
+                    </Link>
+                  </CardContent>
+                </Card>
+
+                {/* Predictive Traffic */}
+                <Card className="group p-8 hover:shadow-[var(--shadow-delhi)] transition-all duration-300 hover:scale-105 border-0 bg-gradient-to-br from-green-50 to-green-100/50">
+                  <CardHeader className="p-0 pb-6">
+                    <div className="p-4 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 w-fit mb-4 group-hover:scale-110 transition-transform duration-300">
+                      <Clock className="h-8 w-8 text-white" />
+                    </div>
+                    <CardTitle className="text-xl font-bold text-delhi-navy">Predictive Traffic</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0 space-y-4">
+                    <p className="text-muted-foreground">
+                      Avoid congestion proactively. Our AI studies traffic patterns to proactively route around congestion, helping you avoid delays and save time.
+                    </p>
+                    <Link to="/shipper/track" className="inline-flex items-center text-green-600 hover:text-green-700 font-medium">
+                      Avoid traffic →
+                    </Link>
+                  </CardContent>
+                </Card>
+
+                {/* Intelligent Pooling */}
+                <Card className="group p-8 hover:shadow-[var(--shadow-delhi)] transition-all duration-300 hover:scale-105 border-0 bg-gradient-to-br from-purple-50 to-purple-100/50">
+                  <CardHeader className="p-0 pb-6">
+                    <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 w-fit mb-4 group-hover:scale-110 transition-transform duration-300">
+                      <Package className="h-8 w-8 text-white" />
+                    </div>
+                    <CardTitle className="text-xl font-bold text-delhi-navy">Intelligent Pooling</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0 space-y-4">
+                    <p className="text-muted-foreground">
+                      Consolidate shipments automatically. Our AI consolidates multiple shipments into a single, optimized trip, drastically cutting your costs and environmental impact.
+                    </p>
+                    <Link to="/ai-pooling" className="inline-flex items-center text-purple-600 hover:text-purple-700 font-medium">
+                      Consolidate shipments →
+                    </Link>
+                  </CardContent>
+                </Card>
+
+                {/* Performance Analytics */}
+                <Card className="group p-8 hover:shadow-[var(--shadow-delhi)] transition-all duration-300 hover:scale-105 border-0 bg-gradient-to-br from-orange-50 to-orange-100/50">
+                  <CardHeader className="p-0 pb-6">
+                    <div className="p-4 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 w-fit mb-4 group-hover:scale-110 transition-transform duration-300">
+                      <TrendingUp className="h-8 w-8 text-white" />
+                    </div>
+                    <CardTitle className="text-xl font-bold text-delhi-navy">Performance Analytics</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0 space-y-4">
+                    <p className="text-muted-foreground">
+                      Actionable insights & impact metrics. Gain clear, actionable insights into your logistics with metrics that show the real-world financial impact of our AI.
+                    </p>
+                    <Link to="/shipper/analytics" className="inline-flex items-center text-orange-600 hover:text-orange-700 font-medium">
+                      View insights →
+                    </Link>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </section>
+
+          {/* Benefits Section */}
+          <section className="py-24 bg-muted/30">
+            <div className="container mx-auto px-4">
+              <div className="grid gap-16 lg:grid-cols-3">
+                {/* Cost Reduction */}
+                <div className="text-center space-y-6">
+                  <div className="p-6 rounded-3xl bg-gradient-to-br from-blue-500/10 to-blue-600/20 w-fit mx-auto">
+                    <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600">
+                      <Target className="h-12 w-12 text-white" />
+                    </div>
+                  </div>
+                  <h3 className="text-2xl font-bold text-delhi-navy">Cost Reduction</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Our AI algorithms reduce shipping costs by optimizing routes and consolidating shipments.
+                  </p>
+                </div>
+
+                {/* Time Savings */}
+                <div className="text-center space-y-6">
+                  <div className="p-6 rounded-3xl bg-gradient-to-br from-green-500/10 to-green-600/20 w-fit mx-auto">
+                    <div className="p-4 rounded-2xl bg-gradient-to-br from-green-500 to-green-600">
+                      <Clock className="h-12 w-12 text-white" />
+                    </div>
+                  </div>
+                  <h3 className="text-2xl font-bold text-delhi-navy">Time Savings</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Predictive traffic avoidance saves an average of 18% in delivery time across all shipments.
+                  </p>
+                </div>
+
+                {/* Sustainability */}
+                <div className="text-center space-y-6">
+                  <div className="p-6 rounded-3xl bg-gradient-to-br from-purple-500/10 to-purple-600/20 w-fit mx-auto">
+                    <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600">
+                      <Leaf className="h-12 w-12 text-white" />
+                    </div>
+                  </div>
+                  <h3 className="text-2xl font-bold text-delhi-navy">Sustainability</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Intelligent pooling reduces carbon emissions by minimizing empty miles and optimizing load capacity.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Quick Actions */}
+          <section className="py-24 bg-gradient-to-br from-delhi-primary/5 to-delhi-navy/10">
+            <div className="container mx-auto px-4 text-center">
+              <div className="max-w-3xl mx-auto space-y-8">
+                <h2 className="text-4xl font-bold text-delhi-navy">
+                  Ready to Transform Your Logistics?
+                </h2>
+                <p className="text-xl text-muted-foreground">
+                  Join hundreds of businesses already using UrbanLift.AI to optimize their shipping operations.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+                  <Link to="/shipper/transit">
+                    <Button 
+                      size="xl" 
+                      className="bg-delhi-primary hover:bg-delhi-primary/90 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                    >
+                      <Package className="mr-2" />
+                      Create Your First Shipment
+                      <ArrowRight className="ml-2" />
+                    </Button>
+                  </Link>
+                  <Link to="/shipper/community">
+                    <Button 
+                      size="xl" 
+                      variant="outline"
+                      className="border-delhi-primary text-delhi-primary hover:bg-delhi-primary hover:text-white"
+                    >
+                      <Users className="mr-2" />
+                      Explore Community
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </section>
         </main>
       </Layout>
     </>
