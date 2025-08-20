@@ -158,7 +158,7 @@ const Index = () => {
                 </CardHeader>
                 <CardContent className="p-0">
                   <p className="text-muted-foreground">
-                    Optimized routes and pooled shipments reduce delivery times compared to traditional methods.
+                    Optimized routes and pooled shipments improve delivery efficiency compared to traditional methods.
                   </p>
                 </CardContent>
               </Card>
@@ -172,7 +172,7 @@ const Index = () => {
                 </CardHeader>
                 <CardContent className="p-0">
                   <p className="text-muted-foreground">
-                    Reduce logistics costs through intelligent pooling and route optimization algorithms.
+                    Our advanced algorithms reduce shipping costs through intelligent pooling and route optimization.
                   </p>
                 </CardContent>
               </Card>
@@ -247,7 +247,7 @@ const Index = () => {
                           </div>
                           <div>
                             <p className="font-semibold text-delhi-navy">Cost Savings</p>
-                            <p className="text-sm text-muted-foreground">Significant cost savings</p>
+                            <p className="text-sm text-muted-foreground">Optimize shipping costs</p>
                           </div>
                         </div>
                       </Card>
@@ -258,7 +258,7 @@ const Index = () => {
                           </div>
                           <div>
                             <p className="font-semibold text-delhi-navy">Delivery Time</p>
-                            <p className="text-sm text-muted-foreground">Faster delivery times</p>
+                            <p className="text-sm text-muted-foreground">Improved delivery efficiency</p>
                           </div>
                         </div>
                       </Card>
@@ -280,7 +280,7 @@ const Index = () => {
                           </div>
                           <div>
                             <p className="font-semibold text-delhi-navy">Revenue Boost</p>
-                            <p className="text-sm text-muted-foreground">Higher earnings per trip</p>
+                            <p className="text-sm text-muted-foreground">Maximize trip revenue</p>
                           </div>
                         </div>
                       </Card>
@@ -350,7 +350,7 @@ const Index = () => {
               <div className="space-y-4">
                 <h2 className="text-4xl md:text-5xl font-bold text-white">Ready to Transform Your Logistics?</h2>
                 <p className="text-xl text-white/90 max-w-3xl mx-auto">
-                  Join businesses using UrbanLift.AI to optimize their shipping operations and reduce costs.
+                  Join businesses using UrbanLift.AI to optimize their shipping operations.
                 </p>
               </div>
               
