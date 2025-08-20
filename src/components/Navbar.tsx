@@ -36,6 +36,9 @@ const Navbar = memo(() => {
               <NavLink to="/shipper/community" className="px-3 py-2 rounded-md hover:bg-accent">
                 Community
               </NavLink>
+              <NavLink to="/shipper/pooling" className="px-3 py-2 rounded-md hover:bg-accent">
+                Pooling
+              </NavLink>
               <NavLink to="/shipper/analytics" className="px-3 py-2 rounded-md hover:bg-accent">
                 Analytics
               </NavLink>
@@ -79,9 +82,6 @@ const Navbar = memo(() => {
               </NavLink>
               <NavLink to="/transits" className="px-3 py-2 rounded-md hover:bg-accent">
                 Transits
-              </NavLink>
-              <NavLink to="/ai-pooling" className="px-3 py-2 rounded-md hover:bg-accent">
-                AI Pooling
               </NavLink>
               {userId ? (
                 <>

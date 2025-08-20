@@ -19,7 +19,7 @@ import Leaderboard from "./pages/Leaderboard";
 import ProfileSetup from "./pages/ProfileSetup";
 import Profile from "./pages/Profile";
 import PublicTransits from "./pages/PublicTransits";
-import AIPooling from "./pages/AIPooling";
+
 import CarrierTransit from "./pages/carrier/Transit";
 import CarrierTrack from "./pages/carrier/Track";
 import CarrierCommunity from "./pages/carrier/Community";
@@ -28,6 +28,7 @@ import ShipperTransit from "./pages/shipper/Transit";
 import ShipperTrack from "./pages/shipper/Track";
 import ShipperCommunity from "./pages/shipper/Community";
 import ShipperAnalytics from "./pages/shipper/Analytics";
+import ShipperPooling from "./pages/shipper/Pooling";
 import ShipperHome from "./pages/shipper/Home";
 const queryClient = new QueryClient();
 
@@ -51,15 +52,16 @@ const App = () => (
             <Route path="/community" element={<Community />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/transits" element={<PublicTransits />} />
-            <Route path="/ai-pooling" element={<AIPooling />} />
+            
             <Route path="/profile-setup" element={<ProfileSetup />} />
 <Route path="/profile" element={<Profile />} />
 {/* Shipper section pages */}
           <Route path="/shipper/home" element={<ShipperHome />} />
           <Route path="/shipper/transit" element={<ShipperTransit />} />
           <Route path="/shipper/track" element={<ShipperTrack />} />
-          <Route path="/shipper/community" element={<ShipperCommunity />} />
-          <Route path="/shipper/analytics" element={<ShipperAnalytics />} />
+           <Route path="/shipper/community" element={<ShipperCommunity />} />
+           <Route path="/shipper/pooling" element={<ShipperPooling />} />
+           <Route path="/shipper/analytics" element={<ShipperAnalytics />} />
 {/* Carrier section pages */}
 <Route path="/carrier/transit" element={<CarrierTransit />} />
 <Route path="/carrier/track" element={<CarrierTrack />} />
