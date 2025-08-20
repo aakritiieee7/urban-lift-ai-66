@@ -119,22 +119,41 @@ const Analytics = () => {
     
     const deliveryRate = totalShipments > 0 ? (statusCounts.delivered / totalShipments) * 100 : 0;
     const pooledShipments = shipments.filter(s => s.pooled).length;
-    const averageDistance = shipments.length > 0 ? 
-      shipments.reduce((sum, s) => sum + (s.distance_km || 0), 0) / shipments.length : 0;
+    
+    // Enhanced distance calculation with debugging
+    const shipmentsWithDistance = shipments.filter(s => s.distance_km && s.distance_km > 0);
+    const totalDistance = shipmentsWithDistance.reduce((sum, s) => sum + (s.distance_km || 0), 0);
+    const averageDistance = shipmentsWithDistance.length > 0 ? 
+      totalDistance / shipmentsWithDistance.length : 25; // Better fallback for Indian metro areas
+    
     const totalCapacity = shipments.reduce((sum, s) => sum + (s.capacity_kg || 0), 0);
     
     // Calculate realistic cost savings
     // UrbanLift.AI saves 18-25% through AI pooling vs traditional platforms
     const costSavings = totalSpent * 0.22; // 22% average savings from pooling efficiency
     
+    // Enhanced CO2 calculation with debugging
+    console.log('CO2 Calculation Debug:', {
+      totalShipments,
+      pooledShipments,
+      shipmentsWithDistance: shipmentsWithDistance.length,
+      averageDistance,
+      poolingPercentage: totalShipments > 0 ? (pooledShipments / totalShipments * 100).toFixed(1) + '%' : '0%'
+    });
+    
     // Calculate CO2 savings using real diesel truck emission data
     // Average diesel truck: 0.8-1.2 kg CO2 per km (loaded), 0.6-0.8 kg CO2 per km (empty)
     // Pooling reduces average CO2 by 25-35% through route optimization and load consolidation
     const avgEmissionPerKm = 0.9; // kg CO2 per km for loaded diesel truck
-    const avgTripDistance = averageDistance || 15; // fallback to 15km average
     const emissionReductionRate = 0.30; // 30% reduction through pooling
-    const co2SavedPerPooledShipment = avgTripDistance * avgEmissionPerKm * emissionReductionRate;
+    const co2SavedPerPooledShipment = averageDistance * avgEmissionPerKm * emissionReductionRate;
     const co2Saved = pooledShipments * co2SavedPerPooledShipment;
+    
+    console.log('CO2 Calculation Details:', {
+      co2SavedPerPooledShipment: co2SavedPerPooledShipment.toFixed(2),
+      totalCO2Saved: co2Saved.toFixed(2),
+      formula: `${pooledShipments} pooled × ${averageDistance.toFixed(1)}km × ${avgEmissionPerKm}kg/km × ${emissionReductionRate} = ${co2Saved.toFixed(2)}kg`
+    });
     
     // Generate monthly data
     const monthlyData = generateMonthlyData(shipments);
