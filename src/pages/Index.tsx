@@ -213,12 +213,14 @@ const Index = () => {
                       </p>
                     </div>
                     
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
                       {[
                         { icon: Zap, text: "AI-powered carrier matching" },
                         { icon: MapPin, text: "Real-time shipment tracking" },
                         { icon: Package, text: "Automated documentation" },
-                        { icon: Users, text: "Cost-effective pooled deliveries" }
+                        { icon: Users, text: "Cost-effective pooled deliveries" },
+                        { icon: BarChart3, text: "Advanced analytics dashboard" },
+                        { icon: CheckCircle, text: "Verified delivery confirmation" }
                       ].map((feature, index) => (
                         <div key={index} className="flex items-center gap-3 p-4 rounded-xl bg-gray-50 border">
                           <div className="p-2 rounded-lg bg-delhi-primary/10">
@@ -304,12 +306,14 @@ const Index = () => {
                       </p>
                     </div>
                     
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
                       {[
-                        { icon: BarChart3, text: "AI-optimized route planning" },
-                        { icon: Package, text: "Multiple shipment management" },
-                        { icon: CheckCircle, text: "Guaranteed payment protection" },
-                        { icon: Star, text: "Performance analytics dashboard" }
+                        { icon: Truck, text: "AI-optimized route planning" },
+                        { icon: Star, text: "Multiple shipment management" },
+                        { icon: ArrowRight, text: "Guaranteed payment protection" },
+                        { icon: MapPin, text: "Performance analytics dashboard" },
+                        { icon: Users, text: "Verified carrier network" },
+                        { icon: Zap, text: "Instant load assignments" }
                       ].map((feature, index) => (
                         <div key={index} className="flex items-center gap-3 p-4 rounded-xl bg-gray-50 border">
                           <div className="p-2 rounded-lg bg-delhi-primary/10">
