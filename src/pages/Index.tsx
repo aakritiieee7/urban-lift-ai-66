@@ -30,7 +30,7 @@ const Index = () => {
         .eq("user_id", userId)
         .maybeSingle();
       if (data?.role === "shipper") navigate("/shipper/home", { replace: true });
-      else if (data?.role === "carrier") navigate("/carrier-dashboard", { replace: true });
+      else if (data?.role === "carrier") navigate("/carrier/home", { replace: true });
     })();
   }, [userId, loading, navigate]);
   return (

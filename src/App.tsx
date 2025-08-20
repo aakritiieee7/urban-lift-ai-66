@@ -20,6 +20,7 @@ import ProfileSetup from "./pages/ProfileSetup";
 import Profile from "./pages/Profile";
 import PublicTransits from "./pages/PublicTransits";
 
+import CarrierHome from "./pages/carrier/Home";
 import CarrierTransit from "./pages/carrier/Transit";
 import CarrierTrack from "./pages/carrier/Track";
 import CarrierCommunity from "./pages/carrier/Community";
@@ -63,6 +64,7 @@ const App = () => (
            <Route path="/shipper/pooling" element={<ShipperPooling />} />
            <Route path="/shipper/analytics" element={<ShipperAnalytics />} />
 {/* Carrier section pages */}
+<Route path="/carrier/home" element={<CarrierHome />} />
 <Route path="/carrier/transit" element={<CarrierTransit />} />
 <Route path="/carrier/track" element={<CarrierTrack />} />
 <Route path="/carrier/community" element={<CarrierCommunity />} />

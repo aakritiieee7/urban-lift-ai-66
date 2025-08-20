@@ -49,11 +49,11 @@ const Navbar = memo(() => {
             </>
           ) : userId && role === 'carrier' ? (
             <>
-              <NavLink to="/carrier-dashboard" className="px-3 py-2 rounded-md hover:bg-accent">
-                Dashboard
+              <NavLink to="/carrier/home" className="px-3 py-2 rounded-md hover:bg-accent">
+                Home
               </NavLink>
               <NavLink to="/carrier/available" className="px-3 py-2 rounded-md hover:bg-accent">
-                Available Jobs
+                Available
               </NavLink>
               <NavLink to="/carrier/transit" className="px-3 py-2 rounded-md hover:bg-accent">
                 Transit
