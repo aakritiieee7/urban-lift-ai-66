@@ -107,7 +107,7 @@ const ShipmentsList = ({ refresh, onRefreshComplete }: ShipmentsListProps) => {
       fetchShipments();
       onRefreshComplete();
     }
-  }, [refresh]); // Removed onRefreshComplete from dependency array
+  }, [refresh, onRefreshComplete]);
 
   const markAsDone = async (shipmentId: string) => {
     const { error } = await supabase

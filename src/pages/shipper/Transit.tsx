@@ -2,18 +2,18 @@ import Layout from "@/components/Layout";
 import { Helmet } from "react-helmet-async";
 import ShipmentForm from "@/components/shipment/ShipmentForm";
 import ShipmentsList from "@/components/shipment/ShipmentsList";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 
 const Transit = () => {
   const [refreshShipments, setRefreshShipments] = useState(false);
 
-  const handleShipmentCreated = () => {
+  const handleShipmentCreated = useCallback(() => {
     setRefreshShipments(true);
-  };
+  }, []);
 
-  const handleRefreshComplete = () => {
+  const handleRefreshComplete = useCallback(() => {
     setRefreshShipments(false);
-  };
+  }, []);
 
   return (
     <>
