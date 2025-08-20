@@ -119,8 +119,8 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
         const distance = 10 + Math.random() * 20; // 10-30km range
         
         // Calculate score based on capacity match, experience, etc.
-        const capacityMatch = carrier.vehicle_capacity_kg >= requiredCapacity ? 1 : 0.5;
-        const experienceScore = Math.min(carrier.years_experience / 10, 1);
+        const capacityMatch = (!carrier.vehicle_capacity_kg || carrier.vehicle_capacity_kg >= requiredCapacity) ? 1 : 0.5;
+        const experienceScore = Math.min((carrier.years_experience || 1) / 10, 1);
         const score = (capacityMatch * 0.6 + experienceScore * 0.4) * (0.8 + Math.random() * 0.2);
 
         return {
@@ -137,7 +137,13 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
 
       // Filter by capacity requirement and sort by score (treat null capacity as unlimited)
       return carriersWithMetrics
-        .filter(carrier => !carrier.vehicle_capacity_kg || carrier.vehicle_capacity_kg >= (requiredCapacity || 0))
+        .filter(carrier => {
+          const capacity = carrier.vehicle_capacity_kg;
+          // If capacity is null/undefined, treat as unlimited capacity (carrier can handle any size)
+          if (!capacity) return true;
+          // Otherwise check if capacity meets requirement
+          return capacity >= (requiredCapacity || 0);
+        })
         .sort((a, b) => b.score - a.score);
         
     } catch (error) {
