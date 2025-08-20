@@ -51,7 +51,7 @@ const Index = () => {
           <div 
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{ 
-              backgroundImage: `linear-gradient(135deg, hsl(var(--delhi-navy))/0.9, hsl(var(--delhi-primary))/0.8), url(${heroImage})` 
+              backgroundImage: `linear-gradient(135deg, hsl(var(--delhi-navy))/0.9, hsl(var(--delhi-primary))/0.8), url("/lovable-uploads/68e90960-b335-402d-bbed-b7e628ca96e7.png")` 
             }}
           >
             <div className="absolute inset-0 bg-gradient-to-br from-delhi-navy/90 via-delhi-primary/80 to-delhi-navy/90"></div>
