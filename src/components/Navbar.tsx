@@ -19,7 +19,7 @@ const Navbar = memo(() => {
       <nav className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link to="/" className="inline-flex items-center gap-2 font-semibold hover:opacity-90 transition-opacity">
           <Truck className="h-6 w-6" aria-hidden="true" />
-          <span className="text-base md:text-lg font-semibold">UrbanLift</span>
+          <span className="text-base md:text-lg font-semibold">UrbanLift.AI</span>
         </Link>
         <div className="flex items-center gap-2">
           {userId && role === 'shipper' ? (

@@ -44,78 +44,50 @@ const Index = () => {
       
       {/* Hero Section */}
       <main>
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
           <div 
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: `url(${heroImage})` }}
+            style={{ 
+              backgroundImage: `linear-gradient(135deg, hsl(var(--delhi-navy))/0.9, hsl(var(--delhi-primary))/0.8), url(${heroImage})` 
+            }}
           >
-            <div className="absolute inset-0 bg-background/85"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-delhi-navy/90 via-delhi-primary/80 to-delhi-navy/90"></div>
           </div>
           
-          <div className="relative z-10 container mx-auto px-4 py-20">
-            <div className="grid items-center gap-12 lg:grid-cols-2">
-              <div className="space-y-8">
-                <div className="space-y-4">
-                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[hsl(var(--primary))]/10 border border-[hsl(var(--primary))]/20 text-sm font-medium text-[hsl(var(--primary))]">
-                    <Zap className="w-4 h-4" />
-                    AI-Powered Logistics Platform
-                  </div>
-                  <h1 className="text-5xl font-bold leading-tight lg:text-6xl">
-                    Revolutionize Your{" "}
-                    <span className="text-primary">
-                      Logistics Operations
-                    </span>
-                  </h1>
-                  <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl">
-                    Connect shippers and carriers seamlessly with AI-powered pooling, real-time tracking, and optimized route planning. Transform your logistics with UrbanLift.AI.
-                  </p>
-                </div>
-                
-                <div className="flex flex-col sm:flex-row gap-5 md:gap-6">
-                  <Link to="/auth/shipper/login">
-                    <Button variant="default" size="xl" className="w-full sm:w-auto">
-                      <Package className="mr-2" />
-                      Start as Shipper
-                      <ArrowRight className="ml-2" />
-                    </Button>
-                  </Link>
-                  <Link to="/auth/carrier/login">
-                    <Button variant="secondary" size="xl" className="w-full sm:w-auto">
-                      <Truck className="mr-2" />
-                      Join as Carrier
-                      <ArrowRight className="ml-2" />
-                    </Button>
-                  </Link>
-                </div>
-                
-                <div className="flex items-center gap-8 pt-4">
-                  <div className="flex items-center gap-2">
-                    <div className="flex -space-x-2">
-                      <div className="w-8 h-8 rounded-full bg-muted border-2 border-background"></div>
-                      <div className="w-8 h-8 rounded-full bg-muted border-2 border-background"></div>
-                      <div className="w-8 h-8 rounded-full bg-muted border-2 border-background"></div>
-                    </div>
-                    <span className="text-sm text-muted-foreground">500+ Happy Users</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-[hsl(var(--brand-orange))] text-[hsl(var(--brand-orange))]" />
-                    ))}
-                    <span className="text-sm text-muted-foreground ml-1">4.9/5</span>
-                  </div>
-                </div>
-              </div>
+          <div className="relative z-10 container mx-auto px-4 py-20 text-center">
+            <div className="max-w-4xl mx-auto space-y-8">
+              <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight">
+                Power Your Logistics with{" "}
+                <span className="bg-gradient-to-r from-delhi-gold to-delhi-orange bg-clip-text text-transparent">
+                  UrbanLift.AI
+                </span>
+              </h1>
               
-              <div className="relative">
-                <div className="absolute -inset-6 -z-10 overflow-hidden rounded-2xl">
-                  <img src={carrierImage} alt="" className="h-full w-full object-cover opacity-40" loading="lazy" />
-                  <div className="absolute inset-0 bg-gradient-to-b from-background/0 to-background/20" />
-                </div>
-                <Card className="relative shadow-2xl border-0 bg-card">
-                  <CardContent className="p-0">
-                    <LiveMap />
-                  </CardContent>
-                </Card>
+              <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed">
+                A smarter platform for seamless shipping, real-time tracking, collaborative 
+                logistics, and performance analytics — all in one place.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
+                <Link to="/auth/shipper/login">
+                  <Button 
+                    size="xl" 
+                    className="bg-delhi-primary hover:bg-delhi-primary/90 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border-0"
+                  >
+                    <Package className="mr-2" />
+                    Start as Shipper
+                  </Button>
+                </Link>
+                <Link to="/auth/carrier/login">
+                  <Button 
+                    size="xl" 
+                    variant="outline"
+                    className="bg-white/10 border-white/30 text-white hover:bg-white/20 backdrop-blur-sm"
+                  >
+                    <Truck className="mr-2" />
+                    Join as Carrier
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
@@ -125,7 +97,7 @@ const Index = () => {
         <section className="py-24 bg-background">
           <div className="container mx-auto px-4">
             <div className="text-center space-y-4 mb-16">
-              <h2 className="text-4xl font-bold tracking-tight">Why Choose UrbanLift.AI?</h2>
+              <h2 className="text-4xl font-bold text-delhi-navy">Why Choose UrbanLift.AI?</h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
                 Advanced AI technology meets logistics expertise to deliver unparalleled efficiency and cost savings.
               </p>
@@ -213,10 +185,10 @@ const Index = () => {
                       <Package className="w-4 h-4" />
                       For Shippers
                     </div>
-                    <h3 className="text-5xl font-bold">Streamline Your Shipping Operations</h3>
-                    <p className="text-xl text-muted-foreground">
-                      Create shipments, get instant quotes, and track deliveries with our intuitive shipper dashboard. Perfect for MSMEs looking to optimize their logistics.
-                    </p>
+                     <h3 className="text-5xl font-bold text-delhi-navy">Streamline Your Shipping Operations</h3>
+                     <p className="text-xl text-muted-foreground">
+                       Create shipments, get instant quotes, and track deliveries with our intuitive shipper dashboard. Perfect for MSMEs looking to optimize their logistics.
+                     </p>
                   </div>
                   
                   <div className="space-y-4">
@@ -253,10 +225,10 @@ const Index = () => {
                       <Truck className="w-4 h-4" />
                       For Carriers
                     </div>
-                    <h3 className="text-5xl font-bold">Maximize Your Revenue Potential</h3>
-                    <p className="text-xl text-muted-foreground">
-                      Access a steady stream of optimized routes, manage multiple shipments efficiently, and grow your business with our carrier platform.
-                    </p>
+                     <h3 className="text-5xl font-bold text-delhi-navy">Maximize Your Revenue Potential</h3>
+                     <p className="text-xl text-muted-foreground">
+                       Access a steady stream of optimized routes, manage multiple shipments efficiently, and grow your business with our carrier platform.
+                     </p>
                   </div>
                   
                   <div className="space-y-4">
@@ -290,7 +262,7 @@ const Index = () => {
         <section className="py-24 bg-muted/20">
           <div className="container mx-auto px-4">
             <div className="text-center space-y-4 mb-16">
-              <h2 className="text-4xl font-bold tracking-tight">Smart Logistics Engine</h2>
+              <h2 className="text-4xl font-bold text-delhi-navy">Smart Logistics Engine</h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
                 Real-time optimization powers pooling, ETAs, and tracking behind the scenes — no flashy visuals needed.
               </p>
@@ -331,7 +303,7 @@ const Index = () => {
         <section className="py-24 bg-muted">
           <div className="container mx-auto px-4 text-center">
             <div className="space-y-8 max-w-4xl mx-auto">
-              <h2 className="text-4xl font-bold">Ready to Transform Your Logistics?</h2>
+              <h2 className="text-4xl font-bold text-delhi-navy">Ready to Transform Your Logistics?</h2>
               <p className="text-xl text-muted-foreground">
                 Join thousands of businesses already using UrbanLift.AI to optimize their shipping operations and reduce costs.
               </p>

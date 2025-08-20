@@ -50,7 +50,7 @@ const ShipperHome = () => {
                 <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight">
                   Power Your Logistics with{" "}
                   <span className="bg-gradient-to-r from-delhi-gold to-delhi-orange bg-clip-text text-transparent">
-                    UrbanLift
+                    UrbanLift.AI
                   </span>
                 </h1>
                 
