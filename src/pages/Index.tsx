@@ -35,7 +35,7 @@ const Index = () => {
       if (data?.role === "shipper") navigate("/shipper/home", { replace: true });
       else if (data?.role === "carrier") navigate("/carrier/home", { replace: true });
     })();
-  }, [userId, loading, navigate]);
+  }, [userId, loading]); // Removed navigate from dependency array
   return (
     <>
       <Helmet>
