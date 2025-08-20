@@ -307,8 +307,12 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
     setCurrentStep('form');
   }
 
-  // Award points for creating shipment
-  await supabase.rpc("award_points", { _user_id: userId, _points: 5, _source: "shipment_created" });
+  // Award points for creating shipment (with error handling)
+  try {
+    await supabase.rpc("award_points", { _user_id: userId, _points: 5, _source: "shipment_created" });
+  } catch (error) {
+    console.log("Points award failed (non-critical):", error);
+  }
   };
 
   const selectCarrier = async (carrier: CarrierProfile) => {
