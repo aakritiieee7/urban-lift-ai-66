@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle, Trash2, Star, MapPin, Clock, Package } from "lucide-react";
+import { CheckCircle, Trash2, Star, MapPin, Clock, Package, UserCheck } from "lucide-react";
 
 interface Shipment {
   id: string;
@@ -44,6 +44,7 @@ const ShipmentsList = ({ refresh, onRefreshComplete }: ShipmentsListProps) => {
   const { toast } = useToast();
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [carrierProfiles, setCarrierProfiles] = useState<{ [key: string]: CarrierProfile }>({});
+  const [availableCarriers, setAvailableCarriers] = useState<CarrierProfile[]>([]);
   const [loading, setLoading] = useState(false);
   const [rating, setRating] = useState<number>(5);
   const [review, setReview] = useState<string>("");
@@ -84,6 +85,16 @@ const ShipmentsList = ({ refresh, onRefreshComplete }: ShipmentsListProps) => {
         }
       }
     }
+    
+    // Fetch available carriers for assignment
+    const { data: allCarriers, error: allCarriersError } = await supabase
+      .from("carrier_profiles")
+      .select("user_id, business_name, company_name, phone, contact_phone, vehicle_type, vehicle_types");
+    
+    if (!allCarriersError && allCarriers) {
+      setAvailableCarriers(allCarriers);
+    }
+    
     setLoading(false);
   };
 
@@ -122,6 +133,37 @@ const ShipmentsList = ({ refresh, onRefreshComplete }: ShipmentsListProps) => {
       toast({ title: "Error", description: error.message });
     } else {
       toast({ title: "Success", description: "Shipment deleted" });
+      fetchShipments();
+    }
+  };
+
+  const assignCarrier = async (shipmentId: string, carrierId: string) => {
+    if (!carrierId) {
+      // Unassign carrier
+      const { error } = await supabase
+        .from("shipments")
+        .update({ carrier_id: null, status: "pending" })
+        .eq("id", shipmentId);
+      
+      if (error) {
+        toast({ title: "Error", description: error.message });
+      } else {
+        toast({ title: "Success", description: "Carrier unassigned" });
+        fetchShipments();
+      }
+      return;
+    }
+
+    const { error } = await supabase
+      .from("shipments")
+      .update({ carrier_id: carrierId, status: "assigned" })
+      .eq("id", shipmentId);
+
+    if (error) {
+      toast({ title: "Error", description: error.message });
+      console.error("Assignment error:", error);
+    } else {
+      toast({ title: "Success", description: "Carrier assigned successfully!" });
       fetchShipments();
     }
   };
@@ -211,8 +253,32 @@ const ShipmentsList = ({ refresh, onRefreshComplete }: ShipmentsListProps) => {
                 </Badge>
               </div>
 
-              {/* Carrier Information */}
-              {shipment.carrier_id && carrierProfiles[shipment.carrier_id] && (
+              {/* Carrier Assignment */}
+              {shipment.status === "pending" || shipment.status === "assigned" ? (
+                <div className="bg-primary/5 rounded-md p-3 border border-primary/10">
+                  <div className="text-sm font-medium text-primary mb-2 flex items-center gap-2">
+                    <UserCheck className="h-4 w-4" />
+                    Assign Carrier
+                  </div>
+                  <Select 
+                    value={shipment.carrier_id || ""} 
+                    onValueChange={(carrierId) => assignCarrier(shipment.id, carrierId)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a carrier..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Unassign</SelectItem>
+                      {availableCarriers.map((carrier) => (
+                        <SelectItem key={carrier.user_id} value={carrier.user_id}>
+                          {carrier.business_name || carrier.company_name || carrier.user_id} 
+                          {carrier.vehicle_type && ` (${carrier.vehicle_type})`}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ) : shipment.carrier_id && carrierProfiles[shipment.carrier_id] ? (
                 <div className="bg-primary/5 rounded-md p-3 border border-primary/10">
                   <div className="text-sm font-medium text-primary mb-1">
                     Assigned Carrier
@@ -235,7 +301,7 @@ const ShipmentsList = ({ refresh, onRefreshComplete }: ShipmentsListProps) => {
                     )}
                   </div>
                 </div>
-              )}
+              ) : null}
 
               <div className="flex items-center gap-2 flex-wrap">
                 {shipment.status !== "delivered" && (
