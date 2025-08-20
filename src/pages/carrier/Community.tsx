@@ -2,8 +2,8 @@ import Navbar from "@/components/Navbar";
 import { Helmet } from "react-helmet-async";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MessageCircle, Users } from "lucide-react";
-import { Chatroom } from "@/components/community/Chatroom";
-import { Forum } from "@/components/community/Forum";
+import Chatroom from "@/components/community/Chatroom";
+import Forum from "@/components/community/Forum";
 
 const CarrierCommunity = () => {
   return (
@@ -52,11 +52,11 @@ const CarrierCommunity = () => {
             </TabsList>
             
             <TabsContent value="chat" className="mt-6">
-              <Chatroom userRole="carrier" />
+              <Chatroom />
             </TabsContent>
             
             <TabsContent value="forum" className="mt-6">
-              <Forum userRole="carrier" />
+              <Forum />
             </TabsContent>
           </Tabs>
         </section>

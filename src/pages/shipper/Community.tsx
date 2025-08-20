@@ -2,8 +2,8 @@ import Layout from "@/components/Layout";
 import { Helmet } from "react-helmet-async";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MessageCircle, Users } from "lucide-react";
-import { Chatroom } from "@/components/community/Chatroom";
-import { Forum } from "@/components/community/Forum";
+import Chatroom from "@/components/community/Chatroom";
+import Forum from "@/components/community/Forum";
 
 const Community = () => {
   return (
@@ -52,11 +52,11 @@ const Community = () => {
               </TabsList>
               
               <TabsContent value="chat" className="mt-6">
-                <Chatroom userRole="shipper" />
+                <Chatroom />
               </TabsContent>
               
               <TabsContent value="forum" className="mt-6">
-                <Forum userRole="shipper" />
+                <Forum />
               </TabsContent>
             </Tabs>
           </section>
