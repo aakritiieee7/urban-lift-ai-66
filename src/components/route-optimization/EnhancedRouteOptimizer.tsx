@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { Truck, Route, Clock, MapPin, TrendingUp, Users, Package } from 'lucide-react';
 
 interface LatLng {
@@ -75,24 +76,18 @@ const EnhancedRouteOptimizer: React.FC<EnhancedRouteOptimizerProps> = ({
     setIsOptimizing(true);
     
     try {
-      const response = await fetch('/api/enhanced-route-optimization', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('enhanced-route-optimization', {
+        body: {
           shipments,
           options: {
             maxClusters: Math.min(5, Math.ceil(shipments.length / 2))
           }
-        })
+        }
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to optimize routes');
-      }
+      if (error) throw error;
 
-      const optimizationResult: OptimizationResult = await response.json();
+      const optimizationResult: OptimizationResult = data;
       setResult(optimizationResult);
       onOptimizationComplete?.(optimizationResult);
       

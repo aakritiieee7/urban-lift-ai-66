@@ -1,7 +1,7 @@
 import React from 'react';
 import Layout from '@/components/Layout';
 import { RouteOptimizer } from '@/components/route-optimization/RouteOptimizer';
-import EnhancedRouteOptimizer from '@/components/route-optimization/EnhancedRouteOptimizer';
+import ShipmentPoolingManager from '@/components/route-optimization/ShipmentPoolingManager';
 
 const RouteOptimization = () => {
   // Sample shipments for demonstration
@@ -62,15 +62,10 @@ const RouteOptimization = () => {
           </div>
           
           <div className="space-y-8">
-            <EnhancedRouteOptimizer 
-              shipments={sampleShipments}
-              onOptimizationComplete={(result) => {
-                console.log('Optimization completed:', result);
-              }}
-            />
+            <ShipmentPoolingManager />
             
             <div className="border-t pt-8">
-              <h2 className="text-2xl font-semibold text-delhi-navy mb-4">Legacy Route Optimizer</h2>
+              <h2 className="text-2xl font-semibold text-delhi-navy mb-4">Demo Route Optimizer</h2>
               <RouteOptimizer />
             </div>
           </div>
