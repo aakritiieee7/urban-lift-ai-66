@@ -138,7 +138,7 @@ const ShipmentsList = ({ refresh, onRefreshComplete }: ShipmentsListProps) => {
   };
 
   const assignCarrier = async (shipmentId: string, carrierId: string) => {
-    if (!carrierId) {
+    if (!carrierId || carrierId === "unassign") {
       // Unassign carrier
       const { error } = await supabase
         .from("shipments")
@@ -260,23 +260,23 @@ const ShipmentsList = ({ refresh, onRefreshComplete }: ShipmentsListProps) => {
                     <UserCheck className="h-4 w-4" />
                     Assign Carrier
                   </div>
-                  <Select 
-                    value={shipment.carrier_id || ""} 
-                    onValueChange={(carrierId) => assignCarrier(shipment.id, carrierId)}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select a carrier..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">Unassign</SelectItem>
-                      {availableCarriers.map((carrier) => (
-                        <SelectItem key={carrier.user_id} value={carrier.user_id}>
-                          {carrier.business_name || carrier.company_name || carrier.user_id} 
-                          {carrier.vehicle_type && ` (${carrier.vehicle_type})`}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                   <Select 
+                     value={shipment.carrier_id || "unassign"} 
+                     onValueChange={(carrierId) => assignCarrier(shipment.id, carrierId)}
+                   >
+                     <SelectTrigger className="w-full">
+                       <SelectValue placeholder="Select a carrier..." />
+                     </SelectTrigger>
+                     <SelectContent>
+                       <SelectItem value="unassign">Unassign</SelectItem>
+                       {availableCarriers.map((carrier) => (
+                         <SelectItem key={carrier.user_id} value={carrier.user_id}>
+                           {carrier.business_name || carrier.company_name || carrier.user_id} 
+                           {carrier.vehicle_type && ` (${carrier.vehicle_type})`}
+                         </SelectItem>
+                       ))}
+                     </SelectContent>
+                   </Select>
                 </div>
               ) : shipment.carrier_id && carrierProfiles[shipment.carrier_id] ? (
                 <div className="bg-primary/5 rounded-md p-3 border border-primary/10">
