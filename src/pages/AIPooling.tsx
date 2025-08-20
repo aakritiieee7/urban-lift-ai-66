@@ -21,7 +21,7 @@ const AIPooling = () => {
     (async () => {
       const { data, error } = await supabase
         .from('shipments')
-        .select('id, origin, destination, pickup_time, dropoff_time, status, pooled')
+        .select('id, origin, destination, pickup_time, dropoff_time, status, pooled, origin_lat, origin_lng, destination_lat, destination_lng')
         .order('created_at', { ascending: false })
         .limit(50);
       if (error) {
@@ -34,15 +34,20 @@ const AIPooling = () => {
   const pools = useMemo(() => {
     const algos: AlgoShipment[] = shipments
       .map((r) => {
-        const po = parseCoord(r.origin);
-        const pd = parseCoord(r.destination);
-        if (!po || !pd) return null as any;
+        // Use the actual lat/lng coordinates instead of parsing text
+        if (!r.origin_lat || !r.origin_lng || !r.destination_lat || !r.destination_lng) return null as any;
+        const po = { lat: Number(r.origin_lat), lng: Number(r.origin_lng) };
+        const pd = { lat: Number(r.destination_lat), lng: Number(r.destination_lng) };
         return { id: r.id, pickup: po, drop: pd, readyAt: r.pickup_time ?? undefined, dueBy: r.dropoff_time ?? undefined };
       })
       .filter(Boolean);
+    console.log('Processed shipments for pooling:', algos);
     try {
-      return clusterShipments(algos).slice(0, 5);
+      const clusters = clusterShipments(algos);
+      console.log('Generated pools:', clusters);
+      return clusters.slice(0, 5);
     } catch (e) {
+      console.error('Clustering error:', e);
       return [];
     }
   }, [shipments]);
