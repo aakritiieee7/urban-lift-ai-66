@@ -77,85 +77,36 @@ const ShipperLogin = () => {
           <div className="max-w-6xl mx-auto">
             {/* Header Section */}
             <div className="text-center mb-12 animate-fade-in">
-              <div className="mb-6">
-                <h1 className="text-4xl font-bold text-delhi-navy">Delhi Government Logistics Platform</h1>
-                <p className="text-delhi-navy/70 text-lg font-medium">Department of Industries GNCTD × DSIIDC</p>
-              </div>
-              <h2 className="text-3xl font-bold text-delhi-navy mb-4">Shipper Portal</h2>
+              <h2 className="text-4xl font-bold text-delhi-navy mb-4">Shipper Portal</h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Professional logistics management for Delhi's industrial ecosystem. Pool shipments with AI-powered optimization.
+                Professional logistics management for modern businesses. Pool shipments with AI-powered optimization.
               </p>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
-              {/* Features Section */}
-              <div className="space-y-8 animate-slide-up">
-                <div className="space-y-6">
-                  <h3 className="text-2xl font-bold text-delhi-navy flex items-center gap-3">
-                    <Package className="w-8 h-8 text-delhi-primary" />
-                    Enterprise Shipper Features
-                  </h3>
-                  
-                  <div className="grid gap-4">
-                    <div className="flex items-start gap-4 p-4 bg-white/50 backdrop-blur-sm rounded-xl border border-delhi-primary/10 hover:border-delhi-primary/20 transition-all duration-300 hover:shadow-lg">
-                      <Shield className="w-6 h-6 text-delhi-primary mt-1" />
-                      <div>
-                        <h4 className="font-semibold text-delhi-navy">Government-Grade Security</h4>
-                        <p className="text-sm text-muted-foreground">DSIIDC certified platform with enterprise-level data protection</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start gap-4 p-4 bg-white/50 backdrop-blur-sm rounded-xl border border-delhi-primary/10 hover:border-delhi-primary/20 transition-all duration-300 hover:shadow-lg">
-                      <Building className="w-6 h-6 text-delhi-orange mt-1" />
-                      <div>
-                        <h4 className="font-semibold text-delhi-navy">Industrial Integration</h4>
-                        <p className="text-sm text-muted-foreground">Seamless integration with Delhi's industrial infrastructure</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start gap-4 p-4 bg-white/50 backdrop-blur-sm rounded-xl border border-delhi-primary/10 hover:border-delhi-primary/20 transition-all duration-300 hover:shadow-lg">
-                      <Award className="w-6 h-6 text-delhi-gold mt-1" />
-                      <div>
-                        <h4 className="font-semibold text-delhi-navy">Innovation Program</h4>
-                        <p className="text-sm text-muted-foreground">Cutting-edge AI solutions developed with government support</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start gap-4 p-4 bg-white/50 backdrop-blur-sm rounded-xl border border-delhi-primary/10 hover:border-delhi-primary/20 transition-all duration-300 hover:shadow-lg">
-                      <MapPin className="w-6 h-6 text-delhi-success mt-1" />
-                      <div>
-                        <h4 className="font-semibold text-delhi-navy">Delhi-Specific Optimization</h4>
-                        <p className="text-sm text-muted-foreground">Routes optimized for NCT Delhi's industrial corridors</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
+            <div className="flex justify-center">
               {/* Login Form */}
-              <div className="animate-slide-up" style={{animationDelay: '0.2s'}}>
+              <div className="animate-slide-up max-w-md w-full">
                 <Card className="shadow-[var(--shadow-delhi)] border-delhi-primary/20 bg-white/90 backdrop-blur-sm">
                   <CardHeader className="text-center bg-muted/20 rounded-t-lg">
                     <CardTitle className="text-2xl font-bold text-delhi-navy flex items-center justify-center gap-3">
                       <Package className="w-8 h-8 text-delhi-primary" />
                       Shipper Access Portal
                     </CardTitle>
-                    <p className="text-delhi-navy/70 text-sm">Enter your credentials to access the professional dashboard</p>
+                    <p className="text-delhi-navy/70 text-sm">Enter your credentials to access the dashboard</p>
                   </CardHeader>
                   <CardContent className="pt-8">
                     <form onSubmit={onSubmit} className="space-y-6">
                       <div className="space-y-2">
-                        <Label htmlFor="identifier" className="text-delhi-navy font-medium">Email or Login ID</Label>
+                        <Label htmlFor="identifier" className="text-delhi-navy font-medium">Email</Label>
                         <Input 
                           id="identifier" 
-                          type="text" 
+                          type="email" 
                           required 
                           value={email} 
                           onChange={(e) => setEmail(e.target.value)}
                           className="border-delhi-primary/20 focus:border-delhi-primary focus:ring-delhi-primary/20 h-12"
-                          placeholder="your.email@company.com or username"
+                          placeholder="your.email@company.com"
                         />
-                        <p className="text-xs text-delhi-navy/60">Use your email or unique login ID (username).</p>
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="password" className="text-delhi-navy font-medium">Password</Label>
@@ -166,9 +117,8 @@ const ShipperLogin = () => {
                           value={password} 
                           onChange={(e) => setPassword(e.target.value)}
                           className="border-delhi-primary/20 focus:border-delhi-primary focus:ring-delhi-primary/20 h-12"
-                          placeholder="Enter your secure password"
+                          placeholder="Enter your password"
                         />
-                        <p className="text-xs text-delhi-navy/60">Minimum 8 characters. Keep it secure.</p>
                       </div>
                       <Button 
                         type="submit" 
@@ -177,7 +127,7 @@ const ShipperLogin = () => {
                         variant="delhi-shipper"
                         size="lg"
                       >
-                        {loading ? "Authenticating..." : "Access Shipper Dashboard"}
+                        {loading ? "Signing In..." : "Sign In"}
                       </Button>
                     </form>
                   </CardContent>
@@ -187,9 +137,6 @@ const ShipperLogin = () => {
                       <Link to="/auth/shipper/register" className="ml-2 font-semibold text-delhi-primary hover:text-delhi-orange transition-colors underline">
                         Register Your Business
                       </Link>
-                    </div>
-                    <div className="text-xs text-delhi-navy/50 text-center">
-                      DSIIDC Certified Platform
                     </div>
                   </CardFooter>
                 </Card>
