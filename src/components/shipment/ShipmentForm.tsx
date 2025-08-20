@@ -86,6 +86,8 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
 
   const fetchAvailableCarriers = async (originLat: number, originLng: number, requiredCapacity: number) => {
     try {
+      console.log('fetchAvailableCarriers called with:', { originLat, originLng, requiredCapacity });
+      
       // Fetch real carriers from the database
       const { data: carriers, error } = await supabase
         .from('carrier_profiles')
@@ -103,6 +105,8 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
           service_regions
         `);
 
+      console.log('Supabase query result:', { carriers, error });
+
       if (error) {
         console.error('Error fetching carriers:', error);
         return [];
@@ -113,13 +117,16 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
         return [];
       }
 
+      console.log(`Found ${carriers.length} carriers in database`);
+
       // Calculate distance and score for each carrier
       const carriersWithMetrics = carriers.map(carrier => {
         // Calculate distance (using random locations for demo since we don't have carrier locations)
         const distance = 10 + Math.random() * 20; // 10-30km range
         
         // Calculate score based on capacity match, experience, etc.
-        const capacityMatch = (!carrier.vehicle_capacity_kg || carrier.vehicle_capacity_kg >= requiredCapacity) ? 1 : 0.5;
+        const actualCapacity = carrier.vehicle_capacity_kg;
+        const capacityMatch = (!actualCapacity || actualCapacity >= requiredCapacity) ? 1 : 0.5;
         const experienceScore = Math.min((carrier.years_experience || 1) / 10, 1);
         const score = (capacityMatch * 0.6 + experienceScore * 0.4) * (0.8 + Math.random() * 0.2);
 
@@ -128,7 +135,7 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
           business_name: carrier.business_name || carrier.company_name || 'Carrier',
           phone: carrier.phone || carrier.contact_phone || 'Not provided',
           vehicle_type: carrier.vehicle_type || carrier.vehicle_types || 'Vehicle',
-          vehicle_capacity_kg: carrier.vehicle_capacity_kg || 500,
+          vehicle_capacity_kg: actualCapacity, // Keep the actual value (null or number)
           years_experience: carrier.years_experience || 1,
           distance,
           score
@@ -136,15 +143,24 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
       });
 
       // Filter by capacity requirement and sort by score (treat null capacity as unlimited)
-      return carriersWithMetrics
+      const filteredCarriers = carriersWithMetrics
         .filter(carrier => {
           const capacity = carrier.vehicle_capacity_kg;
+          console.log(`Filtering carrier ${carrier.user_id}: capacity=${capacity}, required=${requiredCapacity}`);
           // If capacity is null/undefined, treat as unlimited capacity (carrier can handle any size)
-          if (!capacity) return true;
+          if (!capacity) {
+            console.log(`Carrier ${carrier.user_id} has unlimited capacity - ACCEPTED`);
+            return true;
+          }
           // Otherwise check if capacity meets requirement
-          return capacity >= (requiredCapacity || 0);
+          const accepted = capacity >= (requiredCapacity || 0);
+          console.log(`Carrier ${carrier.user_id} capacity check: ${capacity} >= ${requiredCapacity || 0} = ${accepted}`);
+          return accepted;
         })
         .sort((a, b) => b.score - a.score);
+      
+      console.log(`Final filtered carriers: ${filteredCarriers.length} out of ${carriersWithMetrics.length}`);
+      return filteredCarriers;
         
     } catch (error) {
       console.error('Failed to fetch carriers:', error);
