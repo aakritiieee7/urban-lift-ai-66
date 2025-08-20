@@ -197,31 +197,30 @@ const Index = () => {
         {/* Shipper & Carrier Sections */}
         <section className="py-24 bg-muted/30">
           <div className="container mx-auto px-4">
-            <div className="grid gap-16 lg:gap-24">
+            <div className="grid gap-12 lg:gap-16">
               {/* Shipper Section */}
-              <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-delhi-primary/5 to-delhi-navy/10 p-12 lg:p-16">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-delhi-primary/20 to-transparent rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                <div className="relative z-10 grid gap-12 lg:grid-cols-2 lg:items-center">
+              <div className="bg-white rounded-2xl p-12 shadow-sm border">
+                <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
                   <div className="space-y-8">
                     <div className="space-y-4">
-                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-delhi-primary/10 border border-delhi-primary/20 text-sm font-medium text-delhi-primary">
+                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-delhi-primary/10 text-sm font-medium text-delhi-primary">
                         <Package className="w-4 h-4" />
                         For Shippers
                       </div>
-                      <h3 className="text-4xl lg:text-5xl font-bold text-delhi-navy">Streamline Your Shipping Operations</h3>
+                      <h3 className="text-4xl font-bold text-delhi-navy">Streamline Your Shipping Operations</h3>
                       <p className="text-xl text-muted-foreground">
-                        Create shipments, get instant quotes, and track deliveries with our intuitive shipper dashboard. Perfect for MSMEs looking to optimize their logistics.
+                        Create shipments, get instant quotes, and track deliveries with our intuitive shipper dashboard.
                       </p>
                     </div>
                     
                     <div className="grid gap-4 sm:grid-cols-2">
                       {[
-                        { icon: Zap, text: "Instant AI-powered carrier matching" },
+                        { icon: Zap, text: "AI-powered carrier matching" },
                         { icon: MapPin, text: "Real-time shipment tracking" },
                         { icon: Package, text: "Automated documentation" },
                         { icon: Users, text: "Cost-effective pooled deliveries" }
                       ].map((feature, index) => (
-                        <div key={index} className="flex items-center gap-3 p-4 rounded-xl bg-white/60 backdrop-blur-sm border border-white/40">
+                        <div key={index} className="flex items-center gap-3 p-4 rounded-xl bg-gray-50 border">
                           <div className="p-2 rounded-lg bg-delhi-primary/10">
                             <feature.icon className="w-5 h-5 text-delhi-primary" />
                           </div>
@@ -231,82 +230,77 @@ const Index = () => {
                     </div>
                     
                     <Link to="/auth/shipper/register" className="block">
-                      <Button size="xl" className="bg-delhi-primary hover:bg-delhi-primary/90 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+                      <Button size="xl" className="bg-delhi-primary hover:bg-delhi-primary/90 text-white">
                         Start Shipping Now
                         <ArrowRight className="ml-2" />
                       </Button>
                     </Link>
                   </div>
                   
-                  <div className="relative">
-                    <div className="grid gap-4">
-                      <Card className="p-6 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-                        <div className="flex items-center gap-4">
-                          <div className="p-3 rounded-xl bg-delhi-primary/10">
-                            <BarChart3 className="h-6 w-6 text-delhi-primary" />
-                          </div>
-                          <div>
-                            <p className="font-semibold text-delhi-navy">Cost Savings</p>
-                            <p className="text-sm text-muted-foreground">Optimize shipping costs</p>
-                          </div>
+                  <div className="grid gap-4">
+                    <Card className="p-6 bg-gray-50 border">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-xl bg-delhi-primary/10">
+                          <BarChart3 className="h-6 w-6 text-delhi-primary" />
                         </div>
-                      </Card>
-                      <Card className="p-6 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-                        <div className="flex items-center gap-4">
-                          <div className="p-3 rounded-xl bg-green-500/10">
-                            <CheckCircle className="h-6 w-6 text-green-600" />
-                          </div>
-                          <div>
-                            <p className="font-semibold text-delhi-navy">Delivery Time</p>
-                            <p className="text-sm text-muted-foreground">Improved delivery efficiency</p>
-                          </div>
+                        <div>
+                          <p className="font-semibold text-delhi-navy">Cost Optimization</p>
+                          <p className="text-sm text-muted-foreground">Optimize shipping costs</p>
                         </div>
-                      </Card>
-                    </div>
+                      </div>
+                    </Card>
+                    <Card className="p-6 bg-gray-50 border">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-xl bg-delhi-primary/10">
+                          <CheckCircle className="h-6 w-6 text-delhi-primary" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-delhi-navy">Delivery Efficiency</p>
+                          <p className="text-sm text-muted-foreground">Improved delivery efficiency</p>
+                        </div>
+                      </div>
+                    </Card>
                   </div>
                 </div>
               </div>
               
               {/* Carrier Section */}
-              <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-delhi-orange/5 to-delhi-navy/10 p-12 lg:p-16">
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-tr from-delhi-orange/20 to-transparent rounded-full translate-y-1/2 -translate-x-1/2"></div>
-                <div className="relative z-10 grid gap-12 lg:grid-cols-2 lg:items-center">
-                  <div className="relative lg:order-2">
-                    <div className="grid gap-4">
-                      <Card className="p-6 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-                        <div className="flex items-center gap-4">
-                          <div className="p-3 rounded-xl bg-delhi-orange/10">
-                            <Truck className="h-6 w-6 text-delhi-orange" />
-                          </div>
-                          <div>
-                            <p className="font-semibold text-delhi-navy">Revenue Boost</p>
-                            <p className="text-sm text-muted-foreground">Maximize trip revenue</p>
-                          </div>
+              <div className="bg-white rounded-2xl p-12 shadow-sm border">
+                <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+                  <div className="grid gap-4 lg:order-2">
+                    <Card className="p-6 bg-gray-50 border">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-xl bg-delhi-primary/10">
+                          <Truck className="h-6 w-6 text-delhi-primary" />
                         </div>
-                      </Card>
-                      <Card className="p-6 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-                        <div className="flex items-center gap-4">
-                          <div className="p-3 rounded-xl bg-purple-500/10">
-                            <Star className="h-6 w-6 text-purple-600" />
-                          </div>
-                          <div>
-                            <p className="font-semibold text-delhi-navy">Efficiency</p>
-                            <p className="text-sm text-muted-foreground">Smart route optimization</p>
-                          </div>
+                        <div>
+                          <p className="font-semibold text-delhi-navy">Revenue Growth</p>
+                          <p className="text-sm text-muted-foreground">Maximize trip revenue</p>
                         </div>
-                      </Card>
-                    </div>
+                      </div>
+                    </Card>
+                    <Card className="p-6 bg-gray-50 border">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-xl bg-delhi-primary/10">
+                          <Star className="h-6 w-6 text-delhi-primary" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-delhi-navy">Route Efficiency</p>
+                          <p className="text-sm text-muted-foreground">Smart route optimization</p>
+                        </div>
+                      </div>
+                    </Card>
                   </div>
                   
                   <div className="space-y-8 lg:order-1">
                     <div className="space-y-4">
-                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-delhi-orange/10 border border-delhi-orange/20 text-sm font-medium text-delhi-orange">
+                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-delhi-primary/10 text-sm font-medium text-delhi-primary">
                         <Truck className="w-4 h-4" />
                         For Carriers
                       </div>
-                      <h3 className="text-4xl lg:text-5xl font-bold text-delhi-navy">Maximize Your Revenue Potential</h3>
+                      <h3 className="text-4xl font-bold text-delhi-navy">Maximize Your Revenue Potential</h3>
                       <p className="text-xl text-muted-foreground">
-                        Access a steady stream of optimized routes, manage multiple shipments efficiently, and grow your business with our carrier platform.
+                        Access optimized routes, manage multiple shipments efficiently, and grow your business with our carrier platform.
                       </p>
                     </div>
                     
@@ -317,9 +311,9 @@ const Index = () => {
                         { icon: CheckCircle, text: "Guaranteed payment protection" },
                         { icon: Star, text: "Performance analytics dashboard" }
                       ].map((feature, index) => (
-                        <div key={index} className="flex items-center gap-3 p-4 rounded-xl bg-white/60 backdrop-blur-sm border border-white/40">
-                          <div className="p-2 rounded-lg bg-delhi-orange/10">
-                            <feature.icon className="w-5 h-5 text-delhi-orange" />
+                        <div key={index} className="flex items-center gap-3 p-4 rounded-xl bg-gray-50 border">
+                          <div className="p-2 rounded-lg bg-delhi-primary/10">
+                            <feature.icon className="w-5 h-5 text-delhi-primary" />
                           </div>
                           <span className="text-sm font-medium text-delhi-navy">{feature.text}</span>
                         </div>
@@ -327,7 +321,7 @@ const Index = () => {
                     </div>
                     
                     <Link to="/auth/carrier/register" className="block">
-                      <Button size="xl" className="bg-delhi-orange hover:bg-delhi-orange/90 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+                      <Button size="xl" className="bg-delhi-primary hover:bg-delhi-primary/90 text-white">
                         Join Our Network
                         <ArrowRight className="ml-2" />
                       </Button>
