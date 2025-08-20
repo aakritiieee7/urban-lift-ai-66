@@ -40,6 +40,7 @@ export const Chatroom = ({ userRole }: ChatroomProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [onlineCount, setOnlineCount] = useState(12);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -176,82 +177,139 @@ export const Chatroom = ({ userRole }: ChatroomProps) => {
   const selectedRoom = chatrooms.find(room => room.id === selectedChatroom);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[600px]">
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 h-[700px]">
       {/* Chatroom List */}
-      <Card className="lg:col-span-1">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            Chatrooms
+      <Card className="lg:col-span-1 bg-gradient-to-br from-card via-card to-muted/30 border-0 shadow-elegant">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-brand-2 flex items-center justify-center">
+                <Users className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <span className="text-lg font-bold">Channels</span>
+            </div>
+            <div className="flex items-center gap-1 text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+              <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+              {onlineCount} online
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <ScrollArea className="h-[500px]">
-            {chatrooms.map((room) => (
-              <button
-                key={room.id}
-                onClick={() => setSelectedChatroom(room.id)}
-                className={`w-full p-4 text-left hover:bg-muted border-b border-border transition-colors ${
-                  selectedChatroom === room.id ? "bg-muted" : ""
-                }`}
-              >
-                <div className="font-medium text-sm">{room.name}</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  {room.description}
-                </div>
-              </button>
-            ))}
+          <ScrollArea className="h-[580px]">
+            <div className="px-4 pb-4 space-y-2">
+              {chatrooms.map((room) => (
+                <button
+                  key={room.id}
+                  onClick={() => setSelectedChatroom(room.id)}
+                  className={`w-full p-4 text-left rounded-xl transition-all duration-200 group ${
+                    selectedChatroom === room.id 
+                      ? "bg-primary text-primary-foreground shadow-md" 
+                      : "hover:bg-muted/60 hover:shadow-sm"
+                  }`}
+                >
+                  <div className={`font-semibold text-sm flex items-center gap-2 ${
+                    selectedChatroom === room.id ? "text-primary-foreground" : "text-foreground"
+                  }`}>
+                    <span className="text-lg">#</span>
+                    {room.name}
+                  </div>
+                  <div className={`text-xs mt-2 line-clamp-2 ${
+                    selectedChatroom === room.id ? "text-primary-foreground/80" : "text-muted-foreground"
+                  }`}>
+                    {room.description}
+                  </div>
+                </button>
+              ))}
+            </div>
           </ScrollArea>
         </CardContent>
       </Card>
 
       {/* Chat Messages */}
-      <Card className="lg:col-span-3">
-        <CardHeader>
-          <CardTitle>{selectedRoom?.name || "Select a chatroom"}</CardTitle>
+      <Card className="lg:col-span-3 bg-gradient-to-br from-card via-card to-accent/20 border-0 shadow-elegant">
+        <CardHeader className="border-b border-border/50 bg-gradient-to-r from-muted/30 to-transparent">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-3">
+              <span className="text-2xl">#</span>
+              <div>
+                <div className="text-xl font-bold">{selectedRoom?.name || "Select a channel"}</div>
+                {selectedRoom && (
+                  <div className="text-sm text-muted-foreground font-normal">
+                    {selectedRoom.description}
+                  </div>
+                )}
+              </div>
+            </CardTitle>
+            {selectedRoom && (
+              <div className="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full">
+                Live Chat
+              </div>
+            )}
+          </div>
         </CardHeader>
-        <CardContent className="flex flex-col h-[500px]">
-          <ScrollArea className="flex-1 pr-4">
-            <div className="space-y-4">
-              {messages.map((message) => (
-                <div key={message.id} className="flex items-start gap-3">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="text-xs">
-                      {(message.profiles?.username || message.profiles?.business_name || "U").charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-medium">
-                        {message.profiles?.business_name || message.profiles?.username || "Anonymous"}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {format(new Date(message.created_at), "HH:mm")}
-                      </span>
-                    </div>
-                    <div className="text-sm text-foreground bg-muted rounded-lg p-3">
-                      {message.message}
+        <CardContent className="flex flex-col h-[580px] p-0">
+          <ScrollArea className="flex-1 px-6 py-4">
+            <div className="space-y-6">
+              {messages.map((message, index) => {
+                const isCurrentUser = message.user_id === userId;
+                const showAvatar = index === 0 || messages[index - 1]?.user_id !== message.user_id;
+                
+                return (
+                  <div key={message.id} className={`flex items-start gap-4 ${isCurrentUser ? 'flex-row-reverse' : ''}`}>
+                    {showAvatar ? (
+                      <Avatar className="h-10 w-10 ring-2 ring-primary/20">
+                        <AvatarFallback className="text-sm font-semibold bg-gradient-to-br from-primary/20 to-brand-2/20">
+                          {(message.profiles?.username || message.profiles?.business_name || "U").charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    ) : (
+                      <div className="w-10" />
+                    )}
+                    <div className={`flex-1 min-w-0 max-w-[70%] ${isCurrentUser ? 'flex flex-col items-end' : ''}`}>
+                      {showAvatar && (
+                        <div className={`flex items-center gap-3 mb-2 ${isCurrentUser ? 'flex-row-reverse' : ''}`}>
+                          <span className="text-sm font-semibold text-foreground">
+                            {message.profiles?.business_name || message.profiles?.username || "Anonymous"}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {format(new Date(message.created_at), "HH:mm")}
+                          </span>
+                        </div>
+                      )}
+                      <div className={`text-sm rounded-2xl px-4 py-3 shadow-sm ${
+                        isCurrentUser 
+                          ? "bg-primary text-primary-foreground ml-8" 
+                          : "bg-muted border border-border/50"
+                      }`}>
+                        {message.message}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
               <div ref={messagesEndRef} />
             </div>
           </ScrollArea>
           
           {selectedChatroom && (
-            <form onSubmit={sendMessage} className="flex gap-2 mt-4">
-              <Input
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Type your message..."
-                className="flex-1"
-                disabled={loading}
-              />
-              <Button type="submit" disabled={loading || !newMessage.trim()}>
-                <Send className="h-4 w-4" />
-              </Button>
-            </form>
+            <div className="p-4 border-t border-border/50 bg-muted/30">
+              <form onSubmit={sendMessage} className="flex gap-3">
+                <Input
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  placeholder="Type your message..."
+                  className="flex-1 border-0 bg-background/80 shadow-sm rounded-xl px-4"
+                  disabled={loading}
+                />
+                <Button 
+                  type="submit" 
+                  disabled={loading || !newMessage.trim()}
+                  className="rounded-xl px-6 bg-gradient-to-r from-primary to-brand-2 hover:shadow-lg transition-all"
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </form>
+            </div>
           )}
         </CardContent>
       </Card>

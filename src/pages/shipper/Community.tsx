@@ -16,19 +16,37 @@ const Community = () => {
       <Layout>
         <main className="min-h-screen bg-background">
           <section className="container mx-auto px-4 py-10">
-            <header className="mb-8 text-center">
-              <h1 className="text-3xl md:text-4xl font-bold">Shipper Community</h1>
-              <p className="text-muted-foreground mt-2">Connect with fellow shippers and share experiences.</p>
+            <header className="mb-12 text-center relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-delhi-primary/10 via-delhi-gold/10 to-delhi-primary/5 rounded-3xl"></div>
+              <div className="relative p-8">
+                <div className="flex items-center justify-center gap-4 mb-6">
+                  <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-delhi-primary to-delhi-gold flex items-center justify-center">
+                    <Users className="h-8 w-8 text-white" />
+                  </div>
+                </div>
+                <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text mb-4">
+                  Shipper Community
+                </h1>
+                <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+                  Connect with fellow shippers and business owners. Share experiences, get insights, grow together.
+                </p>
+              </div>
             </header>
             
             <Tabs defaultValue="chat" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="chat" className="flex items-center gap-2">
-                  <MessageCircle className="h-4 w-4" />
+              <TabsList className="grid w-full grid-cols-2 bg-muted/50 p-2 rounded-2xl h-14">
+                <TabsTrigger 
+                  value="chat" 
+                  className="flex items-center gap-3 rounded-xl text-base data-[state=active]:bg-gradient-to-r data-[state=active]:from-delhi-primary data-[state=active]:to-delhi-gold data-[state=active]:text-white transition-all"
+                >
+                  <MessageCircle className="h-5 w-5" />
                   Live Chat
                 </TabsTrigger>
-                <TabsTrigger value="forum" className="flex items-center gap-2">
-                  <Users className="h-4 w-4" />
+                <TabsTrigger 
+                  value="forum" 
+                  className="flex items-center gap-3 rounded-xl text-base data-[state=active]:bg-gradient-to-r data-[state=active]:from-delhi-primary data-[state=active]:to-delhi-gold data-[state=active]:text-white transition-all"
+                >
+                  <Users className="h-5 w-5" />
                   Discussion Forum
                 </TabsTrigger>
               </TabsList>

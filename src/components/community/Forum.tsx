@@ -232,116 +232,160 @@ export const Forum = ({ userRole }: ForumProps) => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold">
-            {userRole === 'shipper' ? 'Shipper' : 'Carrier'} Forum
-          </h2>
-          <p className="text-muted-foreground">
-            Share experiences, ask questions, and connect with your community
-          </p>
+    <div className="space-y-8">
+      {/* Modern Header */}
+      <div className="relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-brand-2/10 to-primary/5 rounded-3xl"></div>
+        <div className="relative p-8 rounded-3xl">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-primary to-brand-2 flex items-center justify-center">
+                  <MessageSquare className="h-6 w-6 text-primary-foreground" />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+                    {userRole === 'shipper' ? 'Shipper' : 'Carrier'} Forum
+                  </h2>
+                  <p className="text-muted-foreground text-lg">
+                    Connect, share insights, and grow together
+                  </p>
+                </div>
+              </div>
+            </div>
+            <Dialog open={showCreatePost} onOpenChange={setShowCreatePost}>
+              <DialogTrigger asChild>
+                <Button 
+                  size="lg" 
+                  className="rounded-xl bg-gradient-to-r from-primary to-brand-2 hover:shadow-lg transition-all duration-200 px-8"
+                >
+                  <Plus className="h-5 w-5 mr-2" />
+                  Start Discussion
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Create New Post</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={createPost} className="space-y-4">
+                  <div>
+                    <Label htmlFor="title">Title</Label>
+                    <Input
+                      id="title"
+                      value={newPost.title}
+                      onChange={(e) => setNewPost(prev => ({ ...prev, title: e.target.value }))}
+                      placeholder="Enter post title"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="content">Content</Label>
+                    <Textarea
+                      id="content"
+                      value={newPost.content}
+                      onChange={(e) => setNewPost(prev => ({ ...prev, content: e.target.value }))}
+                      placeholder="Share your thoughts, experiences, or ask a question..."
+                      rows={6}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="image">Attach Image (optional)</Label>
+                    <Input
+                      id="image"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                    />
+                  </div>
+                  <div className="flex gap-2 pt-4">
+                    <Button type="submit" disabled={loading}>
+                      {loading ? "Creating..." : "Create Post"}
+                    </Button>
+                    <Button type="button" variant="outline" onClick={() => setShowCreatePost(false)}>
+                      Cancel
+                    </Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
-        <Dialog open={showCreatePost} onOpenChange={setShowCreatePost}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              New Post
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Create New Post</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={createPost} className="space-y-4">
-              <div>
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  id="title"
-                  value={newPost.title}
-                  onChange={(e) => setNewPost(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="Enter post title"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="content">Content</Label>
-                <Textarea
-                  id="content"
-                  value={newPost.content}
-                  onChange={(e) => setNewPost(prev => ({ ...prev, content: e.target.value }))}
-                  placeholder="Share your thoughts, experiences, or ask a question..."
-                  rows={6}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="image">Attach Image (optional)</Label>
-                <Input
-                  id="image"
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-                />
-              </div>
-              <div className="flex gap-2 pt-4">
-                <Button type="submit" disabled={loading}>
-                  {loading ? "Creating..." : "Create Post"}
-                </Button>
-                <Button type="button" variant="outline" onClick={() => setShowCreatePost(false)}>
-                  Cancel
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
       </div>
 
-      {/* Posts Grid */}
-      <div className="grid gap-6">
+      {/* Modern Posts Grid */}
+      <div className="grid gap-8">
         {posts.map((post) => (
-          <Card key={post.id} className="cursor-pointer hover:shadow-md transition-shadow">
-            <CardHeader>
+          <Card 
+            key={post.id} 
+            className="group cursor-pointer bg-gradient-to-br from-card via-card to-muted/20 border-0 shadow-elegant hover:shadow-card-hover transition-all duration-300 overflow-hidden"
+            onClick={() => openPost(post)}
+          >
+            <CardHeader className="pb-4">
               <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarFallback>
+                <div className="flex items-center gap-4">
+                  <Avatar className="h-12 w-12 ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all">
+                    <AvatarFallback className="text-sm font-bold bg-gradient-to-br from-primary/20 to-brand-2/20">
                       {(post.profiles?.business_name || post.profiles?.username || "U").charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <div>
-                    <div className="font-medium">
+                  <div className="space-y-1">
+                    <div className="font-semibold text-base">
                       {post.profiles?.business_name || post.profiles?.username || "Anonymous"}
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Calendar className="h-3 w-3" />
-                      {format(new Date(post.created_at), "MMM d, yyyy")}
-                      <Badge variant="secondary" className="text-xs">
+                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
+                        {format(new Date(post.created_at), "MMM d, yyyy")}
+                      </div>
+                      <Badge variant="secondary" className="text-xs px-2 py-1 rounded-full">
                         {post.profiles?.role || userRole}
                       </Badge>
                     </div>
                   </div>
                 </div>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 px-3 py-2 rounded-full">
+                  <MessageSquare className="h-3 w-3" />
+                  {post.reply_count || 0}
+                </div>
               </div>
-              <CardTitle className="text-xl">{post.title}</CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground line-clamp-3">{post.content}</p>
+            <CardContent className="space-y-4">
+              <div>
+                <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors">
+                  {post.title}
+                </h3>
+                <p className="text-muted-foreground leading-relaxed line-clamp-3">
+                  {post.content}
+                </p>
+              </div>
               {post.image_url && (
-                <div className="mt-4">
+                <div className="relative overflow-hidden rounded-xl">
                   <img
                     src={post.image_url}
                     alt="Post attachment"
-                    className="rounded-lg max-w-full h-48 object-cover"
+                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </div>
               )}
-              <div className="flex items-center justify-between mt-4">
-                <Button variant="outline" onClick={() => openPost(post)}>
+              <div className="flex items-center justify-between pt-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="text-primary hover:bg-primary/10 rounded-xl"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openPost(post);
+                  }}
+                >
                   <MessageSquare className="h-4 w-4 mr-2" />
                   {post.reply_count || 0} Replies
                 </Button>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <User className="h-3 w-3" />
+                  <span>Discussion</span>
+                </div>
               </div>
             </CardContent>
           </Card>

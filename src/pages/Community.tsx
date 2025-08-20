@@ -140,55 +140,136 @@ const visiblePosts = tab === "mine" ? posts.filter(p => p.user_id === userId) : 
       </Helmet>
       <Navbar />
       <main className="container mx-auto px-4 py-8">
-<h1 className="mb-2 text-3xl font-semibold">Community</h1>
-<p className="mb-6 text-sm label-caps">For Businesses and MSMEs • Ask, Share, Upvote</p>
-        <div className="mb-6 overflow-hidden rounded-xl shadow-sm">
-          <AspectRatio ratio={21 / 9}>
-            <img src={heroImg} alt="Delhi NCR MSME logistics community discussions" className="h-full w-full object-cover" loading="lazy" />
-          </AspectRatio>
+        {/* Modern Hero Section */}
+        <div className="relative mb-12">
+          <div className="absolute inset-0 bg-gradient-delhi rounded-3xl opacity-90"></div>
+          <div className="relative overflow-hidden rounded-3xl shadow-delhi">
+            <AspectRatio ratio={21 / 9}>
+              <img 
+                src={heroImg} 
+                alt="Delhi NCR MSME logistics community discussions" 
+                className="h-full w-full object-cover" 
+                loading="lazy" 
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-delhi-navy/80 via-delhi-primary/60 to-transparent"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center text-white space-y-4 max-w-4xl px-8">
+                  <h1 className="text-4xl md:text-6xl font-bold mb-4">
+                    Delhi MSME Community
+                  </h1>
+                  <p className="text-xl md:text-2xl text-white/90 font-medium">
+                    Connect • Share • Grow Together
+                  </p>
+                  <div className="flex items-center justify-center gap-8 pt-4">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold">500+</div>
+                      <div className="text-sm text-white/80">Active Members</div>
+                    </div>
+                    <div className="h-8 w-px bg-white/30"></div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold">1.2k</div>
+                      <div className="text-sm text-white/80">Discussions</div>
+                    </div>
+                    <div className="h-8 w-px bg-white/30"></div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold">24/7</div>
+                      <div className="text-sm text-white/80">Support</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </AspectRatio>
+          </div>
         </div>
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Create a post</CardTitle>
+        {/* Modern Create Post Card */}
+        <Card className="mb-8 bg-gradient-to-br from-card via-card to-muted/30 border-0 shadow-elegant">
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-brand-2 flex items-center justify-center">
+                <Share2 className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <CardTitle className="text-xl">Share with the community</CardTitle>
+            </div>
           </CardHeader>
-          <CardContent className="flex gap-2">
-            <Input placeholder="Share an update" value={text} onChange={(e) => setText(e.target.value)} />
-            <Button onClick={create}>Post</Button>
+          <CardContent className="flex gap-4">
+            <Input 
+              placeholder="What's on your mind? Share insights, ask questions..." 
+              value={text} 
+              onChange={(e) => setText(e.target.value)} 
+              className="flex-1 border-0 bg-background/60 rounded-xl px-4 shadow-sm"
+            />
+            <Button 
+              onClick={create}
+              className="rounded-xl px-6 bg-gradient-to-r from-primary to-brand-2 hover:shadow-lg transition-all"
+            >
+              Post
+            </Button>
           </CardContent>
         </Card>
-        <div className="mb-4 flex items-center justify-between">
+        {/* Modern Filter Tabs */}
+        <div className="mb-8 flex items-center justify-between">
           <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
-            <TabsList>
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="mine">My posts</TabsTrigger>
+            <TabsList className="bg-muted/50 p-1 rounded-xl">
+              <TabsTrigger value="all" className="rounded-lg px-6 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                All Posts
+              </TabsTrigger>
+              <TabsTrigger value="mine" className="rounded-lg px-6 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                My Posts
+              </TabsTrigger>
             </TabsList>
           </Tabs>
+          <div className="text-sm text-muted-foreground bg-muted/50 px-4 py-2 rounded-xl">
+            {visiblePosts.length} posts
+          </div>
         </div>
-        <div className="grid gap-4">
+        <div className="grid gap-8">
           {visiblePosts.map((p) => {
             const display = names[p.user_id] || `User ${p.user_id.slice(0,8)}`;
             return (
               <div key={p.id} id={p.id}>
-                <Card>
-                  <CardHeader className="flex flex-row items-start gap-3">
-                    <Avatar className="h-9 w-9">
+                <Card className="group bg-gradient-to-br from-card via-card to-muted/20 border-0 shadow-elegant hover:shadow-card-hover transition-all duration-300">
+                  <CardHeader className="flex flex-row items-start gap-4 pb-4">
+                    <Avatar className="h-12 w-12 ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all">
                       <AvatarImage alt={display} />
-                      <AvatarFallback>{initials(display)}</AvatarFallback>
+                      <AvatarFallback className="text-sm font-bold bg-gradient-to-br from-primary/20 to-brand-2/20">
+                        {initials(display)}
+                      </AvatarFallback>
                     </Avatar>
-                    <div className="flex-1">
-                      <CardTitle className="text-base">{display}</CardTitle>
-                      <div className="text-xs text-muted-foreground">{new Date(p.created_at).toLocaleString()}</div>
+                    <div className="flex-1 space-y-1">
+                      <CardTitle className="text-lg font-semibold">{display}</CardTitle>
+                      <div className="text-sm text-muted-foreground flex items-center gap-2">
+                        <span>{new Date(p.created_at).toLocaleString()}</span>
+                        <div className="h-1 w-1 bg-muted-foreground rounded-full"></div>
+                        <span>MSME Partner</span>
+                      </div>
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <p className="mb-3 leading-relaxed">{p.content}</p>
-                    <div className="flex items-center gap-2">
-                      <Button variant="secondary" size="sm" onClick={() => upvote(p)} aria-label="Upvote">
-                        <ArrowBigUp className="mr-2 h-4 w-4" /> {votes[p.id] ?? 0}
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => share(p)}>
-                        <Share2 className="mr-2 h-4 w-4" /> Share
-                      </Button>
+                  <CardContent className="space-y-4">
+                    <p className="leading-relaxed text-base">{p.content}</p>
+                    <div className="flex items-center justify-between pt-2">
+                      <div className="flex items-center gap-3">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => upvote(p)} 
+                          aria-label="Upvote"
+                          className="text-primary hover:bg-primary/10 rounded-xl transition-all group/button"
+                        >
+                          <ArrowBigUp className="mr-2 h-4 w-4 group-hover/button:scale-110 transition-transform" /> 
+                          <span className="font-semibold">{votes[p.id] ?? 0}</span>
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => share(p)}
+                          className="text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-xl transition-all"
+                        >
+                          <Share2 className="mr-2 h-4 w-4" /> Share
+                        </Button>
+                      </div>
+                      <div className="text-xs text-muted-foreground bg-muted/50 px-3 py-1 rounded-full">
+                        Discussion
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -203,37 +284,68 @@ const visiblePosts = tab === "mine" ? posts.filter(p => p.user_id === userId) : 
                 { id: "dummy-2", content: "Need LTL from Okhla to Noida daily. Suggestions?", user: "KraftPrint MSME", img: delhiIndustrial, tags: ["LTL", "Okhla→Noida"] },
                 { id: "dummy-3", content: "What's the best rate for 32ft MXL this week?", user: "TransNova Logistics", img: postImg2, tags: ["FTL", "Rates"] },
               ].map((d) => (
-                <Card key={d.id}>
-                  <CardHeader className="flex flex-row items-start gap-3">
-                    <Avatar className="h-9 w-9">
+                <Card key={d.id} className="group bg-gradient-to-br from-card via-card to-muted/20 border-0 shadow-elegant hover:shadow-card-hover transition-all duration-300">
+                  <CardHeader className="flex flex-row items-start gap-4 pb-4">
+                    <Avatar className="h-12 w-12 ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all">
                       <AvatarImage alt={d.user} />
-                      <AvatarFallback>{initials(d.user)}</AvatarFallback>
+                      <AvatarFallback className="text-sm font-bold bg-gradient-to-br from-primary/20 to-brand-2/20">
+                        {initials(d.user)}
+                      </AvatarFallback>
                     </Avatar>
-                    <div className="flex-1">
-                      <CardTitle className="text-base">{d.content}</CardTitle>
-                      <div className="text-xs text-muted-foreground">by {d.user} • Just now</div>
+                    <div className="flex-1 space-y-1">
+                      <CardTitle className="text-lg font-semibold">{d.user}</CardTitle>
+                      <div className="text-sm text-muted-foreground flex items-center gap-2">
+                        <span>Just now</span>
+                        <div className="h-1 w-1 bg-muted-foreground rounded-full"></div>
+                        <span>MSME Partner</span>
+                      </div>
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <div className="mb-3 overflow-hidden rounded-lg">
+                  <CardContent className="space-y-4">
+                    <p className="leading-relaxed text-base">{d.content}</p>
+                    <div className="relative overflow-hidden rounded-xl">
                       <AspectRatio ratio={16 / 9}>
-                        <img src={d.img} alt={d.content} className="h-full w-full object-cover" loading="lazy" />
+                        <img 
+                          src={d.img} 
+                          alt={d.content} 
+                          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                          loading="lazy" 
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                       </AspectRatio>
                     </div>
                     {d.tags && d.tags.length > 0 && (
-                      <div className="mb-3 flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-2">
                         {d.tags.map((t: string) => (
-                          <Badge key={t} variant="secondary">{t}</Badge>
+                          <Badge key={t} variant="secondary" className="rounded-full px-3 py-1 bg-primary/10 text-primary">
+                            {t}
+                          </Badge>
                         ))}
                       </div>
                     )}
-                    <div className="flex items-center gap-2">
-                      <Button variant="secondary" size="sm" onClick={() => setVotes(v => ({ ...v, [d.id]: (v[d.id] || 0) + 1 }))}>
-                        <ArrowBigUp className="mr-2 h-4 w-4" /> {votes[d.id] ?? 0}
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => navigator.clipboard.writeText(`${window.location.origin}/community`)}>
-                        <Share2 className="mr-2 h-4 w-4" /> Share
-                      </Button>
+                    <div className="flex items-center justify-between pt-2">
+                      <div className="flex items-center gap-3">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => setVotes(v => ({ ...v, [d.id]: (v[d.id] || 0) + 1 }))}
+                          className="text-primary hover:bg-primary/10 rounded-xl transition-all group/button"
+                        >
+                          <ArrowBigUp className="mr-2 h-4 w-4 group-hover/button:scale-110 transition-transform" /> 
+                          <span className="font-semibold">{votes[d.id] ?? 0}</span>
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => navigator.clipboard.writeText(`${window.location.origin}/community`)}
+                          className="text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-xl transition-all"
+                        >
+                          <Share2 className="mr-2 h-4 w-4" /> Share
+                        </Button>
+                      </div>
+                      <div className="text-xs text-muted-foreground bg-muted/50 px-3 py-1 rounded-full">
+                        Featured
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
