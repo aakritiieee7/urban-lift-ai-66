@@ -38,7 +38,7 @@ const ShipperHome = () => {
                 backgroundSize: '80% auto'
               }}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-delhi-navy/70 via-delhi-primary/60 to-delhi-navy/80"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-delhi-navy/30 via-delhi-primary/20 to-delhi-navy/40"></div>
             </div>
             
             <div className="relative z-10 container mx-auto px-4 py-20 text-center">
