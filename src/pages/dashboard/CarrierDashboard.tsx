@@ -28,7 +28,7 @@ const CarrierDashboard = () => {
       }
     };
     check();
-  }, [userId, navigate]);
+  }, [userId]); // Removed navigate from dependency array
 
   const load = async () => {
     if (!userId) return;
