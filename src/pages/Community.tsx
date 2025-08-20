@@ -32,7 +32,6 @@ const Community = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [tab, setTab] = useState<"all" | "mine">("all");
   const [names, setNames] = useState<Record<string, string>>({});
-  const [votes, setVotes] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
 
   const initials = (s: string) => s.split(' ').map(p => p[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
@@ -74,23 +73,6 @@ const Community = () => {
         setNames(map);
       } else {
         setNames({});
-      }
-
-      // Load vote counts - handle case where votes table might not exist
-      try {
-        const { data: vrows } = await supabase
-          .from("community_post_votes")
-          .select("post_id")
-          .in("post_id", rows.map(r => r.id));
-        
-        const counts: Record<string, number> = {};
-        (vrows ?? []).forEach((v: { post_id: string }) => {
-          counts[v.post_id] = (counts[v.post_id] || 0) + 1;
-        });
-        setVotes(counts);
-      } catch (voteError) {
-        console.log("Votes table not available, using defaults");
-        setVotes({});
       }
     } catch (error) {
       console.error("Error in load function:", error);
@@ -170,23 +152,7 @@ const Community = () => {
       return;
     }
     
-    // Optimistic update
-    setVotes(prev => ({ ...prev, [p.id]: (prev[p.id] || 0) + 1 }));
-    
-    try {
-      const { error } = await supabase
-        .from("community_post_votes")
-        .insert({ post_id: p.id, user_id: userId });
-      
-      if (error) {
-        // Revert optimistic update
-        setVotes(prev => ({ ...prev, [p.id]: Math.max(0, (prev[p.id] || 1) - 1) }));
-        toast({ title: "Upvote failed", description: "Please try again" });
-      }
-    } catch (e) {
-      setVotes(prev => ({ ...prev, [p.id]: Math.max(0, (prev[p.id] || 1) - 1) }));
-      toast({ title: "Upvote unavailable", description: "Feature will be available soon." });
-    }
+    toast({ title: "Feature coming soon", description: "Upvote functionality will be available soon!" });
   };
 
   const visiblePosts = tab === "mine" ? posts.filter(p => p.user_id === userId) : posts;
@@ -340,7 +306,7 @@ const Community = () => {
                           className="text-primary hover:bg-primary/10 rounded-xl transition-all group/button"
                         >
                           <ArrowBigUp className="mr-2 h-4 w-4 group-hover/button:scale-110 transition-transform" /> 
-                          <span className="font-semibold">{votes[p.id] ?? 0}</span>
+                          <span className="font-semibold">0</span>
                         </Button>
                         <Button 
                           variant="ghost" 
@@ -412,11 +378,11 @@ const Community = () => {
                         <Button 
                           variant="ghost" 
                           size="sm" 
-                          onClick={() => setVotes(v => ({ ...v, [d.id]: (v[d.id] || 0) + 1 }))}
+                          onClick={() => toast({ title: "Feature coming soon", description: "Upvote functionality will be available soon!" })}
                           className="text-primary hover:bg-primary/10 rounded-xl transition-all group/button"
                         >
                           <ArrowBigUp className="mr-2 h-4 w-4 group-hover/button:scale-110 transition-transform" /> 
-                          <span className="font-semibold">{votes[d.id] ?? 0}</span>
+                          <span className="font-semibold">0</span>
                         </Button>
                         <Button 
                           variant="ghost" 
