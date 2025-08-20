@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Package, Users, MapPin, Clock, Truck } from 'lucide-react';
 import EnhancedRouteOptimizer from './EnhancedRouteOptimizer';
+import RouteMap from './RouteMap';
 
 interface ShipmentData {
   id: string;
@@ -23,6 +24,7 @@ interface ShipmentData {
 
 const ShipmentPoolingManager: React.FC = () => {
   const [shipments, setShipments] = useState<ShipmentData[]>([]);
+  const [optimizationResult, setOptimizationResult] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const { userId } = useAuth();
@@ -75,6 +77,9 @@ const ShipmentPoolingManager: React.FC = () => {
   };
 
   const handleOptimizationComplete = async (result: any) => {
+    // Store optimization result for map display
+    setOptimizationResult(result);
+    
     // Update shipments in database to mark them as pooled
     try {
       const shipmentIds = result.routes.flatMap((route: any) => 
@@ -185,6 +190,20 @@ const ShipmentPoolingManager: React.FC = () => {
         <EnhancedRouteOptimizer 
           shipments={optimizerShipments}
           onOptimizationComplete={handleOptimizationComplete}
+        />
+      )}
+
+      {/* Route Map Visualization */}
+      {optimizationResult && (
+        <RouteMap 
+          routes={optimizationResult.routes}
+          onExportData={(data) => {
+            console.log('Route data exported:', data);
+            toast({
+              title: "Data Exported",
+              description: "Route data has been exported as CSV and JSON files"
+            });
+          }}
         />
       )}
     </div>
