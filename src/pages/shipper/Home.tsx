@@ -34,10 +34,10 @@ const ShipperHome = () => {
             <div 
               className="absolute inset-0 bg-cover bg-center bg-no-repeat"
               style={{ 
-                backgroundImage: `linear-gradient(135deg, hsl(var(--delhi-navy))/0.9, hsl(var(--delhi-primary))/0.8), url("/lovable-uploads/2a758667-ca55-4d0f-836e-449ffc0ce7e1.png")` 
+                backgroundImage: `url("/lovable-uploads/2a758667-ca55-4d0f-836e-449ffc0ce7e1.png")` 
               }}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-delhi-navy/90 via-delhi-primary/80 to-delhi-navy/90"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-delhi-navy/40 via-delhi-primary/30 to-delhi-navy/50"></div>
             </div>
             
             <div className="relative z-10 container mx-auto px-4 py-20 text-center">
