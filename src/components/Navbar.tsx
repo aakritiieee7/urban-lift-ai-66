@@ -12,7 +12,7 @@ const Navbar = memo(() => {
   const logout = useCallback(async () => {
     await supabase.auth.signOut();
     navigate("/");
-  }, [navigate]);
+  }, []); // Removed navigate from dependency array
 
   return (
     <header className="w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
