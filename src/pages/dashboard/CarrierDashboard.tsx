@@ -6,7 +6,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
+import { MapPin, Package, Clock, ExternalLink, Truck, CheckCircle } from "lucide-react";
 
 const CarrierDashboard = () => {
   const { userId } = useAuth();
@@ -32,10 +34,10 @@ const CarrierDashboard = () => {
     if (!userId) return;
     const { data } = await supabase
       .from("shipments")
-      .select("id, origin, destination, status, pickup_time, dropoff_time, created_at")
+      .select("id, origin, destination, status, pickup_time, dropoff_time, created_at, capacity_kg, pickup_address, delivery_address")
       .eq("carrier_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(20);
+      .order("created_at", { ascending: false });
+    console.log("Carrier shipments loaded:", data);
     setJobs(data ?? []);
   };
 
@@ -50,10 +52,42 @@ const CarrierDashboard = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
+  const markPickedUp = async (id: string) => {
+    await supabase.from("shipments").update({ 
+      status: "in_transit", 
+      pickup_time: new Date().toISOString() 
+    }).eq("id", id);
+    await load();
+  };
+
   const markDelivered = async (id: string) => {
-    await supabase.from("shipments").update({ status: "delivered", dropoff_time: new Date().toISOString() }).eq("id", id);
+    await supabase.from("shipments").update({ 
+      status: "delivered", 
+      dropoff_time: new Date().toISOString() 
+    }).eq("id", id);
     if (userId) await supabase.rpc("award_points", { _user_id: userId, _points: 10, _source: "shipment_delivered" });
     await load();
+  };
+
+  const openInGoogleMaps = (origin: string, destination: string) => {
+    const url = `https://www.google.com/maps/dir/${encodeURIComponent(origin)}/${encodeURIComponent(destination)}`;
+    window.open(url, '_blank');
+  };
+
+  const openRouteInGoogleMaps = () => {
+    if (jobs.length === 0) return;
+    
+    // Create waypoints for all pickup and delivery locations
+    const pickupLocations = jobs.filter(j => j.status === 'assigned').map(j => j.origin);
+    const deliveryLocations = jobs.filter(j => j.status === 'in_transit').map(j => j.destination);
+    
+    const allWaypoints = [...pickupLocations, ...deliveryLocations];
+    
+    if (allWaypoints.length > 0) {
+      const waypointsStr = allWaypoints.map(w => encodeURIComponent(w)).join('/');
+      const url = `https://www.google.com/maps/dir/${waypointsStr}`;
+      window.open(url, '_blank');
+    }
   };
 
   return (
@@ -69,30 +103,215 @@ const CarrierDashboard = () => {
           <h1 className="text-3xl font-semibold">Carrier Dashboard</h1>
           <p className="text-muted-foreground">Your live location and assigned shipments.</p>
         </section>
-        <section className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-lg border p-4">
-            <h2 className="mb-3 text-xl font-medium">Live Map - Undelivered Orders</h2>
-            <LiveMap userRole="carrier" showDelivered={false} />
-          </div>
-          <Card>
-            <CardHeader>
-              <CardTitle>Your Jobs</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-3">
-                {jobs.length === 0 && <div className="text-sm text-muted-foreground">No assigned shipments.</div>}
-                {jobs.map(j => (
-                  <div key={j.id} className="rounded border p-3">
-                    <div className="text-sm font-medium">{j.origin} → {j.destination}</div>
-                    <div className="mb-2 text-xs text-muted-foreground">Status: {j.status}</div>
-                    {j.status !== 'delivered' && (
-                      <Button size="sm" onClick={() => markDelivered(j.id)}>Mark Delivered</Button>
+        <section className="grid gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2 space-y-6">
+            {/* Route Planning */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <Truck className="h-5 w-5" />
+                    Your Route Plan
+                  </span>
+                  <Button 
+                    onClick={openRouteInGoogleMaps}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2"
+                    disabled={jobs.length === 0}
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Open Full Route
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {jobs.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No assigned shipments.
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {/* Pending Pickups */}
+                    {jobs.filter(j => j.status === 'assigned').length > 0 && (
+                      <div>
+                        <h3 className="font-medium text-orange-600 mb-3 flex items-center gap-2">
+                          <Package className="h-4 w-4" />
+                          Pending Pickups ({jobs.filter(j => j.status === 'assigned').length})
+                        </h3>
+                        <div className="space-y-3">
+                          {jobs.filter(j => j.status === 'assigned').map(j => (
+                            <div key={`pickup-${j.id}`} className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <MapPin className="h-4 w-4 text-orange-600" />
+                                    <span className="font-medium">Pickup: {j.origin}</span>
+                                  </div>
+                                  <div className="text-sm text-muted-foreground mb-2">
+                                    Deliver to: {j.destination}
+                                  </div>
+                                  {j.capacity_kg && (
+                                    <div className="text-sm text-muted-foreground flex items-center gap-1">
+                                      <Package className="h-3 w-3" />
+                                      {j.capacity_kg} kg
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => openInGoogleMaps(j.origin, j.destination)}
+                                  >
+                                    <ExternalLink className="h-3 w-3 mr-1" />
+                                    Route
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    onClick={() => markPickedUp(j.id)}
+                                    className="bg-orange-600 hover:bg-orange-700"
+                                  >
+                                    Mark Picked Up
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* In Transit (Ready for Delivery) */}
+                    {jobs.filter(j => j.status === 'in_transit').length > 0 && (
+                      <div>
+                        <h3 className="font-medium text-blue-600 mb-3 flex items-center gap-2">
+                          <Truck className="h-4 w-4" />
+                          Ready for Delivery ({jobs.filter(j => j.status === 'in_transit').length})
+                        </h3>
+                        <div className="space-y-3">
+                          {jobs.filter(j => j.status === 'in_transit').map(j => (
+                            <div key={`delivery-${j.id}`} className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <MapPin className="h-4 w-4 text-blue-600" />
+                                    <span className="font-medium">Deliver to: {j.destination}</span>
+                                  </div>
+                                  <div className="text-sm text-muted-foreground mb-2">
+                                    Picked up from: {j.origin}
+                                  </div>
+                                  {j.pickup_time && (
+                                    <div className="text-sm text-muted-foreground flex items-center gap-1">
+                                      <Clock className="h-3 w-3" />
+                                      Picked up: {new Date(j.pickup_time).toLocaleString()}
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => openInGoogleMaps(j.origin, j.destination)}
+                                  >
+                                    <ExternalLink className="h-3 w-3 mr-1" />
+                                    Route
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    onClick={() => markDelivered(j.id)}
+                                    className="bg-green-600 hover:bg-green-700"
+                                  >
+                                    <CheckCircle className="h-3 w-3 mr-1" />
+                                    Mark Delivered
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Completed Deliveries */}
+                    {jobs.filter(j => j.status === 'delivered').length > 0 && (
+                      <div>
+                        <h3 className="font-medium text-green-600 mb-3 flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4" />
+                          Completed ({jobs.filter(j => j.status === 'delivered').length})
+                        </h3>
+                        <div className="space-y-3">
+                          {jobs.filter(j => j.status === 'delivered').slice(0, 5).map(j => (
+                            <div key={`completed-${j.id}`} className="bg-green-50 border border-green-200 rounded-lg p-4">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <CheckCircle className="h-4 w-4 text-green-600" />
+                                    <span className="font-medium">{j.origin} → {j.destination}</span>
+                                  </div>
+                                  {j.dropoff_time && (
+                                    <div className="text-sm text-muted-foreground">
+                                      Delivered: {new Date(j.dropoff_time).toLocaleString()}
+                                    </div>
+                                  )}
+                                </div>
+                                <Badge className="bg-green-100 text-green-800">
+                                  Completed
+                                </Badge>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     )}
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="space-y-6">
+            {/* Live Map */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Live Map</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="aspect-square rounded-lg overflow-hidden">
+                  <LiveMap userRole="carrier" showDelivered={false} />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Quick Stats */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Today's Summary</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Pending Pickups</span>
+                    <Badge variant="outline" className="bg-orange-50 text-orange-600">
+                      {jobs.filter(j => j.status === 'assigned').length}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Ready for Delivery</span>
+                    <Badge variant="outline" className="bg-blue-50 text-blue-600">
+                      {jobs.filter(j => j.status === 'in_transit').length}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Completed</span>
+                    <Badge variant="outline" className="bg-green-50 text-green-600">
+                      {jobs.filter(j => j.status === 'delivered').length}
+                    </Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </section>
       </main>
     </>
