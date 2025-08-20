@@ -213,7 +213,7 @@ const Index = () => {
                       </p>
                     </div>
                     
-                    <div className="grid gap-4 grid-cols-3">
+                    <div className="grid gap-6 grid-cols-3">
                       {[
                         { icon: Zap, text: "AI-powered carrier matching" },
                         { icon: MapPin, text: "Real-time shipment tracking" },
@@ -222,11 +222,11 @@ const Index = () => {
                         { icon: BarChart3, text: "Advanced analytics dashboard" },
                         { icon: CheckCircle, text: "Verified delivery confirmation" }
                       ].map((feature, index) => (
-                        <div key={index} className="flex items-center gap-3 p-4 rounded-xl bg-gray-50 border">
-                          <div className="p-2 rounded-lg bg-delhi-primary/10">
-                            <feature.icon className="w-5 h-5 text-delhi-primary" />
+                        <div key={index} className="flex flex-col items-center gap-4 p-6 rounded-xl bg-gray-50 border hover:shadow-lg transition-all duration-300">
+                          <div className="p-4 rounded-2xl bg-delhi-primary/10">
+                            <feature.icon className="w-8 h-8 text-delhi-primary" />
                           </div>
-                          <span className="text-sm font-medium text-delhi-navy">{feature.text}</span>
+                          <span className="text-center font-medium text-delhi-navy">{feature.text}</span>
                         </div>
                       ))}
                     </div>
@@ -256,7 +256,7 @@ const Index = () => {
                       </p>
                     </div>
                     
-                    <div className="grid gap-4 grid-cols-3">
+                    <div className="grid gap-6 grid-cols-3">
                       {[
                         { icon: Truck, text: "AI-optimized route planning" },
                         { icon: Star, text: "Multiple shipment management" },
@@ -265,11 +265,11 @@ const Index = () => {
                         { icon: Users, text: "Verified carrier network" },
                         { icon: Zap, text: "Instant load assignments" }
                       ].map((feature, index) => (
-                        <div key={index} className="flex items-center gap-3 p-4 rounded-xl bg-gray-50 border">
-                          <div className="p-2 rounded-lg bg-delhi-primary/10">
-                            <feature.icon className="w-5 h-5 text-delhi-primary" />
+                        <div key={index} className="flex flex-col items-center gap-4 p-6 rounded-xl bg-gray-50 border hover:shadow-lg transition-all duration-300">
+                          <div className="p-4 rounded-2xl bg-delhi-primary/10">
+                            <feature.icon className="w-8 h-8 text-delhi-primary" />
                           </div>
-                          <span className="text-sm font-medium text-delhi-navy">{feature.text}</span>
+                          <span className="text-center font-medium text-delhi-navy">{feature.text}</span>
                         </div>
                       ))}
                     </div>
