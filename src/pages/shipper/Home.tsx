@@ -32,9 +32,10 @@ const ShipperHome = () => {
           {/* Hero Section */}
           <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
             <div 
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              className="absolute inset-0 bg-contain bg-center bg-no-repeat"
               style={{ 
-                backgroundImage: `url("/lovable-uploads/2a758667-ca55-4d0f-836e-449ffc0ce7e1.png")` 
+                backgroundImage: `url("/lovable-uploads/2a758667-ca55-4d0f-836e-449ffc0ce7e1.png")`,
+                backgroundSize: 'auto 100%'
               }}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-delhi-navy/40 via-delhi-primary/30 to-delhi-navy/50"></div>
