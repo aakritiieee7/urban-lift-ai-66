@@ -213,7 +213,7 @@ const Index = () => {
                       </p>
                     </div>
                     
-                    <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
+                    <div className="grid gap-4 grid-cols-3">
                       {[
                         { icon: Zap, text: "AI-powered carrier matching" },
                         { icon: MapPin, text: "Real-time shipment tracking" },
@@ -306,7 +306,7 @@ const Index = () => {
                       </p>
                     </div>
                     
-                    <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
+                    <div className="grid gap-4 grid-cols-3">
                       {[
                         { icon: Truck, text: "AI-optimized route planning" },
                         { icon: Star, text: "Multiple shipment management" },
