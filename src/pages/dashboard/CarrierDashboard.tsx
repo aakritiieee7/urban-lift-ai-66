@@ -16,6 +16,7 @@ const CarrierDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log("CarrierDashboard useEffect running - userId:", userId);
     const check = async () => {
       if (!userId) return;
       const { data } = await (supabase as any)

@@ -25,6 +25,7 @@ const Index = () => {
   const navigate = useNavigate();
   const { userId, loading } = useAuth();
   useEffect(() => {
+    console.log("Index useEffect running - userId:", userId, "loading:", loading);
     if (loading || !userId) return;
     (async () => {
       const { data } = await (supabase as any)

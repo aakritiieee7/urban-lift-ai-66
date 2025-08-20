@@ -31,7 +31,7 @@ const ShipperPooling = () => {
       
       setShipments(data ?? []);
     })();
-  }, [userId, toast]);
+  }, [userId]); // Removed toast from deps to prevent infinite loop
 
   const userPools = useMemo(() => {
     if (!userId || shipments.length === 0) return [];

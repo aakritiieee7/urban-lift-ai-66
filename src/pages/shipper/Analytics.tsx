@@ -63,7 +63,7 @@ const Analytics = () => {
     if (userId) {
       fetchAnalytics();
     }
-  }, [userId, timeRange]);
+  }, [userId, timeRange]); // fetchAnalytics not in deps to avoid infinite loop
 
   const fetchAnalytics = async () => {
     try {

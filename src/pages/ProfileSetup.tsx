@@ -56,6 +56,7 @@ const ProfileSetup = () => {
   });
 
   useEffect(() => {
+    console.log("ProfileSetup useEffect running - userId:", userId, "role:", role);
     if (!userId) return;
     (async () => {
       const { data } = await (supabase as any)
@@ -95,7 +96,7 @@ const ProfileSetup = () => {
         }
       }
     })();
-  }, [userId, role]);
+  }, [userId, role]); // Removed navigate to prevent infinite loops
 
   const onSubmit = async (values: any) => {
     if (!userId) return;
