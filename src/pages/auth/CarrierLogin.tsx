@@ -61,18 +61,6 @@ const CarrierLogin = () => {
       <Navbar />
       
       <main className="min-h-screen bg-background relative overflow-hidden">
-        {/* Background Elements */}
-        <div className="absolute inset-0">
-          <div className="absolute top-0 left-0 w-1/3 h-full opacity-10">
-            <img src={carrierBg} alt="" className="w-full h-full object-cover" />
-          </div>
-        </div>
-        
-        {/* Floating Elements */}
-        <div className="absolute top-32 right-16 w-20 h-20 bg-delhi-orange/20 rounded-full animate-float"></div>
-        <div className="absolute bottom-32 left-16 w-16 h-16 bg-delhi-navy/20 rounded-full animate-float" style={{animationDelay: '3s'}}></div>
-        <div className="absolute top-1/3 right-1/4 w-12 h-12 bg-delhi-primary/30 rounded-full animate-float" style={{animationDelay: '1s'}}></div>
-
         <div className="container mx-auto px-4 py-16 relative z-10">
           <div className="max-w-6xl mx-auto">
             {/* Header Section */}
