@@ -163,45 +163,172 @@ const Index = () => {
                 </CardContent>
               </Card>
               
-              <Card className="group p-8 hover:shadow-[var(--shadow-delhi)] transition-all duration-300 hover:scale-105 border-0 bg-gradient-to-br from-amber-50 to-amber-100/50">
+              <Card className="group p-8 hover:shadow-[var(--shadow-delhi)] transition-all duration-300 hover:scale-105 border-0 bg-gradient-to-br from-teal-50 to-teal-100/50">
                 <CardHeader className="p-0 pb-6">
-                  <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 w-fit mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <div className="p-4 rounded-2xl bg-gradient-to-br from-teal-500 to-teal-600 w-fit mb-4 group-hover:scale-110 transition-transform duration-300">
                     <Package className="h-8 w-8 text-white" />
                   </div>
-                  <CardTitle className="text-xl font-bold text-delhi-navy">For Shippers</CardTitle>
+                  <CardTitle className="text-xl font-bold text-delhi-navy">Cost Optimization</CardTitle>
                 </CardHeader>
-                <CardContent className="p-0 space-y-4">
+                <CardContent className="p-0">
                   <p className="text-muted-foreground">
-                    Create shipments, get instant quotes, and track deliveries with our intuitive shipper dashboard.
+                    Our advanced algorithms reduce shipping costs through intelligent pooling and route optimization.
                   </p>
-                  <Link to="/auth/shipper/register">
-                    <Button size="sm" className="bg-delhi-primary hover:bg-delhi-primary/90 text-white w-full">
-                      Start Shipping
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
                 </CardContent>
               </Card>
               
-              <Card className="group p-8 hover:shadow-[var(--shadow-delhi)] transition-all duration-300 hover:scale-105 border-0 bg-gradient-to-br from-emerald-50 to-emerald-100/50">
+              <Card className="group p-8 hover:shadow-[var(--shadow-delhi)] transition-all duration-300 hover:scale-105 border-0 bg-gradient-to-br from-indigo-50 to-indigo-100/50">
                 <CardHeader className="p-0 pb-6">
-                  <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 w-fit mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 w-fit mb-4 group-hover:scale-110 transition-transform duration-300">
                     <Truck className="h-8 w-8 text-white" />
                   </div>
-                  <CardTitle className="text-xl font-bold text-delhi-navy">For Carriers</CardTitle>
+                  <CardTitle className="text-xl font-bold text-delhi-navy">Wide Coverage</CardTitle>
                 </CardHeader>
-                <CardContent className="p-0 space-y-4">
+                <CardContent className="p-0">
                   <p className="text-muted-foreground">
-                    Access optimized routes, manage multiple shipments efficiently, and grow your business.
+                    Comprehensive coverage across Delhi NCR with plans to expand to major Indian metropolitan areas.
                   </p>
-                  <Link to="/auth/carrier/register">
-                    <Button size="sm" className="bg-delhi-primary hover:bg-delhi-primary/90 text-white w-full">
-                      Join Network
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
                 </CardContent>
               </Card>
+            </div>
+          </div>
+        </section>
+
+        {/* Shipper & Carrier Sections */}
+        <section className="py-24 bg-muted/30">
+          <div className="container mx-auto px-4">
+            <div className="grid gap-12 lg:gap-16">
+              {/* Shipper Section */}
+              <div className="bg-white rounded-2xl p-12 shadow-sm border">
+                <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+                  <div className="space-y-8">
+                    <div className="space-y-4">
+                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-delhi-primary/10 text-sm font-medium text-delhi-primary">
+                        <Package className="w-4 h-4" />
+                        For Shippers
+                      </div>
+                      <h3 className="text-4xl font-bold text-delhi-navy">Streamline Your Shipping Operations</h3>
+                      <p className="text-xl text-muted-foreground">
+                        Create shipments, get instant quotes, and track deliveries with our intuitive shipper dashboard.
+                      </p>
+                    </div>
+                    
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      {[
+                        { icon: Zap, text: "AI-powered carrier matching" },
+                        { icon: MapPin, text: "Real-time shipment tracking" },
+                        { icon: Package, text: "Automated documentation" },
+                        { icon: Users, text: "Cost-effective pooled deliveries" }
+                      ].map((feature, index) => (
+                        <div key={index} className="flex items-center gap-3 p-4 rounded-xl bg-gray-50 border">
+                          <div className="p-2 rounded-lg bg-delhi-primary/10">
+                            <feature.icon className="w-5 h-5 text-delhi-primary" />
+                          </div>
+                          <span className="text-sm font-medium text-delhi-navy">{feature.text}</span>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <Link to="/auth/shipper/register" className="block">
+                      <Button size="xl" className="bg-delhi-primary hover:bg-delhi-primary/90 text-white">
+                        Start Shipping Now
+                        <ArrowRight className="ml-2" />
+                      </Button>
+                    </Link>
+                  </div>
+                  
+                  <div className="grid gap-4">
+                    <Card className="p-6 bg-gray-50 border">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-xl bg-delhi-primary/10">
+                          <BarChart3 className="h-6 w-6 text-delhi-primary" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-delhi-navy">Cost Optimization</p>
+                          <p className="text-sm text-muted-foreground">Optimize shipping costs</p>
+                        </div>
+                      </div>
+                    </Card>
+                    <Card className="p-6 bg-gray-50 border">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-xl bg-delhi-primary/10">
+                          <CheckCircle className="h-6 w-6 text-delhi-primary" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-delhi-navy">Delivery Efficiency</p>
+                          <p className="text-sm text-muted-foreground">Improved delivery efficiency</p>
+                        </div>
+                      </div>
+                    </Card>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Carrier Section */}
+              <div className="bg-white rounded-2xl p-12 shadow-sm border">
+                <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+                  <div className="grid gap-4 lg:order-2">
+                    <Card className="p-6 bg-gray-50 border">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-xl bg-delhi-primary/10">
+                          <Truck className="h-6 w-6 text-delhi-primary" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-delhi-navy">Revenue Growth</p>
+                          <p className="text-sm text-muted-foreground">Maximize trip revenue</p>
+                        </div>
+                      </div>
+                    </Card>
+                    <Card className="p-6 bg-gray-50 border">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-xl bg-delhi-primary/10">
+                          <Star className="h-6 w-6 text-delhi-primary" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-delhi-navy">Route Efficiency</p>
+                          <p className="text-sm text-muted-foreground">Smart route optimization</p>
+                        </div>
+                      </div>
+                    </Card>
+                  </div>
+                  
+                  <div className="space-y-8 lg:order-1">
+                    <div className="space-y-4">
+                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-delhi-primary/10 text-sm font-medium text-delhi-primary">
+                        <Truck className="w-4 h-4" />
+                        For Carriers
+                      </div>
+                      <h3 className="text-4xl font-bold text-delhi-navy">Maximize Your Revenue Potential</h3>
+                      <p className="text-xl text-muted-foreground">
+                        Access optimized routes, manage multiple shipments efficiently, and grow your business with our carrier platform.
+                      </p>
+                    </div>
+                    
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      {[
+                        { icon: BarChart3, text: "AI-optimized route planning" },
+                        { icon: Package, text: "Multiple shipment management" },
+                        { icon: CheckCircle, text: "Guaranteed payment protection" },
+                        { icon: Star, text: "Performance analytics dashboard" }
+                      ].map((feature, index) => (
+                        <div key={index} className="flex items-center gap-3 p-4 rounded-xl bg-gray-50 border">
+                          <div className="p-2 rounded-lg bg-delhi-primary/10">
+                            <feature.icon className="w-5 h-5 text-delhi-primary" />
+                          </div>
+                          <span className="text-sm font-medium text-delhi-navy">{feature.text}</span>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <Link to="/auth/carrier/register" className="block">
+                      <Button size="xl" className="bg-delhi-primary hover:bg-delhi-primary/90 text-white">
+                        Join Our Network
+                        <ArrowRight className="ml-2" />
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
