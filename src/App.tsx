@@ -11,6 +11,7 @@ import ShipperLogin from "./pages/auth/ShipperLogin";
 import ShipperRegister from "./pages/auth/ShipperRegister";
 import CarrierLogin from "./pages/auth/CarrierLogin";
 import CarrierRegister from "./pages/auth/CarrierRegister";
+import RouteOptimization from "./pages/RouteOptimization";
 
 import CarrierDashboard from "./pages/dashboard/CarrierDashboard";
 import AvailableShipments from "./pages/carrier/AvailableShipments";
@@ -53,6 +54,7 @@ const App = () => (
             <Route path="/community" element={<Community />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/transits" element={<PublicTransits />} />
+            <Route path="/route-optimization" element={<RouteOptimization />} />
             
             <Route path="/profile-setup" element={<ProfileSetup />} />
 <Route path="/profile" element={<Profile />} />

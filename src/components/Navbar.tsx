@@ -77,6 +77,9 @@ const Navbar = memo(() => {
               <NavLink to="/community" className="px-3 py-2 rounded-md hover:bg-accent">
                 Community
               </NavLink>
+              <NavLink to="/route-optimization" className="px-3 py-2 rounded-md hover:bg-accent">
+                AI Optimizer
+              </NavLink>
               <NavLink to="/leaderboard" className="px-3 py-2 rounded-md hover:bg-accent">
                 Leaderboard
               </NavLink>
