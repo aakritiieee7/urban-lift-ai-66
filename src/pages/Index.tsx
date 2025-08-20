@@ -197,44 +197,44 @@ const Index = () => {
         {/* Shipper & Carrier Sections */}
         <section className="py-24 bg-muted/30">
           <div className="container mx-auto px-4">
-            <div className="grid gap-12 lg:gap-16">
+            <div className="grid gap-16 lg:gap-20">
               {/* Shipper Section */}
-              <div className="bg-white rounded-2xl p-12 shadow-sm border">
-                <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-                  <div className="space-y-8">
-                    <div className="space-y-4">
-                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-delhi-primary/10 text-sm font-medium text-delhi-primary">
-                        <Package className="w-4 h-4" />
-                        For Shippers
-                      </div>
-                      <h3 className="text-4xl font-bold text-delhi-navy">Streamline Your Shipping Operations</h3>
-                      <p className="text-xl text-muted-foreground">
-                        Create shipments, get instant quotes, and track deliveries with our intuitive shipper dashboard.
-                      </p>
+              <div className="group p-16 hover:shadow-[var(--shadow-delhi)] transition-all duration-300 hover:scale-[1.02] border-0 bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-3xl">
+                <div className="space-y-12">
+                  <div className="text-center space-y-6">
+                    <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-delhi-primary/10 text-lg font-medium text-delhi-primary">
+                      <Package className="w-6 h-6" />
+                      For Shippers
                     </div>
-                    
-                    <div className="grid gap-6 grid-cols-3">
-                      {[
-                        { icon: Zap, text: "AI-powered carrier matching" },
-                        { icon: MapPin, text: "Real-time shipment tracking" },
-                        { icon: Package, text: "Automated documentation" },
-                        { icon: Users, text: "Cost-effective pooled deliveries" },
-                        { icon: BarChart3, text: "Advanced analytics dashboard" },
-                        { icon: CheckCircle, text: "Verified delivery confirmation" }
-                      ].map((feature, index) => (
-                        <div key={index} className="flex flex-col items-center gap-4 p-6 rounded-xl bg-gray-50 border hover:shadow-lg transition-all duration-300">
-                          <div className="p-4 rounded-2xl bg-delhi-primary/10">
-                            <feature.icon className="w-8 h-8 text-delhi-primary" />
-                          </div>
-                          <span className="text-center font-medium text-delhi-navy">{feature.text}</span>
+                    <h3 className="text-5xl font-bold text-delhi-navy">Streamline Your Shipping Operations</h3>
+                    <p className="text-2xl text-muted-foreground max-w-4xl mx-auto">
+                      Create shipments, get instant quotes, and track deliveries with our intuitive shipper dashboard.
+                    </p>
+                  </div>
+                  
+                  <div className="grid gap-8 grid-cols-3">
+                    {[
+                      { icon: Zap, text: "AI-powered carrier matching" },
+                      { icon: MapPin, text: "Real-time shipment tracking" },
+                      { icon: Package, text: "Automated documentation" },
+                      { icon: Users, text: "Cost-effective pooled deliveries" },
+                      { icon: BarChart3, text: "Advanced analytics dashboard" },
+                      { icon: CheckCircle, text: "Verified delivery confirmation" }
+                    ].map((feature, index) => (
+                      <div key={index} className="flex flex-col items-center gap-6 p-8 rounded-2xl bg-white/80 border hover:shadow-xl transition-all duration-300 hover:scale-105">
+                        <div className="p-6 rounded-3xl bg-delhi-primary/10">
+                          <feature.icon className="w-10 h-10 text-delhi-primary" />
                         </div>
-                      ))}
-                    </div>
-                    
-                    <Link to="/auth/shipper/register" className="block">
-                      <Button size="xl" className="bg-delhi-primary hover:bg-delhi-primary/90 text-white">
+                        <span className="text-center text-lg font-semibold text-delhi-navy">{feature.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="text-center pt-8">
+                    <Link to="/auth/shipper/register">
+                      <Button size="xl" className="bg-delhi-primary hover:bg-delhi-primary/90 text-white text-lg px-12 py-6">
                         Start Shipping Now
-                        <ArrowRight className="ml-2" />
+                        <ArrowRight className="ml-3 w-6 h-6" />
                       </Button>
                     </Link>
                   </div>
@@ -242,42 +242,42 @@ const Index = () => {
               </div>
               
               {/* Carrier Section */}
-              <div className="bg-white rounded-2xl p-12 shadow-sm border">
-                <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-                  <div className="space-y-8">
-                    <div className="space-y-4">
-                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-delhi-primary/10 text-sm font-medium text-delhi-primary">
-                        <Truck className="w-4 h-4" />
-                        For Carriers
-                      </div>
-                      <h3 className="text-4xl font-bold text-delhi-navy">Maximize Your Revenue Potential</h3>
-                      <p className="text-xl text-muted-foreground">
-                        Access optimized routes, manage multiple shipments efficiently, and grow your business with our carrier platform.
-                      </p>
+              <div className="group p-16 hover:shadow-[var(--shadow-delhi)] transition-all duration-300 hover:scale-[1.02] border-0 bg-gradient-to-br from-green-50 to-green-100/50 rounded-3xl">
+                <div className="space-y-12">
+                  <div className="text-center space-y-6">
+                    <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-delhi-primary/10 text-lg font-medium text-delhi-primary">
+                      <Truck className="w-6 h-6" />
+                      For Carriers
                     </div>
-                    
-                    <div className="grid gap-6 grid-cols-3">
-                      {[
-                        { icon: Truck, text: "AI-optimized route planning" },
-                        { icon: Star, text: "Multiple shipment management" },
-                        { icon: ArrowRight, text: "Guaranteed payment protection" },
-                        { icon: MapPin, text: "Performance analytics dashboard" },
-                        { icon: Users, text: "Verified carrier network" },
-                        { icon: Zap, text: "Instant load assignments" }
-                      ].map((feature, index) => (
-                        <div key={index} className="flex flex-col items-center gap-4 p-6 rounded-xl bg-gray-50 border hover:shadow-lg transition-all duration-300">
-                          <div className="p-4 rounded-2xl bg-delhi-primary/10">
-                            <feature.icon className="w-8 h-8 text-delhi-primary" />
-                          </div>
-                          <span className="text-center font-medium text-delhi-navy">{feature.text}</span>
+                    <h3 className="text-5xl font-bold text-delhi-navy">Maximize Your Revenue Potential</h3>
+                    <p className="text-2xl text-muted-foreground max-w-4xl mx-auto">
+                      Access optimized routes, manage multiple shipments efficiently, and grow your business with our carrier platform.
+                    </p>
+                  </div>
+                  
+                  <div className="grid gap-8 grid-cols-3">
+                    {[
+                      { icon: Truck, text: "AI-optimized route planning" },
+                      { icon: Star, text: "Multiple shipment management" },
+                      { icon: ArrowRight, text: "Guaranteed payment protection" },
+                      { icon: MapPin, text: "Performance analytics dashboard" },
+                      { icon: Users, text: "Verified carrier network" },
+                      { icon: Zap, text: "Instant load assignments" }
+                    ].map((feature, index) => (
+                      <div key={index} className="flex flex-col items-center gap-6 p-8 rounded-2xl bg-white/80 border hover:shadow-xl transition-all duration-300 hover:scale-105">
+                        <div className="p-6 rounded-3xl bg-delhi-primary/10">
+                          <feature.icon className="w-10 h-10 text-delhi-primary" />
                         </div>
-                      ))}
-                    </div>
-                    
-                    <Link to="/auth/carrier/register" className="block">
-                      <Button size="xl" className="bg-delhi-primary hover:bg-delhi-primary/90 text-white">
+                        <span className="text-center text-lg font-semibold text-delhi-navy">{feature.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="text-center pt-8">
+                    <Link to="/auth/carrier/register">
+                      <Button size="xl" className="bg-delhi-primary hover:bg-delhi-primary/90 text-white text-lg px-12 py-6">
                         Join Our Network
-                        <ArrowRight className="ml-2" />
+                        <ArrowRight className="ml-3 w-6 h-6" />
                       </Button>
                     </Link>
                   </div>
