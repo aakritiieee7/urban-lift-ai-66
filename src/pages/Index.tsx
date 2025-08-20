@@ -238,63 +238,13 @@ const Index = () => {
                       </Button>
                     </Link>
                   </div>
-                  
-                  <div className="grid gap-4">
-                    <Card className="p-6 bg-gray-50 border">
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-xl bg-delhi-primary/10">
-                          <BarChart3 className="h-6 w-6 text-delhi-primary" />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-delhi-navy">Cost Optimization</p>
-                          <p className="text-sm text-muted-foreground">Optimize shipping costs</p>
-                        </div>
-                      </div>
-                    </Card>
-                    <Card className="p-6 bg-gray-50 border">
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-xl bg-delhi-primary/10">
-                          <CheckCircle className="h-6 w-6 text-delhi-primary" />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-delhi-navy">Delivery Efficiency</p>
-                          <p className="text-sm text-muted-foreground">Improved delivery efficiency</p>
-                        </div>
-                      </div>
-                    </Card>
-                  </div>
                 </div>
               </div>
               
               {/* Carrier Section */}
               <div className="bg-white rounded-2xl p-12 shadow-sm border">
                 <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-                  <div className="grid gap-4 lg:order-2">
-                    <Card className="p-6 bg-gray-50 border">
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-xl bg-delhi-primary/10">
-                          <Truck className="h-6 w-6 text-delhi-primary" />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-delhi-navy">Revenue Growth</p>
-                          <p className="text-sm text-muted-foreground">Maximize trip revenue</p>
-                        </div>
-                      </div>
-                    </Card>
-                    <Card className="p-6 bg-gray-50 border">
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-xl bg-delhi-primary/10">
-                          <Star className="h-6 w-6 text-delhi-primary" />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-delhi-navy">Route Efficiency</p>
-                          <p className="text-sm text-muted-foreground">Smart route optimization</p>
-                        </div>
-                      </div>
-                    </Card>
-                  </div>
-                  
-                  <div className="space-y-8 lg:order-1">
+                  <div className="space-y-8">
                     <div className="space-y-4">
                       <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-delhi-primary/10 text-sm font-medium text-delhi-primary">
                         <Truck className="w-4 h-4" />
@@ -348,7 +298,7 @@ const Index = () => {
               <div className="space-y-4">
                 <h2 className="text-4xl md:text-5xl font-bold text-white">Ready to Transform Your Logistics?</h2>
                 <p className="text-xl text-white/90 max-w-3xl mx-auto">
-                  Join businesses using UrbanLift.AI to optimize their shipping operations.
+                  Start shipping smarter or join our carrier network today.
                 </p>
               </div>
               
