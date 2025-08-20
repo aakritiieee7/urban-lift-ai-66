@@ -1,3 +1,4 @@
+
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,116 +28,196 @@ interface Post {
 const Community = () => {
   const { userId } = useAuth();
   const { toast } = useToast();
-const [text, setText] = useState("");
-const [posts, setPosts] = useState<Post[]>([]);
-const [tab, setTab] = useState<"all" | "mine">("all");
-const [names, setNames] = useState<Record<string, string>>({});
-const [votes, setVotes] = useState<Record<string, number>>({});
-const initials = (s: string) => s.split(' ').map(p => p[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
+  const [text, setText] = useState("");
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [tab, setTab] = useState<"all" | "mine">("all");
+  const [names, setNames] = useState<Record<string, string>>({});
+  const [votes, setVotes] = useState<Record<string, number>>({});
+  const [loading, setLoading] = useState(true);
 
-const load = async () => {
-  const { data, error } = await supabase
-    .from("community_posts")
-    .select("id, content, user_id, created_at")
-    .order("created_at", { ascending: false })
-    .limit(50);
-  if (error) return;
-  const rows = data ?? [];
-  setPosts(rows);
-  // Load profile names
-  const ids = Array.from(new Set(rows.map(r => r.user_id)));
-  if (ids.length) {
-    const { data: profs } = await supabase
-      .from("shipper_profiles")
-      .select("user_id, business_name, company_name")
-      .in("user_id", ids);
-    const map: Record<string, string> = {};
-    profs?.forEach(p => { map[p.user_id] = p.business_name || p.company_name || ""; });
-    setNames(map);
-  } else {
-    setNames({});
-  }
-  // Load vote counts if votes table exists
-  try {
-    const supaAny = supabase as any;
-    const { data: vrows } = await supaAny
-      .from("community_post_votes")
-      .select("post_id")
-      .in("post_id", rows.map(r => r.id));
-    const counts: Record<string, number> = {};
-    (vrows ?? []).forEach((v: { post_id: string }) => {
-      counts[v.post_id] = (counts[v.post_id] || 0) + 1;
-    });
-    setVotes(counts);
-  } catch (_) {
-    // silently ignore when votes table is not available
-  }
-};
+  const initials = (s: string) => s.split(' ').map(p => p[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
 
-useEffect(() => {
-  load();
-  const channel = supabase
-    .channel("community-posts")
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'community_posts' }, () => load())
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'community_post_votes' }, () => load())
-    .subscribe();
-  return () => { supabase.removeChannel(channel); };
-}, []);
+  const load = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("community_posts")
+        .select("id, content, user_id, created_at")
+        .order("created_at", { ascending: false })
+        .limit(50);
+      
+      if (error) {
+        console.error("Error loading posts:", error);
+        setPosts([]);
+        setLoading(false);
+        return;
+      }
+
+      const rows = data ?? [];
+      setPosts(rows);
+      
+      // Load profile names
+      const ids = Array.from(new Set(rows.map(r => r.user_id)));
+      if (ids.length) {
+        const { data: profs } = await supabase
+          .from("shipper_profiles")
+          .select("user_id, business_name, company_name")
+          .in("user_id", ids);
+        
+        const { data: carrierProfs } = await supabase
+          .from("carrier_profiles")
+          .select("user_id, business_name, company_name")
+          .in("user_id", ids);
+
+        const map: Record<string, string> = {};
+        profs?.forEach(p => { map[p.user_id] = p.business_name || p.company_name || ""; });
+        carrierProfs?.forEach(p => { map[p.user_id] = p.business_name || p.company_name || ""; });
+        setNames(map);
+      } else {
+        setNames({});
+      }
+
+      // Load vote counts - handle case where votes table might not exist
+      try {
+        const { data: vrows } = await supabase
+          .from("community_post_votes")
+          .select("post_id")
+          .in("post_id", rows.map(r => r.id));
+        
+        const counts: Record<string, number> = {};
+        (vrows ?? []).forEach((v: { post_id: string }) => {
+          counts[v.post_id] = (counts[v.post_id] || 0) + 1;
+        });
+        setVotes(counts);
+      } catch (voteError) {
+        console.log("Votes table not available, using defaults");
+        setVotes({});
+      }
+    } catch (error) {
+      console.error("Error in load function:", error);
+      setPosts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    load();
+    
+    const channel = supabase
+      .channel("community-posts")
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'community_posts' }, () => load())
+      .subscribe();
+    
+    return () => { 
+      supabase.removeChannel(channel); 
+    };
+  }, []);
 
   const create = async () => {
     if (!userId) {
       toast({ title: "Login required", description: "Please login to post." });
       return;
     }
+    
     const content = text.trim();
     if (!content) return;
-    const { error } = await supabase.from("community_posts").insert({ content, user_id: userId });
-    if (error) {
-      toast({ title: "Error", description: error.message });
-      return;
+    
+    try {
+      const { error } = await supabase
+        .from("community_posts")
+        .insert({ content, user_id: userId });
+      
+      if (error) {
+        toast({ title: "Error", description: error.message });
+        return;
+      }
+      
+      setText("");
+      
+      // Try to award points, but don't fail if function doesn't exist
+      try {
+        await supabase.rpc("award_points", { 
+          _user_id: userId, 
+          _points: 1, 
+          _source: "post_created" 
+        });
+      } catch (pointsError) {
+        console.log("Points system not available");
+      }
+    } catch (error) {
+      console.error("Error creating post:", error);
+      toast({ title: "Error", description: "Failed to create post" });
     }
-    setText("");
-    await supabase.rpc("award_points", { _user_id: userId, _points: 1, _source: "post_created" });
   };
 
-const share = async (p: Post) => {
-  const url = `${window.location.origin}/community#${p.id}`;
-  try {
-    if (navigator.share) {
-      await navigator.share({ title: "UrbanLift.AI Community", text: p.content, url });
-    } else {
-      await navigator.clipboard.writeText(url);
-      toast({ title: "Link copied", description: "Post link copied to clipboard." });
+  const share = async (p: Post) => {
+    const url = `${window.location.origin}/community#${p.id}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "UrbanLift.AI Community", text: p.content, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast({ title: "Link copied", description: "Post link copied to clipboard." });
+      }
+    } catch (_) {
+      // Ignore share cancel errors
     }
-  } catch (_) {
-    // Ignore share cancel errors
-  }
-};
+  };
 
-const upvote = async (p: Post) => {
-  if (!userId) {
-    toast({ title: "Login required", description: "Please login to upvote." });
-    return;
-  }
-  // Optimistic update
-  setVotes(prev => ({ ...prev, [p.id]: (prev[p.id] || 0) + 1 }));
-  try {
-    const supaAny = supabase as any;
-    await supaAny.from("community_post_votes").insert({ post_id: p.id, user_id: userId });
-  } catch (e) {
-    setVotes(prev => ({ ...prev, [p.id]: Math.max(0, (prev[p.id] || 1) - 1) }));
-    toast({ title: "Upvote unavailable", description: "Realtime upvotes will work once enabled." });
-  }
-};
+  const upvote = async (p: Post) => {
+    if (!userId) {
+      toast({ title: "Login required", description: "Please login to upvote." });
+      return;
+    }
+    
+    // Optimistic update
+    setVotes(prev => ({ ...prev, [p.id]: (prev[p.id] || 0) + 1 }));
+    
+    try {
+      const { error } = await supabase
+        .from("community_post_votes")
+        .insert({ post_id: p.id, user_id: userId });
+      
+      if (error) {
+        // Revert optimistic update
+        setVotes(prev => ({ ...prev, [p.id]: Math.max(0, (prev[p.id] || 1) - 1) }));
+        toast({ title: "Upvote failed", description: "Please try again" });
+      }
+    } catch (e) {
+      setVotes(prev => ({ ...prev, [p.id]: Math.max(0, (prev[p.id] || 1) - 1) }));
+      toast({ title: "Upvote unavailable", description: "Feature will be available soon." });
+    }
+  };
 
-const visiblePosts = tab === "mine" ? posts.filter(p => p.user_id === userId) : posts;
+  const visiblePosts = tab === "mine" ? posts.filter(p => p.user_id === userId) : posts;
+
+  if (loading) {
+    return (
+      <>
+        <Helmet>
+          <title>Community for Businesses & MSMEs | UrbanLift.AI</title>
+          <meta name="description" content="Post queries and opinions. Upvote in realtime. Connect with Delhi MSMEs." />
+          <link rel="canonical" href="/community" />
+        </Helmet>
+        <Navbar />
+        <main className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center p-8">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p>Loading community posts...</p>
+            </div>
+          </div>
+        </main>
+      </>
+    );
+  }
 
   return (
     <>
       <Helmet>
-<title>Community for Businesses & MSMEs | UrbanLift.AI</title>
-<meta name="description" content="Post queries and opinions. Upvote in realtime. Connect with Delhi MSMEs." />
-<link rel="canonical" href="/community" />
+        <title>Community for Businesses & MSMEs | UrbanLift.AI</title>
+        <meta name="description" content="Post queries and opinions. Upvote in realtime. Connect with Delhi MSMEs." />
+        <link rel="canonical" href="/community" />
       </Helmet>
       <Navbar />
       <main className="container mx-auto px-4 py-8">
@@ -181,6 +262,7 @@ const visiblePosts = tab === "mine" ? posts.filter(p => p.user_id === userId) : 
             </AspectRatio>
           </div>
         </div>
+
         {/* Modern Create Post Card */}
         <Card className="mb-8 bg-gradient-to-br from-card via-card to-muted/30 border-0 shadow-elegant">
           <CardHeader className="pb-4">
@@ -206,6 +288,7 @@ const visiblePosts = tab === "mine" ? posts.filter(p => p.user_id === userId) : 
             </Button>
           </CardContent>
         </Card>
+
         {/* Modern Filter Tabs */}
         <div className="mb-8 flex items-center justify-between">
           <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
@@ -222,6 +305,7 @@ const visiblePosts = tab === "mine" ? posts.filter(p => p.user_id === userId) : 
             {visiblePosts.length} posts
           </div>
         </div>
+
         <div className="grid gap-8">
           {visiblePosts.map((p) => {
             const display = names[p.user_id] || `User ${p.user_id.slice(0,8)}`;
@@ -352,7 +436,6 @@ const visiblePosts = tab === "mine" ? posts.filter(p => p.user_id === userId) : 
               ))}
             </>
           )}
-
         </div>
       </main>
     </>

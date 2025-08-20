@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { MessageCircle, Users, Send } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface Chatroom {
   id: string;
@@ -25,57 +28,180 @@ interface Message {
 
 const Chatroom = () => {
   const { userId, role } = useAuth();
-  const [chatrooms] = useState<Chatroom[]>([
-    {
-      id: "1",
-      name: "General Discussion",
-      description: "General logistics discussions",
-      type: "general",
-      participants: 24
-    },
-    {
-      id: "2", 
-      name: "Delhi Routes",
-      description: "Route optimization for Delhi",
-      type: "general",
-      participants: 18
-    },
-    {
-      id: "3",
-      name: "Carrier Network", 
-      description: "Carrier coordination hub",
-      type: "carrier",
-      participants: 12
-    }
-  ]);
-  
+  const { toast } = useToast();
+  const [chatrooms, setChatrooms] = useState<Chatroom[]>([]);
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
-  const [messages] = useState<Message[]>([
-    {
-      id: "1",
-      user_id: "user1",
-      message: "Anyone available for pickup in Connaught Place?",
-      created_at: new Date().toISOString(),
-      user_name: "RajTransport"
-    },
-    {
-      id: "2", 
-      user_id: "user2",
-      message: "I can handle that route. What's the cargo size?",
-      created_at: new Date().toISOString(),
-      user_name: "DelhiCarriers"
-    }
-  ]);
-  
+  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  const sendMessage = () => {
-    if (!newMessage.trim() || !selectedRoom) return;
-    
-    // Mock message sending - in real app would save to database
-    console.log("Sending message:", newMessage);
-    setNewMessage("");
+  useEffect(() => {
+    loadChatrooms();
+  }, []);
+
+  useEffect(() => {
+    if (selectedRoom) {
+      loadMessages(selectedRoom);
+      subscribeToMessages(selectedRoom);
+    }
+  }, [selectedRoom]);
+
+  const loadChatrooms = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("chatrooms")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      // Transform data to match interface
+      const rooms: Chatroom[] = (data || []).map(room => ({
+        id: room.id,
+        name: room.name,
+        description: room.description || "",
+        type: room.type as "general" | "shipper" | "carrier",
+        participants: 0 // We'll calculate this separately if needed
+      }));
+
+      setChatrooms(rooms);
+    } catch (error) {
+      console.error("Error loading chatrooms:", error);
+      // Fallback to default rooms if database fails
+      setChatrooms([
+        {
+          id: "1",
+          name: "General Discussion",
+          description: "General logistics discussions",
+          type: "general",
+          participants: 24
+        },
+        {
+          id: "2", 
+          name: "Delhi Routes",
+          description: "Route optimization for Delhi",
+          type: "general",
+          participants: 18
+        },
+        {
+          id: "3",
+          name: "Carrier Network", 
+          description: "Carrier coordination hub",
+          type: "carrier",
+          participants: 12
+        }
+      ]);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const loadMessages = async (roomId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("chat_messages")
+        .select("*")
+        .eq("chatroom_id", roomId)
+        .order("created_at", { ascending: true })
+        .limit(50);
+
+      if (error) throw error;
+
+      // Transform data and get user names
+      const messagesWithNames = await Promise.all(
+        (data || []).map(async (msg) => {
+          let userName = "Unknown User";
+          
+          // Try to get user name from profiles
+          const { data: profile } = await supabase
+            .from("shipper_profiles")
+            .select("business_name, company_name")
+            .eq("user_id", msg.user_id)
+            .single();
+
+          if (profile) {
+            userName = profile.business_name || profile.company_name || "User";
+          } else {
+            // Try carrier profiles
+            const { data: carrierProfile } = await supabase
+              .from("carrier_profiles")
+              .select("business_name, company_name")
+              .eq("user_id", msg.user_id)
+              .single();
+            
+            if (carrierProfile) {
+              userName = carrierProfile.business_name || carrierProfile.company_name || "Carrier";
+            }
+          }
+
+          return {
+            id: msg.id,
+            user_id: msg.user_id,
+            message: msg.message,
+            created_at: msg.created_at,
+            user_name: userName
+          };
+        })
+      );
+
+      setMessages(messagesWithNames);
+    } catch (error) {
+      console.error("Error loading messages:", error);
+      setMessages([]);
+    }
+  };
+
+  const subscribeToMessages = (roomId: string) => {
+    const channel = supabase
+      .channel(`chatroom-${roomId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'chat_messages',
+          filter: `chatroom_id=eq.${roomId}`
+        },
+        () => {
+          loadMessages(roomId);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  };
+
+  const sendMessage = async () => {
+    if (!newMessage.trim() || !selectedRoom || !userId) {
+      if (!userId) {
+        toast({ title: "Please log in to send messages" });
+      }
+      return;
+    }
+    
+    try {
+      const { error } = await supabase
+        .from("chat_messages")
+        .insert({
+          chatroom_id: selectedRoom,
+          user_id: userId,
+          message: newMessage.trim()
+        });
+
+      if (error) throw error;
+
+      setNewMessage("");
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast({ title: "Failed to send message", description: "Please try again" });
+    }
+  };
+
+  if (loading) {
+    return <div className="flex items-center justify-center p-8">Loading chatrooms...</div>;
+  }
 
   if (!selectedRoom) {
     return (

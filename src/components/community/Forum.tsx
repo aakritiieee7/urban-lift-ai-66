@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { MessageSquare, ThumbsUp, Clock, User, Plus } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface ForumPost {
   id: string;
@@ -17,56 +20,146 @@ interface ForumPost {
   likes: number;
   replies: number;
   category: string;
+  user_id: string;
 }
 
 const Forum = () => {
   const { userId, role } = useAuth();
-  const [posts] = useState<ForumPost[]>([
-    {
-      id: "1",
-      title: "Best practices for Delhi route optimization",
-      content: "What are your go-to strategies for optimizing delivery routes in Delhi traffic?",
-      author: "LogisticsPro",
-      created_at: new Date().toISOString(),
-      likes: 12,
-      replies: 8,
-      category: "Route Planning"
-    },
-    {
-      id: "2",
-      title: "Carrier partnership opportunities",
-      content: "Looking for reliable carriers for regular Gurgaon-Delhi routes. Any recommendations?",
-      author: "ShipperNet",
-      created_at: new Date().toISOString(),
-      likes: 6,
-      replies: 4,
-      category: "Partnerships"
-    },
-    {
-      id: "3",
-      title: "New regulations for commercial vehicles",
-      content: "Discussion about the latest updates in commercial vehicle regulations in NCR.",
-      author: "RegulatoryWatch",
-      created_at: new Date().toISOString(),
-      likes: 15,
-      replies: 12,
-      category: "Regulations"
-    }
-  ]);
-
+  const { toast } = useToast();
+  const [posts, setPosts] = useState<ForumPost[]>([]);
   const [showNewPost, setShowNewPost] = useState(false);
   const [newPost, setNewPost] = useState({ title: "", content: "", category: "General" });
-
-  const createPost = () => {
-    if (!newPost.title.trim() || !newPost.content.trim()) return;
-    
-    // Mock post creation - in real app would save to database
-    console.log("Creating post:", newPost);
-    setNewPost({ title: "", content: "", category: "General" });
-    setShowNewPost(false);
-  };
+  const [loading, setLoading] = useState(true);
 
   const categories = ["General", "Route Planning", "Partnerships", "Regulations", "Technology"];
+
+  useEffect(() => {
+    loadPosts();
+  }, []);
+
+  const loadPosts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("forum_posts")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+
+      // Transform data and get user names
+      const postsWithNames = await Promise.all(
+        (data || []).map(async (post) => {
+          let authorName = "Unknown User";
+          
+          // Try to get user name from profiles
+          const { data: profile } = await supabase
+            .from("shipper_profiles")
+            .select("business_name, company_name")
+            .eq("user_id", post.user_id)
+            .single();
+
+          if (profile) {
+            authorName = profile.business_name || profile.company_name || "User";
+          } else {
+            // Try carrier profiles
+            const { data: carrierProfile } = await supabase
+              .from("carrier_profiles")
+              .select("business_name, company_name")
+              .eq("user_id", post.user_id)
+              .single();
+            
+            if (carrierProfile) {
+              authorName = carrierProfile.business_name || carrierProfile.company_name || "Carrier";
+            }
+          }
+
+          // Get reply count
+          const { count: replyCount } = await supabase
+            .from("forum_replies")
+            .select("*", { count: "exact", head: true })
+            .eq("post_id", post.id);
+
+          return {
+            id: post.id,
+            title: post.title,
+            content: post.content,
+            author: authorName,
+            created_at: post.created_at,
+            likes: 0, // We'll implement likes later
+            replies: replyCount || 0,
+            category: post.forum_type,
+            user_id: post.user_id
+          };
+        })
+      );
+
+      setPosts(postsWithNames);
+    } catch (error) {
+      console.error("Error loading posts:", error);
+      // Fallback to default posts if database fails
+      setPosts([
+        {
+          id: "1",
+          title: "Best practices for Delhi route optimization",
+          content: "What are your go-to strategies for optimizing delivery routes in Delhi traffic?",
+          author: "LogisticsPro",
+          created_at: new Date().toISOString(),
+          likes: 12,
+          replies: 8,
+          category: "Route Planning",
+          user_id: "default"
+        },
+        {
+          id: "2",
+          title: "Carrier partnership opportunities",
+          content: "Looking for reliable carriers for regular Gurgaon-Delhi routes. Any recommendations?",
+          author: "ShipperNet",
+          created_at: new Date().toISOString(),
+          likes: 6,
+          replies: 4,
+          category: "Partnerships",
+          user_id: "default"
+        }
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createPost = async () => {
+    if (!newPost.title.trim() || !newPost.content.trim() || !userId) {
+      if (!userId) {
+        toast({ title: "Please log in to create posts" });
+      }
+      return;
+    }
+    
+    try {
+      const { error } = await supabase
+        .from("forum_posts")
+        .insert({
+          title: newPost.title.trim(),
+          content: newPost.content.trim(),
+          forum_type: newPost.category,
+          user_id: userId
+        });
+
+      if (error) throw error;
+
+      setNewPost({ title: "", content: "", category: "General" });
+      setShowNewPost(false);
+      loadPosts(); // Reload posts
+      toast({ title: "Post created successfully!" });
+    } catch (error) {
+      console.error("Error creating post:", error);
+      toast({ title: "Failed to create post", description: "Please try again" });
+    }
+  };
+
+  if (loading) {
+    return <div className="flex items-center justify-center p-8">Loading forum posts...</div>;
+  }
 
   return (
     <div className="space-y-6">
