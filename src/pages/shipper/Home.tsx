@@ -35,10 +35,10 @@ const ShipperHome = () => {
               className="absolute inset-0 bg-contain bg-center bg-no-repeat"
               style={{ 
                 backgroundImage: `url("/lovable-uploads/2a758667-ca55-4d0f-836e-449ffc0ce7e1.png")`,
-                backgroundSize: 'auto 100%'
+                backgroundSize: '80% auto'
               }}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-delhi-navy/40 via-delhi-primary/30 to-delhi-navy/50"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-delhi-navy/70 via-delhi-primary/60 to-delhi-navy/80"></div>
             </div>
             
             <div className="relative z-10 container mx-auto px-4 py-20 text-center">
