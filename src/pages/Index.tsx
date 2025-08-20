@@ -158,7 +158,7 @@ const Index = () => {
                 </CardHeader>
                 <CardContent className="p-0">
                   <p className="text-muted-foreground">
-                    Optimized routes and pooled shipments reduce delivery times by up to 40% compared to traditional methods.
+                    Optimized routes and pooled shipments reduce delivery times compared to traditional methods.
                   </p>
                 </CardContent>
               </Card>
@@ -172,7 +172,7 @@ const Index = () => {
                 </CardHeader>
                 <CardContent className="p-0">
                   <p className="text-muted-foreground">
-                    Reduce logistics costs by up to 30% through intelligent pooling and route optimization algorithms.
+                    Reduce logistics costs through intelligent pooling and route optimization algorithms.
                   </p>
                 </CardContent>
               </Card>
@@ -247,7 +247,7 @@ const Index = () => {
                           </div>
                           <div>
                             <p className="font-semibold text-delhi-navy">Cost Savings</p>
-                            <p className="text-sm text-muted-foreground">Up to 30% reduction</p>
+                            <p className="text-sm text-muted-foreground">Significant cost savings</p>
                           </div>
                         </div>
                       </Card>
@@ -258,7 +258,7 @@ const Index = () => {
                           </div>
                           <div>
                             <p className="font-semibold text-delhi-navy">Delivery Time</p>
-                            <p className="text-sm text-muted-foreground">40% faster on average</p>
+                            <p className="text-sm text-muted-foreground">Faster delivery times</p>
                           </div>
                         </div>
                       </Card>
@@ -280,7 +280,7 @@ const Index = () => {
                           </div>
                           <div>
                             <p className="font-semibold text-delhi-navy">Revenue Boost</p>
-                            <p className="text-sm text-muted-foreground">Earn 25% more per trip</p>
+                            <p className="text-sm text-muted-foreground">Higher earnings per trip</p>
                           </div>
                         </div>
                       </Card>
@@ -339,75 +339,6 @@ const Index = () => {
           </div>
         </section>
 
-        {/* AI Section */}
-        <section className="py-24 bg-gradient-to-br from-delhi-navy/5 to-delhi-primary/10">
-          <div className="container mx-auto px-4">
-            <div className="text-center space-y-4 mb-16">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-delhi-primary/10 border border-delhi-primary/20 text-sm font-medium text-delhi-primary mb-4">
-                <Zap className="w-4 h-4" />
-                AI-Powered Intelligence
-              </div>
-              <h2 className="text-4xl font-bold text-delhi-navy">Smart Logistics Engine</h2>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                Real-time optimization powers pooling, ETAs, and tracking behind the scenes — no flashy visuals needed.
-              </p>
-            </div>
-            
-            <div className="grid gap-8 md:grid-cols-3">
-              <Card className="group relative overflow-hidden p-8 hover:shadow-[var(--shadow-delhi)] transition-all duration-300 hover:scale-105 border-0 bg-white/80 backdrop-blur-sm">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-delhi-primary/10 to-transparent rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                <CardHeader className="relative p-0 pb-6">
-                  <div className="p-4 rounded-2xl bg-gradient-to-br from-delhi-primary to-blue-600 w-fit mb-4 group-hover:scale-110 transition-transform duration-300">
-                    <Zap className="h-8 w-8 text-white" />
-                  </div>
-                  <CardTitle className="text-xl font-bold text-delhi-navy">Instant Pooling</CardTitle>
-                </CardHeader>
-                <CardContent className="relative p-0">
-                  <p className="text-muted-foreground">Automatically groups compatible loads to cut cost and boost speed.</p>
-                  <div className="mt-6 flex items-center gap-2 text-sm font-medium text-delhi-primary">
-                    <span>Learn more</span>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="group relative overflow-hidden p-8 hover:shadow-[var(--shadow-delhi)] transition-all duration-300 hover:scale-105 border-0 bg-white/80 backdrop-blur-sm">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-500/10 to-transparent rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                <CardHeader className="relative p-0 pb-6">
-                  <div className="p-4 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 w-fit mb-4 group-hover:scale-110 transition-transform duration-300">
-                    <CheckCircle className="h-8 w-8 text-white" />
-                  </div>
-                  <CardTitle className="text-xl font-bold text-delhi-navy">Accurate ETAs</CardTitle>
-                </CardHeader>
-                <CardContent className="relative p-0">
-                  <p className="text-muted-foreground">Live traffic and route learning improve delivery-time accuracy.</p>
-                  <div className="mt-6 flex items-center gap-2 text-sm font-medium text-green-600">
-                    <span>Learn more</span>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="group relative overflow-hidden p-8 hover:shadow-[var(--shadow-delhi)] transition-all duration-300 hover:scale-105 border-0 bg-white/80 backdrop-blur-sm">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-delhi-orange/10 to-transparent rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                <CardHeader className="relative p-0 pb-6">
-                  <div className="p-4 rounded-2xl bg-gradient-to-br from-delhi-orange to-orange-600 w-fit mb-4 group-hover:scale-110 transition-transform duration-300">
-                    <Truck className="h-8 w-8 text-white" />
-                  </div>
-                  <CardTitle className="text-xl font-bold text-delhi-navy">Higher Utilization</CardTitle>
-                </CardHeader>
-                <CardContent className="relative p-0">
-                  <p className="text-muted-foreground">Keep vehicles fuller with fewer empty miles across Delhi NCR.</p>
-                  <div className="mt-6 flex items-center gap-2 text-sm font-medium text-delhi-orange">
-                    <span>Learn more</span>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
-
         {/* CTA Section */}
         <section className="py-24 bg-gradient-to-br from-delhi-navy to-delhi-primary relative overflow-hidden">
           <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
@@ -417,13 +348,9 @@ const Index = () => {
           <div className="relative container mx-auto px-4 text-center">
             <div className="space-y-8 max-w-4xl mx-auto">
               <div className="space-y-4">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-sm font-medium text-white/90 backdrop-blur-sm">
-                  <Star className="w-4 h-4" />
-                  Join 500+ Happy Businesses
-                </div>
                 <h2 className="text-4xl md:text-5xl font-bold text-white">Ready to Transform Your Logistics?</h2>
                 <p className="text-xl text-white/90 max-w-3xl mx-auto">
-                  Join thousands of businesses already using UrbanLift.AI to optimize their shipping operations and reduce costs.
+                  Join businesses using UrbanLift.AI to optimize their shipping operations and reduce costs.
                 </p>
               </div>
               
