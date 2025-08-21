@@ -384,49 +384,97 @@ const Transit = () => {
     const validateCoords = (lat: number, lng: number) => 
       lat && lng && !isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
 
-    if (shipments.length === 1) {
-      const s = shipments[0];
-      let url;
-      
-      if (validateCoords(s.origin_lat, s.origin_lng) && validateCoords(s.destination_lat, s.destination_lng)) {
-        // Use coordinates for better accuracy
-        url = `https://www.google.com/maps/dir/${s.origin_lat},${s.origin_lng}/${s.destination_lat},${s.destination_lng}`;
+    try {
+      if (shipments.length === 1) {
+        const s = shipments[0];
+        let url;
+        
+        if (validateCoords(s.origin_lat, s.origin_lng) && validateCoords(s.destination_lat, s.destination_lng)) {
+          // Use coordinates for better accuracy
+          url = `https://www.google.com/maps/dir/${s.origin_lat},${s.origin_lng}/${s.destination_lat},${s.destination_lng}`;
+        } else {
+          // Fallback to address
+          const origin = encodeURIComponent(s.origin_address || s.origin || 'Origin');
+          const dest = encodeURIComponent(s.destination_address || s.destination || 'Destination');
+          url = `https://www.google.com/maps/dir/${origin}/${dest}`;
+        }
+        
+        console.log("Opening Google Maps URL:", url);
+        
+        // Try to open in new tab
+        const newWindow = window.open(url, "_blank", "noopener,noreferrer");
+        
+        if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+          // Popup blocked, try alternative approach
+          toast({ 
+            title: "Popup Blocked", 
+            description: "Copying Google Maps link to clipboard instead"
+          });
+          
+          // Copy to clipboard as fallback
+          navigator.clipboard.writeText(url).then(() => {
+            toast({ 
+              title: "Link Copied", 
+              description: "Paste the link in your browser to open Google Maps"
+            });
+          }).catch(() => {
+            // Final fallback - show the URL
+            toast({ 
+              title: "Google Maps Link", 
+              description: url,
+              duration: 10000
+            });
+          });
+        } else {
+          toast({ 
+            title: "Navigation Opened", 
+            description: "Google Maps opened in new tab"
+          });
+        }
       } else {
-        // Fallback to address
-        const origin = encodeURIComponent(s.origin_address || s.origin || '');
-        const dest = encodeURIComponent(s.destination_address || s.destination || '');
-        url = `https://www.google.com/maps/dir/${origin}/${dest}`;
-      }
-      
-      window.open(url, "_blank");
-    } else {
-      // For multiple shipments, use the first pickup and last dropoff with waypoints
-      const validShipments = shipments.filter(s => 
-        validateCoords(s.origin_lat, s.origin_lng) && validateCoords(s.destination_lat, s.destination_lng)
-      );
-      
-      if (validShipments.length === 0) {
-        toast({ 
-          title: "Navigation Error", 
-          description: "Unable to create route - invalid location coordinates" 
-        });
-        return;
-      }
+        // For multiple shipments - simplified approach
+        const validShipments = shipments.filter(s => 
+          validateCoords(s.origin_lat, s.origin_lng) && validateCoords(s.destination_lat, s.destination_lng)
+        );
+        
+        if (validShipments.length === 0) {
+          toast({ 
+            title: "Navigation Error", 
+            description: "No valid coordinates found for navigation" 
+          });
+          return;
+        }
 
-      // Create optimized waypoint list (pickup points first, then dropoff points)
-      const pickups = validShipments.map(s => `${s.origin_lat},${s.origin_lng}`);
-      const dropoffs = validShipments.map(s => `${s.destination_lat},${s.destination_lng}`);
-      
-      // Start from first pickup, go through all waypoints, end at last dropoff
-      const waypoints = [...pickups.slice(1), ...dropoffs.slice(0, -1)].join('/');
-      const start = pickups[0];
-      const end = dropoffs[dropoffs.length - 1];
-      
-      const url = waypoints ? 
-        `https://www.google.com/maps/dir/${start}/${waypoints}/${end}` :
-        `https://www.google.com/maps/dir/${start}/${end}`;
-      
-      window.open(url, "_blank");
+        // Just use first origin to last destination for simplicity
+        const firstShipment = validShipments[0];
+        const lastShipment = validShipments[validShipments.length - 1];
+        
+        const url = `https://www.google.com/maps/dir/${firstShipment.origin_lat},${firstShipment.origin_lng}/${lastShipment.destination_lat},${lastShipment.destination_lng}`;
+        
+        console.log("Opening multi-shipment route:", url);
+        
+        const newWindow = window.open(url, "_blank", "noopener,noreferrer");
+        
+        if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+          navigator.clipboard.writeText(url).then(() => {
+            toast({ 
+              title: "Link Copied", 
+              description: "Paste in browser to open route with " + validShipments.length + " shipments"
+            });
+          });
+        } else {
+          toast({ 
+            title: "Multi-Route Opened", 
+            description: `Navigation for ${validShipments.length} shipments opened`
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Navigation error:", error);
+      toast({ 
+        title: "Navigation Error", 
+        description: "Failed to open Google Maps. Please try again."
+      });
     }
   };
 
@@ -543,22 +591,47 @@ const Transit = () => {
                           <div className="flex gap-2">
                             <Button 
                               onClick={() => {
-                                const step = activeRoute.steps[activeRoute.currentStepIndex];
-                                let url;
-                                
-                                if (currentLocation && currentLocation.lat && currentLocation.lng) {
-                                  // Use current location as starting point
-                                  url = `https://www.google.com/maps/dir/${currentLocation.lat},${currentLocation.lng}/${step.location.lat},${step.location.lng}`;
-                                } else {
-                                  // Just open destination location
-                                  url = `https://www.google.com/maps/search/${step.location.lat},${step.location.lng}`;
-                                }
-                                
-                                const newWindow = window.open(url, "_blank");
-                                if (!newWindow) {
+                                try {
+                                  const step = activeRoute.steps[activeRoute.currentStepIndex];
+                                  let url;
+                                  
+                                  if (currentLocation && currentLocation.lat && currentLocation.lng) {
+                                    // Use current location as starting point
+                                    url = `https://www.google.com/maps/dir/${currentLocation.lat},${currentLocation.lng}/${step.location.lat},${step.location.lng}`;
+                                  } else {
+                                    // Just open destination location
+                                    url = `https://www.google.com/maps/search/${step.location.lat},${step.location.lng}`;
+                                  }
+                                  
+                                  console.log("Opening step navigation:", url);
+                                  
+                                  const newWindow = window.open(url, "_blank", "noopener,noreferrer");
+                                  
+                                  if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+                                    // Popup blocked - copy to clipboard
+                                    navigator.clipboard.writeText(url).then(() => {
+                                      toast({ 
+                                        title: "Link Copied", 
+                                        description: "Paste in browser to navigate to next stop"
+                                      });
+                                    }).catch(() => {
+                                      toast({ 
+                                        title: "Navigation Link", 
+                                        description: url,
+                                        duration: 8000
+                                      });
+                                    });
+                                  } else {
+                                    toast({ 
+                                      title: "Navigation Started", 
+                                      description: "Google Maps opened for next stop"
+                                    });
+                                  }
+                                } catch (error) {
+                                  console.error("Navigation error:", error);
                                   toast({ 
-                                    title: "Navigation", 
-                                    description: "Please allow popups to open navigation" 
+                                    title: "Navigation Error", 
+                                    description: "Failed to open navigation. Please try again."
                                   });
                                 }
                               }}
