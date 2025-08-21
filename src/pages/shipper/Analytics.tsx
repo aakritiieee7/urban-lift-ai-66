@@ -130,45 +130,19 @@ const Analytics = () => {
     
     const totalCapacity = shipments.reduce((sum, s) => sum + (s.capacity_kg || 0), 0);
     
-    // Calculate realistic cost savings vs actual competitor platforms
-    // Traditional platforms have much higher costs due to:
-    // 1. No route optimization or pooling
-    // 2. Higher commission/markup rates
-    // 3. Less efficient matching
-    // 4. Premium pricing for on-demand service
-    const calculateCompetitorCost = (distance: number, capacity: number = 50) => {
-      // Base calculation for traditional platforms
-      let baseCost;
-      
-      if (capacity > 100) {
-        // Heavy freight - Local truck operators
-        baseCost = 400 + (distance * 22) + 100; // High base + per km + handling
-      } else if (capacity > 50) {
-        // Medium freight - Porter/Similar
-        baseCost = 180 + (distance * 16) + 80; // Medium base + per km + platform fee
-      } else {
-        // Light freight - Dunzo/Courier
-        baseCost = 120 + (distance * 12) + 60; // Light base + per km + delivery fee
-      }
-      
-      // Add traditional platform markups (25-40% higher than our optimized rates)
-      const markup = 1.35; // 35% markup over our efficient pricing
-      const finalCost = baseCost * markup;
-      
-      // Ensure minimum premium over our rates
-      const ourEstimatedCost = 50 + (capacity * 10) + (distance * 5); // Our approximate cost
-      return Math.max(finalCost, ourEstimatedCost * 1.25); // At least 25% more expensive
+    // Simplified cost savings calculation
+    // Our platform saves users 30% compared to traditional logistics
+    const SAVINGS_RATE = 0.30; // 30% savings
+    
+    // Calculate what users would have paid on traditional platforms
+    // If our cost is X, traditional cost would be X / (1 - savings_rate)
+    const traditionalCostMultiplier = 1 / (1 - SAVINGS_RATE); // 1.43x
+    const totalTraditionalCost = totalSpent * traditionalCostMultiplier;
+    const costSavings = totalTraditionalCost - totalSpent; // 30% of traditional cost
+    
+    const calculateCompetitorCost = (ourCost: number) => {
+      return ourCost * traditionalCostMultiplier;
     };
-    
-    // Calculate total competitor costs
-    const totalCompetitorCost = shipments.reduce((sum, shipment) => {
-      const distance = shipment.distance_km || averageDistance;
-      const capacity = shipment.capacity_kg || 50;
-      return sum + calculateCompetitorCost(distance, capacity);
-    }, 0);
-    
-    const costSavings = Math.max(0, totalCompetitorCost - totalSpent);
-    const actualSavingsRate = totalCompetitorCost > 0 ? costSavings / totalCompetitorCost : 0;
     
     // Enhanced CO2 calculation - comprehensive environmental impact
     // Real emission factors for Indian logistics:
@@ -257,7 +231,7 @@ const Analytics = () => {
     };
   };
 
-  const generateMonthlyData = (shipments: ShipmentData[], calculateCompetitorCost: (distance: number, capacity: number) => number) => {
+  const generateMonthlyData = (shipments: ShipmentData[], calculateCompetitorCost: (ourCost: number) => number) => {
     const monthlyMap = new Map();
     
     shipments.forEach(shipment => {
@@ -270,12 +244,10 @@ const Analytics = () => {
       
       const data = monthlyMap.get(monthKey);
       data.shipments += 1;
-      data.cost += shipment.payment_amount || 0;
       
-      // Calculate what it would cost on traditional platforms
-      const distance = shipment.distance_km || 25;
-      const capacity = shipment.capacity_kg || 50;
-      data.traditionalCost += calculateCompetitorCost(distance, capacity);
+      const ourCost = shipment.payment_amount || 0;
+      data.cost += ourCost;
+      data.traditionalCost += calculateCompetitorCost(ourCost);
     });
     
     return Array.from(monthlyMap.entries())
