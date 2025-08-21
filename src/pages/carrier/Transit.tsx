@@ -9,8 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { MapPin, Package, Clock, Route, Navigation } from "lucide-react";
 import { match } from "@/lib/matching";
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
 
 interface Shipment {
   id: string;
@@ -202,49 +200,30 @@ const Transit = () => {
                     Optimized Routes ({pools.length} pools)
                   </h2>
                   
-                  {/* Simple Route Map */}
+                  {/* Direct Google Maps Navigation */}
                   <Card className="mb-6">
                     <CardHeader>
-                      <CardTitle>🗺️ Route Overview</CardTitle>
+                      <CardTitle className="flex items-center gap-2">
+                        <Navigation className="h-5 w-5" />
+                        Navigation Ready
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="h-64 w-full">
-                        <MapContainer 
-                          center={[pools[0].pickupCentroid.lat, pools[0].pickupCentroid.lng]} 
-                          zoom={11} 
-                          className="h-full w-full rounded-lg"
-                        >
-                          <TileLayer
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                          />
-                          {pools.map((pool, poolIndex) => {
-                            const colors = ['red', 'blue', 'green', 'purple', 'orange', 'darkred'];
-                            const color = colors[poolIndex % colors.length];
-                            return pool.shipments.map((shipment, idx) => (
-                              <div key={`${pool.id}-${shipment.id}`}>
-                                <Marker position={[shipment.origin_lat, shipment.origin_lng]}>
-                                  <Popup>
-                                    📦 Pickup: {shipment.origin_address || shipment.origin}
-                                    <br />Route {poolIndex + 1}
-                                  </Popup>
-                                </Marker>
-                                <Marker position={[shipment.destination_lat, shipment.destination_lng]}>
-                                  <Popup>
-                                    🎯 Drop: {shipment.destination_address || shipment.destination}
-                                    <br />Route {poolIndex + 1}
-                                  </Popup>
-                                </Marker>
-                                <Polyline 
-                                  positions={[[shipment.origin_lat, shipment.origin_lng], [shipment.destination_lat, shipment.destination_lng]]}
-                                  color={color}
-                                  weight={3}
-                                  opacity={0.7}
-                                />
-                              </div>
-                            ));
-                          })}
-                        </MapContainer>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Your routes are optimized for efficiency. Click "Navigate Route" on any pool to open Google Maps with turn-by-turn directions.
+                      </p>
+                      <div className="grid gap-2">
+                        {pools.map((pool, index) => (
+                          <Button 
+                            key={pool.id}
+                            onClick={() => openMapRoute(pool.shipments)}
+                            variant="outline"
+                            className="justify-start"
+                          >
+                            <Navigation className="h-4 w-4 mr-2" />
+                            🗺️ Navigate Route {index + 1} ({pool.shipments.length} stops)
+                          </Button>
+                        ))}
                       </div>
                     </CardContent>
                   </Card>
