@@ -62,7 +62,7 @@ const RecentShipmentsCard = ({
                 </span>
               </div>
               <div className="mt-3 flex items-center gap-2">
-                {s.status === "pending" ? (
+                {s.status === "pending" && !s.carrier_id ? (
                   <>
                     <Select value={s.carrier_id ?? ""} onValueChange={(v) => onAssign(s.id, v)}>
                       <SelectTrigger className="w-full md:w-64">

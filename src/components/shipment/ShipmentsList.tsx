@@ -138,12 +138,12 @@ const ShipmentsList = ({ refresh, onRefreshComplete }: ShipmentsListProps) => {
   };
 
   const assignCarrier = async (shipmentId: string, carrierId: string) => {
-    // Check if shipment is still pending (only allow assignment changes for pending shipments)
+    // Check if shipment already has a carrier assigned (lock assignment once set)
     const currentShipment = shipments.find(s => s.id === shipmentId);
-    if (currentShipment && currentShipment.status !== "pending") {
+    if (currentShipment && currentShipment.carrier_id) {
       toast({ 
-        title: "Cannot Modify Assignment", 
-        description: "Assignment cannot be changed once shipment is assigned or in transit." 
+        title: "Assignment Locked", 
+        description: "Assignment cannot be changed once a carrier is selected." 
       });
       return;
     }
@@ -266,7 +266,7 @@ const ShipmentsList = ({ refresh, onRefreshComplete }: ShipmentsListProps) => {
               </div>
 
               {/* Carrier Assignment */}
-              {shipment.status === "pending" ? (
+              {shipment.status === "pending" && !shipment.carrier_id ? (
                 <div className="bg-primary/5 rounded-md p-3 border border-primary/10">
                   <div className="text-sm font-medium text-primary mb-2 flex items-center gap-2">
                     <UserCheck className="h-4 w-4" />

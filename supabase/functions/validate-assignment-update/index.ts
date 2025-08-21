@@ -46,13 +46,13 @@ serve(async (req) => {
       );
     }
 
-    // Business rule: Can only modify assignments for pending shipments
-    if (shipment.status !== 'pending') {
-      console.error(`Cannot modify assignment for shipment with status: ${shipment.status}`);
+    // Business rule: Can only modify assignments if no carrier is currently assigned
+    if (shipment.carrier_id) {
+      console.error(`Cannot modify assignment - carrier already assigned: ${shipment.carrier_id}`);
       return new Response(
         JSON.stringify({ 
-          error: 'Assignment cannot be changed once shipment is assigned or in transit',
-          currentStatus: shipment.status 
+          error: 'Assignment cannot be changed once a carrier is selected',
+          currentCarrier: shipment.carrier_id 
         }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
