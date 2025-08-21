@@ -2,12 +2,12 @@ import Navbar from "@/components/Navbar";
 import { Helmet } from "react-helmet-async";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, Package, Clock, Route, Navigation } from "lucide-react";
+import { MapPin, Package, Clock, Route, Navigation, MapPinIcon, CheckCircle, AlertCircle, Target } from "lucide-react";
 import { match } from "@/lib/matching";
 
 interface Shipment {
@@ -37,12 +37,32 @@ interface RoutePool {
   bearingDeg: number;
 }
 
+interface DeliveryStep {
+  id: string;
+  type: 'pickup' | 'dropoff';
+  shipmentId: string;
+  location: { lat: number; lng: number; address: string };
+  completed: boolean;
+  completedAt?: string;
+}
+
+interface ActiveRoute {
+  poolId: string;
+  steps: DeliveryStep[];
+  currentStepIndex: number;
+  startedAt: string;
+}
+
 const Transit = () => {
   const { userId } = useAuth();
   const { toast } = useToast();
   const [assignedShipments, setAssignedShipments] = useState<Shipment[]>([]);
   const [pools, setPools] = useState<RoutePool[]>([]);
   const [loading, setLoading] = useState(false);
+  const [currentLocation, setCurrentLocation] = useState<{lat: number; lng: number} | null>(null);
+  const [locationPermission, setLocationPermission] = useState<'granted' | 'denied' | 'prompt' | null>(null);
+  const [activeRoute, setActiveRoute] = useState<ActiveRoute | null>(null);
+  const [trackingInterval, setTrackingInterval] = useState<NodeJS.Timeout | null>(null);
 
   const loadAssignedShipments = async () => {
     if (!userId) return;
@@ -132,12 +152,233 @@ const Transit = () => {
       .eq("id", shipmentId);
 
     if (error) {
+      console.error("Error updating shipment status:", error);
       toast({ title: "Error", description: "Failed to update shipment status" });
     } else {
       toast({ title: "Success", description: `Shipment ${status}` });
       loadAssignedShipments();
     }
   };
+
+  const requestLocationAccess = useCallback(async () => {
+    if (!navigator.geolocation) {
+      toast({ title: "Error", description: "Geolocation is not supported by this browser" });
+      return;
+    }
+
+    try {
+      const permission = await navigator.permissions.query({ name: 'geolocation' });
+      setLocationPermission(permission.state as 'granted' | 'denied' | 'prompt');
+      
+      if (permission.state === 'granted') {
+        getCurrentLocation();
+      } else {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setCurrentLocation({
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            });
+            setLocationPermission('granted');
+            toast({ title: "Success", description: "Location access granted!" });
+          },
+          (error) => {
+            console.error("Location error:", error);
+            setLocationPermission('denied');
+            toast({ title: "Error", description: "Location access denied. Enable location for step-by-step guidance." });
+          }
+        );
+      }
+    } catch (error) {
+      console.error("Permission error:", error);
+      // Fallback to direct geolocation request
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCurrentLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+          setLocationPermission('granted');
+          toast({ title: "Success", description: "Location access granted!" });
+        },
+        (error) => {
+          setLocationPermission('denied');
+          toast({ title: "Error", description: "Location access required for guided delivery" });
+        }
+      );
+    }
+  }, [toast]);
+
+  const getCurrentLocation = useCallback(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCurrentLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.error("Location error:", error);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+      );
+    }
+  }, []);
+
+  const startGuidedRoute = useCallback((pool: RoutePool) => {
+    // Create delivery steps from pool shipments
+    const steps: DeliveryStep[] = [];
+    
+    pool.shipments.forEach(shipment => {
+      // Add pickup step
+      steps.push({
+        id: `pickup-${shipment.id}`,
+        type: 'pickup',
+        shipmentId: shipment.id,
+        location: {
+          lat: shipment.origin_lat,
+          lng: shipment.origin_lng,
+          address: shipment.origin_address || shipment.origin
+        },
+        completed: false
+      });
+      
+      // Add dropoff step
+      steps.push({
+        id: `dropoff-${shipment.id}`,
+        type: 'dropoff',
+        shipmentId: shipment.id,
+        location: {
+          lat: shipment.destination_lat,
+          lng: shipment.destination_lng,
+          address: shipment.destination_address || shipment.destination
+        },
+        completed: false
+      });
+    });
+
+    // Optimize step order based on distance
+    const optimizedSteps = [...steps].sort((a, b) => {
+      if (!currentLocation) return 0;
+      const distanceA = Math.sqrt(
+        Math.pow(a.location.lat - currentLocation.lat, 2) + 
+        Math.pow(a.location.lng - currentLocation.lng, 2)
+      );
+      const distanceB = Math.sqrt(
+        Math.pow(b.location.lat - currentLocation.lat, 2) + 
+        Math.pow(b.location.lng - currentLocation.lng, 2)
+      );
+      return distanceA - distanceB;
+    });
+
+    const route: ActiveRoute = {
+      poolId: pool.id,
+      steps: optimizedSteps,
+      currentStepIndex: 0,
+      startedAt: new Date().toISOString()
+    };
+
+    setActiveRoute(route);
+    
+    // Start real-time location tracking
+    const interval = setInterval(getCurrentLocation, 30000); // Update every 30 seconds
+    setTrackingInterval(interval);
+    
+    toast({ 
+      title: "Route Started!", 
+      description: `Step-by-step guidance activated. ${optimizedSteps.length} stops ahead.` 
+    });
+  }, [currentLocation, getCurrentLocation, toast]);
+
+  const completeStep = useCallback(async (stepId: string) => {
+    if (!activeRoute) return;
+
+    const stepIndex = activeRoute.steps.findIndex(step => step.id === stepId);
+    if (stepIndex === -1) return;
+
+    const step = activeRoute.steps[stepIndex];
+    const updatedSteps = [...activeRoute.steps];
+    updatedSteps[stepIndex] = {
+      ...step,
+      completed: true,
+      completedAt: new Date().toISOString()
+    };
+
+    // Update shipment status based on step type
+    const newStatus = step.type === 'pickup' ? 'in_transit' : 'delivered';
+    await updateShipmentStatus(step.shipmentId, newStatus);
+
+    const updatedRoute: ActiveRoute = {
+      ...activeRoute,
+      steps: updatedSteps,
+      currentStepIndex: stepIndex + 1
+    };
+
+    setActiveRoute(updatedRoute);
+
+    // Check if route is complete
+    if (updatedRoute.currentStepIndex >= updatedRoute.steps.length) {
+      // Route completed
+      if (trackingInterval) {
+        clearInterval(trackingInterval);
+        setTrackingInterval(null);
+      }
+      setActiveRoute(null);
+      toast({ 
+        title: "Route Completed! 🎉", 
+        description: "All deliveries finished successfully." 
+      });
+      loadAssignedShipments(); // Refresh data
+    } else {
+      toast({ 
+        title: "Step Completed ✅", 
+        description: `${step.type === 'pickup' ? 'Pickup' : 'Delivery'} marked complete. Next stop ready.` 
+      });
+    }
+  }, [activeRoute, trackingInterval, updateShipmentStatus, toast, loadAssignedShipments]);
+
+  const getDistanceToLocation = useCallback((targetLat: number, targetLng: number) => {
+    if (!currentLocation) return null;
+    
+    const R = 6371; // Earth's radius in km
+    const dLat = (targetLat - currentLocation.lat) * Math.PI / 180;
+    const dLng = (targetLng - currentLocation.lng) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(currentLocation.lat * Math.PI / 180) * Math.cos(targetLat * Math.PI / 180) * 
+      Math.sin(dLng/2) * Math.sin(dLng/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const distance = R * c; // Distance in km
+    
+    return distance < 1 ? `${Math.round(distance * 1000)}m` : `${distance.toFixed(1)}km`;
+  }, [currentLocation]);
+
+  // Check location permission on mount
+  useEffect(() => {
+    const checkLocation = async () => {
+      try {
+        const permission = await navigator.permissions.query({ name: 'geolocation' });
+        setLocationPermission(permission.state as 'granted' | 'denied' | 'prompt');
+        if (permission.state === 'granted') {
+          getCurrentLocation();
+        }
+      } catch (error) {
+        console.log("Permission API not supported");
+      }
+    };
+    
+    checkLocation();
+  }, [getCurrentLocation]);
+
+  // Cleanup tracking interval on unmount
+  useEffect(() => {
+    return () => {
+      if (trackingInterval) {
+        clearInterval(trackingInterval);
+      }
+    };
+  }, [trackingInterval]);
 
   const openMapRoute = (shipments: Shipment[]) => {
     const fmt = (s: Shipment, type: 'origin' | 'destination') => {
@@ -193,40 +434,156 @@ const Transit = () => {
             </Card>
           ) : (
             <div className="space-y-6">
+              {/* Location Access Section */}
+              {locationPermission !== 'granted' && (
+                <Card className="border-amber-200 bg-amber-50">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-amber-800">
+                      <MapPinIcon className="h-5 w-5" />
+                      Enable Location for Step-by-Step Guidance
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-amber-700 mb-4 text-sm">
+                      Grant location access to get real-time navigation, distance tracking, and step-by-step delivery guidance.
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        onClick={requestLocationAccess}
+                        className="bg-amber-600 hover:bg-amber-700"
+                      >
+                        <MapPinIcon className="h-4 w-4 mr-2" />
+                        Enable Location Access
+                      </Button>
+                      {currentLocation && (
+                        <Badge variant="outline" className="text-green-700 border-green-300">
+                          📍 Location: {currentLocation.lat.toFixed(4)}, {currentLocation.lng.toFixed(4)}
+                        </Badge>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Active Route Guidance */}
+              {activeRoute && (
+                <Card className="border-green-300 bg-green-50">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-green-800">
+                      <Target className="h-5 w-5" />
+                      Active Delivery Route
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm text-green-700">
+                        Progress: {activeRoute.currentStepIndex} / {activeRoute.steps.length} stops
+                      </div>
+                      <Badge variant="outline" className="text-green-700 border-green-300">
+                        {Math.round((activeRoute.currentStepIndex / activeRoute.steps.length) * 100)}% Complete
+                      </Badge>
+                    </div>
+
+                    {activeRoute.currentStepIndex < activeRoute.steps.length ? (
+                      <div className="space-y-4">
+                        {/* Current Step */}
+                        <div className="bg-white rounded-lg p-4 border-2 border-blue-300">
+                          <div className="flex items-start justify-between mb-3">
+                            <h3 className="font-semibold text-blue-800 flex items-center gap-2">
+                              {activeRoute.steps[activeRoute.currentStepIndex].type === 'pickup' ? 
+                                <Package className="h-4 w-4" /> : <Target className="h-4 w-4" />
+                              }
+                              NEXT: {activeRoute.steps[activeRoute.currentStepIndex].type === 'pickup' ? 'Pickup' : 'Drop-off'}
+                            </h3>
+                            <Badge className="bg-blue-100 text-blue-800">
+                              Step {activeRoute.currentStepIndex + 1}
+                            </Badge>
+                          </div>
+                          
+                          <div className="text-sm mb-3">
+                            <div className="flex items-center gap-2 mb-1">
+                              <MapPin className="h-3 w-3 text-blue-600" />
+                              {activeRoute.steps[activeRoute.currentStepIndex].location.address}
+                            </div>
+                            {currentLocation && (
+                              <div className="text-xs text-muted-foreground">
+                                Distance: {getDistanceToLocation(
+                                  activeRoute.steps[activeRoute.currentStepIndex].location.lat,
+                                  activeRoute.steps[activeRoute.currentStepIndex].location.lng
+                                )}
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex gap-2">
+                            <Button 
+                              onClick={() => {
+                                const step = activeRoute.steps[activeRoute.currentStepIndex];
+                                const url = `https://www.google.com/maps/dir/${currentLocation?.lat || ''},${currentLocation?.lng || ''}/${step.location.lat},${step.location.lng}`;
+                                window.open(url, "_blank");
+                              }}
+                              variant="outline"
+                              size="sm"
+                              className="flex-1"
+                            >
+                              <Navigation className="h-3 w-3 mr-1" />
+                              Navigate
+                            </Button>
+                            <Button 
+                              onClick={() => completeStep(activeRoute.steps[activeRoute.currentStepIndex].id)}
+                              size="sm"
+                              className="flex-1 bg-green-600 hover:bg-green-700"
+                            >
+                              <CheckCircle className="h-3 w-3 mr-1" />
+                              Mark Complete
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* Upcoming Steps Preview */}
+                        <div className="space-y-2">
+                          <h4 className="font-medium text-sm text-muted-foreground">Upcoming Steps:</h4>
+                          {activeRoute.steps.slice(activeRoute.currentStepIndex + 1, activeRoute.currentStepIndex + 4).map((step, index) => (
+                            <div key={step.id} className="bg-gray-50 rounded p-2 text-sm">
+                              <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 rounded-full bg-gray-300 text-xs flex items-center justify-center">
+                                  {activeRoute.currentStepIndex + index + 2}
+                                </div>
+                                <div className="flex-1">
+                                  <div className="font-medium">
+                                    {step.type === 'pickup' ? '📦 Pickup' : '🎯 Drop-off'}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground truncate">
+                                    {step.location.address}
+                                  </div>
+                                </div>
+                                {currentLocation && (
+                                  <div className="text-xs text-muted-foreground">
+                                    {getDistanceToLocation(step.location.lat, step.location.lng)}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-4">
+                        <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-2" />
+                        <h3 className="font-semibold text-green-800">Route Completed!</h3>
+                        <p className="text-sm text-green-700">All deliveries finished successfully.</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
               {pools.length > 0 && (
                 <section>
                   <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
                     <Route className="h-6 w-6" />
                     Optimized Routes ({pools.length} pools)
                   </h2>
-                  
-                  {/* Direct Google Maps Navigation */}
-                  <Card className="mb-6">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Navigation className="h-5 w-5" />
-                        Navigation Ready
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Your routes are optimized for efficiency. Click "Navigate Route" on any pool to open Google Maps with turn-by-turn directions.
-                      </p>
-                      <div className="grid gap-2">
-                        {pools.map((pool, index) => (
-                          <Button 
-                            key={pool.id}
-                            onClick={() => openMapRoute(pool.shipments)}
-                            variant="outline"
-                            className="justify-start"
-                          >
-                            <Navigation className="h-4 w-4 mr-2" />
-                            🗺️ Navigate Route {index + 1} ({pool.shipments.length} stops)
-                          </Button>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
                   
                   <div className="grid gap-4">
                     {pools.map((pool, index) => (
@@ -275,16 +632,36 @@ const Transit = () => {
                               <Navigation className="h-4 w-4 mr-2" />
                               🧭 Open Route in Maps
                             </Button>
-                            <Button 
-                              onClick={() => {
-                                pool.shipments.forEach(s => 
-                                  updateShipmentStatus(s.id, "in_transit")
-                                );
-                              }}
-                              className="flex-1"
-                            >
-                              🚀 Start Route
-                            </Button>
+                            {currentLocation && !activeRoute ? (
+                              <Button 
+                                onClick={() => startGuidedRoute(pool)}
+                                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                              >
+                                <Target className="h-4 w-4 mr-2" />
+                                🎯 Start Guided Route
+                              </Button>
+                            ) : !activeRoute ? (
+                              <Button 
+                                onClick={() => {
+                                  toast({ 
+                                    title: "Location Required", 
+                                    description: "Enable location access for step-by-step guidance" 
+                                  });
+                                }}
+                                className="flex-1"
+                                variant="outline"
+                              >
+                                🚀 Start Route
+                              </Button>
+                            ) : (
+                              <Button 
+                                disabled
+                                className="flex-1"
+                                variant="outline"
+                              >
+                                Route Active
+                              </Button>
+                            )}
                           </div>
                         </CardContent>
                       </Card>
