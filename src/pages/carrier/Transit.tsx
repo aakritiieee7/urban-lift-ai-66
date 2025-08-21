@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { MapPin, Package, Clock, Route, Navigation } from "lucide-react";
 import { match } from "@/lib/matching";
+import RouteMap from "@/components/route-optimization/RouteMap";
 
 interface Shipment {
   id: string;
@@ -199,6 +200,34 @@ const Transit = () => {
                     <Route className="h-6 w-6" />
                     Optimized Routes ({pools.length} pools)
                   </h2>
+                  
+                  {/* Interactive Route Map */}
+                  <Card className="mb-6">
+                    <CardHeader>
+                      <CardTitle>🗺️ Route Visualization</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <RouteMap 
+                        routes={pools.map(pool => ({
+                          groupId: pool.id,
+                          shipments: pool.shipments.map(s => ({
+                            id: s.id,
+                            pickup: { lat: s.origin_lat, lng: s.origin_lng },
+                            drop: { lat: s.destination_lat, lng: s.destination_lng }
+                          })),
+                          routeCoordinates: [
+                            pool.pickupCentroid,
+                            ...pool.shipments.map(s => ({ lat: s.origin_lat, lng: s.origin_lng })),
+                            ...pool.shipments.map(s => ({ lat: s.destination_lat, lng: s.destination_lng }))
+                          ],
+                          totalDistance: pool.totalWeight / 10, // Estimate based on weight
+                          totalTime: pool.shipments.length * 30, // 30 min per shipment estimate
+                          efficiency: pool.shipments.length / (pool.totalWeight / 100)
+                        }))} 
+                      />
+                    </CardContent>
+                  </Card>
+                  
                   <div className="grid gap-4">
                     {pools.map((pool, index) => (
                       <Card key={pool.id} className="border-l-4 border-l-blue-500">
@@ -244,7 +273,7 @@ const Transit = () => {
                               variant="outline"
                             >
                               <Navigation className="h-4 w-4 mr-2" />
-                              Open Route in Maps
+                              🧭 Open Route in Maps
                             </Button>
                             <Button 
                               onClick={() => {
@@ -254,7 +283,7 @@ const Transit = () => {
                               }}
                               className="flex-1"
                             >
-                              Start Route
+                              🚀 Start Route
                             </Button>
                           </div>
                         </CardContent>
