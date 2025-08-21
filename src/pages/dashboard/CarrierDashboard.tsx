@@ -33,13 +33,19 @@ const CarrierDashboard = () => {
 
   const load = async () => {
     if (!userId) return;
-    const { data } = await supabase
+    console.log("Loading shipments for carrier:", userId);
+    const { data, error } = await supabase
       .from("shipments")
       .select("id, origin, destination, status, pickup_time, dropoff_time, created_at, capacity_kg, pickup_address, delivery_address")
       .eq("carrier_id", userId)
       .order("created_at", { ascending: false });
-    console.log("Carrier shipments loaded:", data);
-    setJobs(data ?? []);
+    
+    if (error) {
+      console.error("Error loading carrier shipments:", error);
+    } else {
+      console.log("Carrier shipments loaded:", data);
+      setJobs(data ?? []);
+    }
   };
 
   useEffect(() => {
