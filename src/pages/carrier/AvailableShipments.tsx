@@ -68,6 +68,34 @@ const AvailableShipments = () => {
     
     console.log("Claiming shipment:", shipmentId, "for carrier:", userId);
     
+    // First check if shipment exists and is still available
+    const { data: existingShipment, error: checkError } = await supabase
+      .from("shipments")
+      .select("id, carrier_id, status")
+      .eq("id", shipmentId)
+      .single();
+    
+    console.log("Existing shipment check:", { existingShipment, checkError });
+
+    if (checkError || !existingShipment) {
+      toast({ 
+        title: "Error", 
+        description: "Shipment not found." 
+      });
+      setLoading(false);
+      return;
+    }
+
+    if (existingShipment.carrier_id) {
+      toast({ 
+        title: "Error", 
+        description: "Shipment has already been assigned to another carrier." 
+      });
+      setLoading(false);
+      loadAvailableShipments();
+      return;
+    }
+    
     const { data, error } = await supabase
       .from("shipments")
       .update({ 
@@ -78,20 +106,31 @@ const AvailableShipments = () => {
       .is("carrier_id", null) // Only claim if still unassigned
       .select(); // Return updated data to verify
     
-    console.log("Claim result:", { data, error });
+    console.log("Claim result:", { data, error, userId, shipmentId });
 
     if (error) {
+      console.error("Database error:", error);
       toast({ 
         title: "Error", 
-        description: "Failed to claim shipment. It may have been assigned to another carrier." 
+        description: `Failed to claim shipment: ${error.message}` 
+      });
+    } else if (!data || data.length === 0) {
+      toast({ 
+        title: "Error", 
+        description: "Shipment may have been assigned to another carrier." 
       });
     } else {
+      console.log("Successfully assigned shipment:", data[0]);
       toast({ 
         title: "Success", 
-        description: "Shipment claimed! Check your dashboard for details." 
+        description: "Shipment claimed! Check your Transit section." 
       });
       // Award points for claiming a shipment
-      await supabase.rpc("award_points", { _user_id: userId, _points: 3, _source: "shipment_claimed" });
+      try {
+        await supabase.rpc("award_points", { _user_id: userId, _points: 3, _source: "shipment_claimed" });
+      } catch (pointsError) {
+        console.log("Points award failed (non-critical):", pointsError);
+      }
     }
     
     setLoading(false);

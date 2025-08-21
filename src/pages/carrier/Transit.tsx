@@ -57,11 +57,14 @@ const Transit = () => {
       .in("status", ["assigned", "in_transit"])
       .order("created_at", { ascending: false });
 
+    console.log("Query executed with userId:", userId);
+    console.log("Database response:", { data, error });
+
     if (error) {
       console.error("Error loading assigned shipments:", error);
       toast({ title: "Error", description: "Failed to load your shipments" });
     } else {
-      console.log("Assigned shipments loaded:", data);
+      console.log("Assigned shipments loaded:", data?.length, "shipments");
       setAssignedShipments(data || []);
       
       // Create pools for route optimization
