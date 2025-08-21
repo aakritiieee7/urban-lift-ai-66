@@ -35,6 +35,8 @@ interface AnalyticsData {
   totalCapacity: number;
   costSavings: number;
   co2Saved: number;
+  co2ReductionRate: number;
+  poolingRate: number;
   monthlyData: Array<{
     month: string;
     shipments: number;
@@ -168,42 +170,41 @@ const Analytics = () => {
     const costSavings = Math.max(0, totalCompetitorCost - totalSpent);
     const actualSavingsRate = totalCompetitorCost > 0 ? costSavings / totalCompetitorCost : 0;
     
-    // Enhanced CO2 calculation - more comprehensive approach
-    // Base emissions for different transport methods in India:
-    // Diesel truck (loaded): 1.1 kg CO2/km
-    // Petrol vehicle: 0.24 kg CO2/km  
-    // Traditional single deliveries vs pooled route optimization
+    // Enhanced CO2 calculation - comprehensive environmental impact
+    // Real emission factors for Indian logistics:
+    // Heavy diesel truck: 2.68 kg CO2/liter, 4 km/liter = 0.67 kg CO2/km
+    // Light commercial vehicle: 2.31 kg CO2/liter, 12 km/liter = 0.19 kg CO2/km
+    // Motorcycle delivery: 2.31 kg CO2/liter, 45 km/liter = 0.05 kg CO2/km
     
-    const calculateTraditionalCO2 = (distance: number, capacity: number) => {
-      // Traditional: Each shipment requires separate trip
-      if (capacity > 50) return distance * 1.1; // Heavy truck
-      return distance * 0.24; // Light vehicle
+    const getEmissionFactor = (capacity: number) => {
+      if (capacity > 200) return 0.67; // Heavy truck
+      if (capacity > 50) return 0.42;  // Medium truck  
+      if (capacity > 10) return 0.19;  // Light vehicle
+      return 0.05; // Motorcycle/bike
     };
     
-    const calculatePooledCO2 = (distance: number, capacity: number, poolingFactor: number = 0.4) => {
-      // Pooled: Shared routes, consolidated trips
-      // 40-60% reduction through route optimization and consolidation
-      const baseCO2 = capacity > 50 ? distance * 1.1 : distance * 0.24;
-      return baseCO2 * (1 - poolingFactor);
-    };
+    // Calculate traditional vs our optimized approach
+    let traditionalCO2 = 0;
+    let optimizedCO2 = 0;
     
-    // Calculate total CO2 for all shipments
-    const traditionalCO2 = shipments.reduce((sum, s) => {
-      const distance = s.distance_km || averageDistance;
-      const capacity = s.capacity_kg || 25;
-      return sum + calculateTraditionalCO2(distance, capacity);
-    }, 0);
-    
-    const actualCO2 = shipments.reduce((sum, s) => {
-      const distance = s.distance_km || averageDistance;
-      const capacity = s.capacity_kg || 25;
-      if (s.pooled) {
-        return sum + calculatePooledCO2(distance, capacity);
+    shipments.forEach(shipment => {
+      const distance = shipment.distance_km || averageDistance;
+      const capacity = shipment.capacity_kg || 25;
+      const emissionFactor = getEmissionFactor(capacity);
+      
+      // Traditional: Each shipment = separate trip
+      traditionalCO2 += distance * emissionFactor;
+      
+      // Our platform: Pooled routes reduce emissions by 45-55%
+      if (shipment.pooled) {
+        optimizedCO2 += distance * emissionFactor * 0.5; // 50% reduction through pooling
+      } else {
+        optimizedCO2 += distance * emissionFactor; // No reduction for individual shipments
       }
-      return sum + calculateTraditionalCO2(distance, capacity);
-    }, 0);
+    });
     
-    const co2Saved = Math.max(0, traditionalCO2 - actualCO2);
+    const co2Saved = Math.max(0, traditionalCO2 - optimizedCO2);
+    const co2ReductionRate = traditionalCO2 > 0 ? (co2Saved / traditionalCO2) * 100 : 0;
     
     // Generate monthly data with enhanced calculations
     const monthlyData = generateMonthlyData(shipments, calculateCompetitorCost);
@@ -215,10 +216,24 @@ const Analytics = () => {
       { name: 'Pending', value: statusCounts.pending, color: 'hsl(var(--delhi-orange))' },
     ];
     
-    // Pooling efficiency
+    // Enhanced pooling efficiency metrics
+    const poolingRate = totalShipments > 0 ? (pooledShipments / totalShipments) * 100 : 0;
+    const individualShipments = totalShipments - pooledShipments;
+    
+    // Pooling data with enhanced metrics
     const poolingData = [
-      { name: 'Pooled', value: pooledShipments, color: 'hsl(var(--delhi-primary))' },
-      { name: 'Individual', value: totalShipments - pooledShipments, color: 'hsl(var(--muted))' },
+      { 
+        name: 'Pooled Routes', 
+        value: pooledShipments, 
+        color: 'hsl(var(--delhi-success))',
+        percentage: poolingRate.toFixed(1)
+      },
+      { 
+        name: 'Individual Routes', 
+        value: individualShipments, 
+        color: 'hsl(var(--delhi-orange))',
+        percentage: (100 - poolingRate).toFixed(1)
+      },
     ];
 
     return {
@@ -234,6 +249,8 @@ const Analytics = () => {
       totalCapacity,
       costSavings,
       co2Saved,
+      co2ReductionRate,
+      poolingRate,
       monthlyData,
       statusData,
       poolingData,
@@ -402,7 +419,7 @@ const Analytics = () => {
                     <CardContent>
                       <div className="text-2xl font-bold text-delhi-success">{analytics.co2Saved.toFixed(1)}kg</div>
                       <p className="text-xs text-muted-foreground">
-                        Diesel truck emissions reduced
+                        {analytics.co2ReductionRate.toFixed(1)}% reduction vs traditional
                       </p>
                     </CardContent>
                   </Card>
@@ -460,7 +477,13 @@ const Analytics = () => {
 
                   <Card>
                     <CardHeader>
-                      <CardTitle>Pooling Efficiency</CardTitle>
+                      <CardTitle className="flex items-center gap-2">
+                        <Truck className="h-4 w-4 text-delhi-primary" />
+                        Pooling Efficiency
+                      </CardTitle>
+                      <p className="text-sm text-muted-foreground">
+                        {analytics.poolingRate.toFixed(1)}% of shipments use pooled routes
+                      </p>
                     </CardHeader>
                     <CardContent>
                       <ResponsiveContainer width="100%" height={250}>
@@ -473,15 +496,29 @@ const Analytics = () => {
                             outerRadius={100}
                             paddingAngle={5}
                             dataKey="value"
+                            label={({ name, percentage }) => `${name}: ${percentage}%`}
                           >
                             {analytics.poolingData.map((entry, index) => (
                               <Cell key={`cell-${index}`} fill={entry.color} />
                             ))}
                           </Pie>
-                          <Tooltip />
-                          <Legend />
+                          <Tooltip formatter={(value: number) => [`${value} shipments`, 'Count']} />
                         </PieChart>
                       </ResponsiveContainer>
+                      <div className="mt-4 space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Cost Efficiency:</span>
+                          <span className="font-medium text-delhi-success">
+                            +{((analytics.poolingRate / 100) * 25).toFixed(0)}% savings
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>Environmental Impact:</span>
+                          <span className="font-medium text-delhi-success">
+                            -{((analytics.poolingRate / 100) * 50).toFixed(0)}% CO₂
+                          </span>
+                        </div>
+                      </div>
                     </CardContent>
                   </Card>
                 </div>
