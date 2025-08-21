@@ -9,7 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { MapPin, Package, Clock, Route, Navigation } from "lucide-react";
 import { match } from "@/lib/matching";
-import RouteMap from "@/components/route-optimization/RouteMap";
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 
 interface Shipment {
   id: string;
@@ -201,30 +202,50 @@ const Transit = () => {
                     Optimized Routes ({pools.length} pools)
                   </h2>
                   
-                  {/* Interactive Route Map */}
+                  {/* Simple Route Map */}
                   <Card className="mb-6">
                     <CardHeader>
-                      <CardTitle>🗺️ Route Visualization</CardTitle>
+                      <CardTitle>🗺️ Route Overview</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <RouteMap 
-                        routes={pools.map(pool => ({
-                          groupId: pool.id,
-                          shipments: pool.shipments.map(s => ({
-                            id: s.id,
-                            pickup: { lat: s.origin_lat, lng: s.origin_lng },
-                            drop: { lat: s.destination_lat, lng: s.destination_lng }
-                          })),
-                          routeCoordinates: [
-                            pool.pickupCentroid,
-                            ...pool.shipments.map(s => ({ lat: s.origin_lat, lng: s.origin_lng })),
-                            ...pool.shipments.map(s => ({ lat: s.destination_lat, lng: s.destination_lng }))
-                          ],
-                          totalDistance: pool.totalWeight / 10, // Estimate based on weight
-                          totalTime: pool.shipments.length * 30, // 30 min per shipment estimate
-                          efficiency: pool.shipments.length / (pool.totalWeight / 100)
-                        }))} 
-                      />
+                      <div className="h-64 w-full">
+                        <MapContainer 
+                          center={[pools[0].pickupCentroid.lat, pools[0].pickupCentroid.lng]} 
+                          zoom={11} 
+                          className="h-full w-full rounded-lg"
+                        >
+                          <TileLayer
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                          />
+                          {pools.map((pool, poolIndex) => {
+                            const colors = ['red', 'blue', 'green', 'purple', 'orange', 'darkred'];
+                            const color = colors[poolIndex % colors.length];
+                            return pool.shipments.map((shipment, idx) => (
+                              <div key={`${pool.id}-${shipment.id}`}>
+                                <Marker position={[shipment.origin_lat, shipment.origin_lng]}>
+                                  <Popup>
+                                    📦 Pickup: {shipment.origin_address || shipment.origin}
+                                    <br />Route {poolIndex + 1}
+                                  </Popup>
+                                </Marker>
+                                <Marker position={[shipment.destination_lat, shipment.destination_lng]}>
+                                  <Popup>
+                                    🎯 Drop: {shipment.destination_address || shipment.destination}
+                                    <br />Route {poolIndex + 1}
+                                  </Popup>
+                                </Marker>
+                                <Polyline 
+                                  positions={[[shipment.origin_lat, shipment.origin_lng], [shipment.destination_lat, shipment.destination_lng]]}
+                                  color={color}
+                                  weight={3}
+                                  opacity={0.7}
+                                />
+                              </div>
+                            ));
+                          })}
+                        </MapContainer>
+                      </div>
                     </CardContent>
                   </Card>
                   
