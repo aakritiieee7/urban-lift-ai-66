@@ -109,19 +109,7 @@ const ShipmentsList = ({ refresh, onRefreshComplete }: ShipmentsListProps) => {
     }
   }, [refresh, onRefreshComplete]);
 
-  const markAsDone = async (shipmentId: string) => {
-    const { error } = await supabase
-      .from("shipments")
-      .update({ status: "delivered", dropoff_time: new Date().toISOString() })
-      .eq("id", shipmentId);
-
-    if (error) {
-      toast({ title: "Error", description: error.message });
-    } else {
-      toast({ title: "Success", description: "Shipment marked as delivered" });
-      fetchShipments();
-    }
-  };
+  // Removed markAsDone - only carriers can update delivery status
 
   const deleteShipment = async (shipmentId: string) => {
     const { error } = await supabase
@@ -315,45 +303,87 @@ const ShipmentsList = ({ refresh, onRefreshComplete }: ShipmentsListProps) => {
                 </div>
               ) : null}
 
+              {/* Status Tracking */}
+              <div className="bg-primary/5 rounded-md p-3 border border-primary/10">
+                <div className="text-sm font-medium text-primary mb-2">
+                  Shipment Progress
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className={`flex items-center gap-1 text-xs ${
+                    shipment.status === 'pending' ? 'text-orange-600 font-medium' : 
+                    ['assigned', 'in_transit', 'delivered'].includes(shipment.status) ? 'text-green-600' : 'text-muted-foreground'
+                  }`}>
+                    <div className={`w-2 h-2 rounded-full ${
+                      shipment.status === 'pending' ? 'bg-orange-500' : 'bg-green-500'
+                    }`} />
+                    Order Placed
+                  </div>
+                  <div className={`flex items-center gap-1 text-xs ${
+                    shipment.status === 'assigned' ? 'text-orange-600 font-medium' : 
+                    ['in_transit', 'delivered'].includes(shipment.status) ? 'text-green-600' : 'text-muted-foreground'
+                  }`}>
+                    <div className={`w-2 h-2 rounded-full ${
+                      ['assigned', 'in_transit', 'delivered'].includes(shipment.status) ? 'bg-green-500' : 'bg-gray-300'
+                    }`} />
+                    Driver Assigned
+                  </div>
+                  <div className={`flex items-center gap-1 text-xs ${
+                    shipment.status === 'in_transit' ? 'text-orange-600 font-medium' : 
+                    shipment.status === 'delivered' ? 'text-green-600' : 'text-muted-foreground'
+                  }`}>
+                    <div className={`w-2 h-2 rounded-full ${
+                      ['in_transit', 'delivered'].includes(shipment.status) ? 'bg-green-500' : 'bg-gray-300'
+                    }`} />
+                    {shipment.status === 'in_transit' ? 'Out for Delivery' : 'In Transit'}
+                  </div>
+                  <div className={`flex items-center gap-1 text-xs ${
+                    shipment.status === 'delivered' ? 'text-green-600 font-medium' : 'text-muted-foreground'
+                  }`}>
+                    <div className={`w-2 h-2 rounded-full ${
+                      shipment.status === 'delivered' ? 'bg-green-500' : 'bg-gray-300'
+                    }`} />
+                    Delivered
+                  </div>
+                </div>
+                {shipment.pickup_time && (
+                  <div className="text-xs text-muted-foreground mt-2">
+                    Picked up: {new Date(shipment.pickup_time).toLocaleString()}
+                  </div>
+                )}
+                {shipment.dropoff_time && (
+                  <div className="text-xs text-muted-foreground">
+                    Delivered: {new Date(shipment.dropoff_time).toLocaleString()}
+                  </div>
+                )}
+              </div>
+
               <div className="flex items-center gap-2 flex-wrap">
-                {shipment.status !== "delivered" && (
-                  <>
-                    <Button
-                      size="sm"
-                      variant="default"
-                      onClick={() => markAsDone(shipment.id)}
-                      className="flex items-center gap-1"
-                    >
-                      <CheckCircle className="h-3 w-3" />
-                      Mark as Done
-                    </Button>
-                    
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button size="sm" variant="destructive" className="flex items-center gap-1">
-                          <Trash2 className="h-3 w-3" />
+                {shipment.status === "pending" && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button size="sm" variant="destructive" className="flex items-center gap-1">
+                        <Trash2 className="h-3 w-3" />
+                        Delete
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Shipment</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete this shipment? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => deleteShipment(shipment.id)}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
                           Delete
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Shipment</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to delete this shipment? This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => deleteShipment(shipment.id)}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                          >
-                            Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </>
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 )}
 
                 {shipment.status === "delivered" && shipment.carrier_id && (
