@@ -381,26 +381,51 @@ const Transit = () => {
   }, [trackingInterval]);
 
   const openMapRoute = (shipments: Shipment[]) => {
-    const fmt = (s: Shipment, type: 'origin' | 'destination') => {
-      const lat = type === 'origin' ? s.origin_lat : s.destination_lat;
-      const lng = type === 'origin' ? s.origin_lng : s.destination_lng;
-      const addr = type === 'origin' ? (s.origin_address || s.origin) : (s.destination_address || s.destination);
-      return (lat && lng) ? `${lat},${lng}` : encodeURIComponent(addr || "");
-    };
+    const validateCoords = (lat: number, lng: number) => 
+      lat && lng && !isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
 
     if (shipments.length === 1) {
       const s = shipments[0];
-      const originStr = fmt(s, 'origin');
-      const destStr = fmt(s, 'destination');
-      const url = `https://www.google.com/maps/dir/${originStr}/${destStr}`;
+      let url;
+      
+      if (validateCoords(s.origin_lat, s.origin_lng) && validateCoords(s.destination_lat, s.destination_lng)) {
+        // Use coordinates for better accuracy
+        url = `https://www.google.com/maps/dir/${s.origin_lat},${s.origin_lng}/${s.destination_lat},${s.destination_lng}`;
+      } else {
+        // Fallback to address
+        const origin = encodeURIComponent(s.origin_address || s.origin || '');
+        const dest = encodeURIComponent(s.destination_address || s.destination || '');
+        url = `https://www.google.com/maps/dir/${origin}/${dest}`;
+      }
+      
       window.open(url, "_blank");
     } else {
-      // For multiple shipments, create optimized route with all waypoints
-      const waypoints = shipments.flatMap(s => [
-        fmt(s, 'origin'),
-        fmt(s, 'destination')
-      ]).join("/");
-      const url = `https://www.google.com/maps/dir/${waypoints}`;
+      // For multiple shipments, use the first pickup and last dropoff with waypoints
+      const validShipments = shipments.filter(s => 
+        validateCoords(s.origin_lat, s.origin_lng) && validateCoords(s.destination_lat, s.destination_lng)
+      );
+      
+      if (validShipments.length === 0) {
+        toast({ 
+          title: "Navigation Error", 
+          description: "Unable to create route - invalid location coordinates" 
+        });
+        return;
+      }
+
+      // Create optimized waypoint list (pickup points first, then dropoff points)
+      const pickups = validShipments.map(s => `${s.origin_lat},${s.origin_lng}`);
+      const dropoffs = validShipments.map(s => `${s.destination_lat},${s.destination_lng}`);
+      
+      // Start from first pickup, go through all waypoints, end at last dropoff
+      const waypoints = [...pickups.slice(1), ...dropoffs.slice(0, -1)].join('/');
+      const start = pickups[0];
+      const end = dropoffs[dropoffs.length - 1];
+      
+      const url = waypoints ? 
+        `https://www.google.com/maps/dir/${start}/${waypoints}/${end}` :
+        `https://www.google.com/maps/dir/${start}/${end}`;
+      
       window.open(url, "_blank");
     }
   };
@@ -519,8 +544,23 @@ const Transit = () => {
                             <Button 
                               onClick={() => {
                                 const step = activeRoute.steps[activeRoute.currentStepIndex];
-                                const url = `https://www.google.com/maps/dir/${currentLocation?.lat || ''},${currentLocation?.lng || ''}/${step.location.lat},${step.location.lng}`;
-                                window.open(url, "_blank");
+                                let url;
+                                
+                                if (currentLocation && currentLocation.lat && currentLocation.lng) {
+                                  // Use current location as starting point
+                                  url = `https://www.google.com/maps/dir/${currentLocation.lat},${currentLocation.lng}/${step.location.lat},${step.location.lng}`;
+                                } else {
+                                  // Just open destination location
+                                  url = `https://www.google.com/maps/search/${step.location.lat},${step.location.lng}`;
+                                }
+                                
+                                const newWindow = window.open(url, "_blank");
+                                if (!newWindow) {
+                                  toast({ 
+                                    title: "Navigation", 
+                                    description: "Please allow popups to open navigation" 
+                                  });
+                                }
                               }}
                               variant="outline"
                               size="sm"
