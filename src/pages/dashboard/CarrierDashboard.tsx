@@ -13,22 +13,55 @@ import { MapPin, Package, Clock, ExternalLink, Truck, CheckCircle } from "lucide
 const CarrierDashboard = () => {
   const { userId } = useAuth();
   const [jobs, setJobs] = useState<any[]>([]);
+  const [carrierProfile, setCarrierProfile] = useState<any>(null);
   const navigate = useNavigate();
+
+  // Calculate earnings for a shipment based on carrier profile
+  const calculateEarnings = (shipment: any) => {
+    if (!carrierProfile) return 0;
+    
+    const baseFee = 50;
+    const weightCost = (shipment.capacity_kg || 0) * 10;
+    const distanceCost = (shipment.distance_km || 0) * 5;
+    const baseAmount = baseFee + weightCost + distanceCost;
+    
+    // Experience multiplier
+    const experience = carrierProfile.years_experience || 1;
+    let experienceMultiplier = 1;
+    if (experience < 0.5) experienceMultiplier = 0.8; // New drivers: 20% discount
+    else if (experience >= 2) experienceMultiplier = 1.1; // Experienced: 10% premium
+    
+    // Vehicle type multiplier (simplified - assuming based on capacity)
+    let vehicleMultiplier = 1;
+    const capacity = carrierProfile.vehicle_capacity_kg || 1000;
+    if (capacity < 500) vehicleMultiplier = 0.9; // Light vehicles: 10% discount
+    else if (capacity > 2000) vehicleMultiplier = 1.2; // Heavy trucks: 20% premium
+    
+    // Distance adjustment
+    let distanceMultiplier = 1;
+    const distance = shipment.distance_km || 0;
+    if (distance > 50) distanceMultiplier = 0.95; // Long distance: 5% discount
+    else if (distance < 10) distanceMultiplier = 1.05; // Short distance: small premium
+    
+    return Math.round(baseAmount * experienceMultiplier * vehicleMultiplier * distanceMultiplier);
+  };
 
   useEffect(() => {
     console.log("CarrierDashboard useEffect running - userId:", userId);
-    const check = async () => {
+    const checkAndLoadProfile = async () => {
       if (!userId) return;
       const { data } = await (supabase as any)
         .from("carrier_profiles")
-        .select("user_id, role")
+        .select("user_id, role, years_experience, vehicle_capacity_kg")
         .eq("user_id", userId)
         .maybeSingle();
       if (!data || data.role !== "carrier") {
         navigate("/profile-setup?role=carrier", { replace: true });
+      } else {
+        setCarrierProfile(data);
       }
     };
-    check();
+    checkAndLoadProfile();
   }, [userId]); // Removed navigate from dependency array
 
   const load = async () => {
@@ -158,12 +191,16 @@ const CarrierDashboard = () => {
                                   <div className="text-sm text-muted-foreground mb-2">
                                     Deliver to: {j.destination}
                                   </div>
-                                  {j.capacity_kg && (
-                                    <div className="text-sm text-muted-foreground flex items-center gap-1">
-                                      <Package className="h-3 w-3" />
-                                      {j.capacity_kg} kg
-                                    </div>
-                                  )}
+                                   {j.capacity_kg && (
+                                     <div className="text-sm text-muted-foreground flex items-center gap-1">
+                                       <Package className="h-3 w-3" />
+                                       {j.capacity_kg} kg
+                                     </div>
+                                   )}
+                                   <div className="text-sm font-medium text-green-600 flex items-center gap-1">
+                                     <span className="text-green-600">💰</span>
+                                     Earn: ₹{calculateEarnings(j).toLocaleString()}
+                                   </div>
                                 </div>
                                 <div className="flex gap-2">
                                   <Button
@@ -208,12 +245,16 @@ const CarrierDashboard = () => {
                                   <div className="text-sm text-muted-foreground mb-2">
                                     Picked up from: {j.origin}
                                   </div>
-                      {j.pickup_time && (
-                        <div className="text-sm text-muted-foreground flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          Picked up: {new Date(j.pickup_time).toLocaleString()}
-                        </div>
-                      )}
+                       {j.pickup_time && (
+                         <div className="text-sm text-muted-foreground flex items-center gap-1">
+                           <Clock className="h-3 w-3" />
+                           Picked up: {new Date(j.pickup_time).toLocaleString()}
+                         </div>
+                       )}
+                                   <div className="text-sm font-medium text-green-600 flex items-center gap-1">
+                                     <span className="text-green-600">💰</span>
+                                     Earn: ₹{calculateEarnings(j).toLocaleString()}
+                                   </div>
                                 </div>
                                 <div className="flex gap-2">
                                   <Button
@@ -256,11 +297,15 @@ const CarrierDashboard = () => {
                                     <CheckCircle className="h-4 w-4 text-green-600" />
                                     <span className="font-medium">{j.origin} → {j.destination}</span>
                                   </div>
-                      {j.dropoff_time && (
-                        <div className="text-sm text-muted-foreground">
-                          Delivered: {new Date(j.dropoff_time).toLocaleString()}
-                        </div>
-                      )}
+                       {j.dropoff_time && (
+                         <div className="text-sm text-muted-foreground">
+                           Delivered: {new Date(j.dropoff_time).toLocaleString()}
+                         </div>
+                       )}
+                                   <div className="text-sm font-medium text-green-600 flex items-center gap-1">
+                                     <span className="text-green-600">💰</span>
+                                     Earned: ₹{calculateEarnings(j).toLocaleString()}
+                                   </div>
                                 </div>
                                 <Badge className="bg-green-100 text-green-800">
                                   Completed
@@ -314,6 +359,18 @@ const CarrierDashboard = () => {
                     <Badge variant="outline" className="bg-green-50 text-green-600">
                       {jobs.filter(j => j.status === 'delivered').length}
                     </Badge>
+                  </div>
+                  <div className="flex justify-between items-center border-t pt-3 mt-3">
+                    <span className="text-sm font-medium">Total Earnings Today</span>
+                    <span className="text-lg font-bold text-green-600">
+                      ₹{jobs.reduce((total, job) => total + calculateEarnings(job), 0).toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Completed Earnings</span>
+                    <span className="text-sm font-medium text-green-600">
+                      ₹{jobs.filter(j => j.status === 'delivered').reduce((total, job) => total + calculateEarnings(job), 0).toLocaleString()}
+                    </span>
                   </div>
                 </div>
               </CardContent>
