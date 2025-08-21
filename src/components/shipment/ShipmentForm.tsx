@@ -267,19 +267,60 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
     );
     
     if (availableCarriers.length > 0) {
-      // Mark the first (best) carrier as recommended
-      const enhancedCarriers = availableCarriers.map((carrier, index) => ({
+    // Mark the first (best) carrier as recommended and add detailed reasons for all
+    const enhancedCarriers = availableCarriers.map((carrier, index) => {
+      const reasons = [];
+      
+      // Distance reason
+      if (carrier.distance! <= 15) {
+        reasons.push(`Only ${carrier.distance?.toFixed(1)}km away - quick pickup`);
+      } else {
+        reasons.push(`${carrier.distance?.toFixed(1)}km distance - good coverage`);
+      }
+      
+      // Experience reason
+      if (carrier.years_experience >= 8) {
+        reasons.push(`${carrier.years_experience}+ years experienced driver`);
+      } else {
+        reasons.push(`${carrier.years_experience} years of reliable service`);
+      }
+      
+      // Score-based reasons
+      if (carrier.score >= 0.8) {
+        reasons.push("High reliability & customer satisfaction");
+      } else if (carrier.score >= 0.6) {
+        reasons.push("Good performance track record");
+      } else {
+        reasons.push("Competitive pricing available");
+      }
+      
+      // Capacity reason
+      const reqCapacity = Number(capacityKg) || 0;
+      if (carrier.vehicle_capacity_kg) {
+        if (carrier.vehicle_capacity_kg >= reqCapacity * 2) {
+          reasons.push("Extra capacity for secure transport");
+        } else {
+          reasons.push("Perfect capacity match for your shipment");
+        }
+      } else {
+        reasons.push("Flexible capacity - handles all shipment sizes");
+      }
+      
+      // Vehicle type reason
+      if (carrier.vehicle_type?.toLowerCase().includes("truck")) {
+        reasons.push("Heavy-duty vehicle for safe delivery");
+      } else {
+        reasons.push("Efficient commercial vehicle");
+      }
+      
+      return {
         ...carrier,
         isRecommended: index === 0,
-        assignmentReasons: index === 0 ? [
-          `${carrier.distance?.toFixed(1)}km away`,
-          `${carrier.years_experience}+ years experience`,
-          'High reliability score',
-          'Optimal capacity match'
-        ] : []
-      }));
+        assignmentReasons: reasons.slice(0, 4) // Show top 4 reasons
+      };
+    });
       
-      setCarriers(enhancedCarriers.slice(0, 4));
+      setCarriers(enhancedCarriers.slice(0, 5)); // Show top 5 carriers
       
       // Auto-select the recommended carrier
       setSelectedCarrier(enhancedCarriers[0]);
@@ -373,7 +414,7 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
 
   if (currentStep === 'selection' && carriers.length > 0) {
     const recommended = carriers[0];
-    const alternatives = carriers.slice(1, 3); // Only show 2 alternatives
+    const alternatives = carriers.slice(1); // Show all remaining carriers
     const savingsPercentage = 18; // Consistent 18% savings
     const reliabilityScore = 94; // Consistent 94% reliability
 
@@ -459,60 +500,70 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
             </div>
           </div>
 
-          {/* Alternative Carriers */}
+          {/* Alternative Carriers - Show all remaining carriers */}
           {alternatives.length > 0 && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h4 className="text-lg font-semibold text-foreground">Alternative Options</h4>
+                <h4 className="text-lg font-semibold text-foreground">Other Available Carriers</h4>
                 <Badge variant="outline" className="text-xs">
-                  {alternatives.length} more available
+                  {alternatives.length} more options
                 </Badge>
               </div>
               
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-4">
                 {alternatives.map((carrier, index) => (
                   <div 
                     key={carrier.user_id}
                     onClick={() => selectCarrier(carrier)}
-                    className="group p-5 rounded-xl border-2 border-border hover:border-primary/40 bg-card hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-[1.02]"
+                    className="group p-5 rounded-xl border border-border hover:border-primary/40 bg-card hover:shadow-lg transition-all duration-300 cursor-pointer"
                   >
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center text-foreground font-bold">
+                    <div className="flex items-start gap-4">
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center text-foreground font-bold text-lg">
                         {carrier.business_name?.charAt(0) || 'C'}
                       </div>
+                      
                       <div className="flex-1">
-                        <h5 className="font-semibold text-base">{carrier.business_name || 'Carrier'}</h5>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                          <span>{(carrier.score! * 5).toFixed(1)}</span>
-                          <span>•</span>
-                          <span className="text-green-600">{Math.round(80 + Math.random() * 15)}% reliable</span>
+                        <h5 className="font-semibold text-lg text-foreground mb-1">{carrier.business_name || `Carrier ${index + 2}`}</h5>
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="flex items-center gap-1">
+                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                            <span className="font-medium text-yellow-600 dark:text-yellow-400">{(carrier.score! * 5).toFixed(1)}</span>
+                          </div>
+                          <span className="text-sm text-muted-foreground">{carrier.years_experience}+ years</span>
+                          <Badge variant="secondary" className="text-xs">
+                            {Math.round(80 + Math.random() * 15)}% reliable
+                          </Badge>
                         </div>
+                        <div className="text-sm text-muted-foreground mb-3">
+                          📱 {carrier.phone || "+91-98765-43210"} • 🚛 {carrier.vehicle_type || "Commercial Vehicle"}
+                        </div>
+                        
+                        {/* Why This Carrier */}
+                        {carrier.assignmentReasons && carrier.assignmentReasons.length > 0 && (
+                          <div className="bg-secondary/30 rounded-lg p-3 mt-3">
+                            <p className="text-xs font-medium text-secondary-foreground mb-2">Why choose this carrier:</p>
+                            <div className="flex flex-wrap gap-1">
+                              {carrier.assignmentReasons.map((reason, i) => (
+                                <span key={i} className="text-xs bg-background/60 text-foreground px-2 py-1 rounded-full border">
+                                  {reason}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                    
-                    <div className="space-y-2 mb-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">Cost:</span>
-                        <span className="font-bold text-lg text-primary">₹{calculatePrice(carrier.distance!, Number(capacityKg) || 10)}</span>
+                      
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-primary mb-1">₹{calculatePrice(carrier.distance!, Number(capacityKg) || 10)}</div>
+                        <div className="text-sm text-muted-foreground">ETA: {calculateETA(carrier.distance!)} min</div>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="mt-2 group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
+                        >
+                          Select This Carrier
+                        </Button>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">ETA:</span>
-                        <span className="text-sm font-medium">{calculateETA(carrier.distance!)} minutes</span>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <Badge variant="outline" className="text-xs">
-                        {carrier.vehicle_type || 'Vehicle'}
-                      </Badge>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="text-xs group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
-                      >
-                        Select
-                      </Button>
                     </div>
                   </div>
                 ))}

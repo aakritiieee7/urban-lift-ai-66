@@ -208,12 +208,12 @@ const CarrierDashboard = () => {
                                   <div className="text-sm text-muted-foreground mb-2">
                                     Picked up from: {j.origin}
                                   </div>
-                                  {j.pickup_time && (
-                                    <div className="text-sm text-muted-foreground flex items-center gap-1">
-                                      <Clock className="h-3 w-3" />
-                                      Picked up: {new Date(j.pickup_time).toLocaleString()}
-                                    </div>
-                                  )}
+                      {j.pickup_time && (
+                        <div className="text-sm text-muted-foreground flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          Picked up: {new Date(j.pickup_time).toLocaleString()}
+                        </div>
+                      )}
                                 </div>
                                 <div className="flex gap-2">
                                   <Button
@@ -256,11 +256,11 @@ const CarrierDashboard = () => {
                                     <CheckCircle className="h-4 w-4 text-green-600" />
                                     <span className="font-medium">{j.origin} → {j.destination}</span>
                                   </div>
-                                  {j.dropoff_time && (
-                                    <div className="text-sm text-muted-foreground">
-                                      Delivered: {new Date(j.dropoff_time).toLocaleString()}
-                                    </div>
-                                  )}
+                      {j.dropoff_time && (
+                        <div className="text-sm text-muted-foreground">
+                          Delivered: {new Date(j.dropoff_time).toLocaleString()}
+                        </div>
+                      )}
                                 </div>
                                 <Badge className="bg-green-100 text-green-800">
                                   Completed
