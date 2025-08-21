@@ -140,15 +140,24 @@ const Transit = () => {
   };
 
   const openMapRoute = (shipments: Shipment[]) => {
+    const fmt = (s: Shipment, type: 'origin' | 'destination') => {
+      const lat = type === 'origin' ? s.origin_lat : s.destination_lat;
+      const lng = type === 'origin' ? s.origin_lng : s.destination_lng;
+      const addr = type === 'origin' ? (s.origin_address || s.origin) : (s.destination_address || s.destination);
+      return (lat && lng) ? `${lat},${lng}` : encodeURIComponent(addr || "");
+    };
+
     if (shipments.length === 1) {
       const s = shipments[0];
-      const url = `https://www.google.com/maps/dir/${s.origin_lat},${s.origin_lng}/${s.destination_lat},${s.destination_lng}`;
+      const originStr = fmt(s, 'origin');
+      const destStr = fmt(s, 'destination');
+      const url = `https://www.google.com/maps/dir/${originStr}/${destStr}`;
       window.open(url, "_blank");
     } else {
-      // For multiple shipments, create optimized route
+      // For multiple shipments, create optimized route with all waypoints
       const waypoints = shipments.flatMap(s => [
-        `${s.origin_lat},${s.origin_lng}`,
-        `${s.destination_lat},${s.destination_lng}`
+        fmt(s, 'origin'),
+        fmt(s, 'destination')
       ]).join("/");
       const url = `https://www.google.com/maps/dir/${waypoints}`;
       window.open(url, "_blank");
