@@ -54,7 +54,7 @@ const Transit = () => {
       .from("shipments")
       .select("*")
       .eq("carrier_id", userId)
-      .in("status", ["assigned", "in_transit"])
+      .in("status", ["pending", "assigned", "in_transit"]) // include pending shipments assigned via payment flow
       .order("created_at", { ascending: false });
 
     console.log("Query executed with userId:", userId);
