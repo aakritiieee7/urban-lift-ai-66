@@ -381,6 +381,8 @@ const Transit = () => {
   }, [trackingInterval]);
 
   const openMapRoute = (shipments: Shipment[]) => {
+    console.log("🗺️ openMapRoute called with shipments:", shipments);
+    
     const validateCoords = (lat: number, lng: number) => 
       lat && lng && !isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
 
@@ -399,36 +401,25 @@ const Transit = () => {
           url = `https://www.google.com/maps/dir/${origin}/${dest}`;
         }
         
-        console.log("Opening Google Maps URL:", url);
+        console.log("🌐 Opening Google Maps URL:", url);
+        console.log("🔧 User agent:", navigator.userAgent);
+        console.log("🎯 Attempting to open window...");
         
-        // Try to open in new tab
-        const newWindow = window.open(url, "_blank", "noopener,noreferrer");
+        // Try to open in new tab - simplified approach
+        const newWindow = window.open(url, "_blank");
         
-        if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
-          // Popup blocked, try alternative approach
-          toast({ 
-            title: "Popup Blocked", 
-            description: "Copying Google Maps link to clipboard instead"
-          });
-          
-          // Copy to clipboard as fallback
-          navigator.clipboard.writeText(url).then(() => {
-            toast({ 
-              title: "Link Copied", 
-              description: "Paste the link in your browser to open Google Maps"
-            });
-          }).catch(() => {
-            // Final fallback - show the URL
-            toast({ 
-              title: "Google Maps Link", 
-              description: url,
-              duration: 10000
-            });
-          });
+        console.log("🪟 New window result:", newWindow);
+        console.log("🚪 Window closed?", newWindow?.closed);
+        
+        if (!newWindow) {
+          console.log("❌ Popup completely blocked");
+          // Direct navigation approach
+          window.location.href = url;
         } else {
+          console.log("✅ Window opened successfully");
           toast({ 
             title: "Navigation Opened", 
-            description: "Google Maps opened in new tab"
+            description: "Opening Google Maps..."
           });
         }
       } else {
@@ -591,8 +582,12 @@ const Transit = () => {
                           <div className="flex gap-2">
                             <Button 
                               onClick={() => {
+                                console.log("🎯 Navigate button clicked!");
                                 try {
                                   const step = activeRoute.steps[activeRoute.currentStepIndex];
+                                  console.log("📍 Current step:", step);
+                                  console.log("📱 Current location:", currentLocation);
+                                  
                                   let url;
                                   
                                   if (currentLocation && currentLocation.lat && currentLocation.lng) {
@@ -603,32 +598,19 @@ const Transit = () => {
                                     url = `https://www.google.com/maps/search/${step.location.lat},${step.location.lng}`;
                                   }
                                   
-                                  console.log("Opening step navigation:", url);
+                                  console.log("🌐 Navigation URL:", url);
+                                  console.log("🚀 Attempting to open...");
                                   
-                                  const newWindow = window.open(url, "_blank", "noopener,noreferrer");
+                                  // Try simple direct navigation first
+                                  window.location.href = url;
                                   
-                                  if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
-                                    // Popup blocked - copy to clipboard
-                                    navigator.clipboard.writeText(url).then(() => {
-                                      toast({ 
-                                        title: "Link Copied", 
-                                        description: "Paste in browser to navigate to next stop"
-                                      });
-                                    }).catch(() => {
-                                      toast({ 
-                                        title: "Navigation Link", 
-                                        description: url,
-                                        duration: 8000
-                                      });
-                                    });
-                                  } else {
-                                    toast({ 
-                                      title: "Navigation Started", 
-                                      description: "Google Maps opened for next stop"
-                                    });
-                                  }
+                                  toast({ 
+                                    title: "Opening Navigation", 
+                                    description: "Redirecting to Google Maps..."
+                                  });
+
                                 } catch (error) {
-                                  console.error("Navigation error:", error);
+                                  console.error("❌ Navigation error:", error);
                                   toast({ 
                                     title: "Navigation Error", 
                                     description: "Failed to open navigation. Please try again."
