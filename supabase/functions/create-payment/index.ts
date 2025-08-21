@@ -29,16 +29,55 @@ serve(async (req) => {
       throw new Error("User not authenticated");
     }
 
-    const { shipmentData, distanceKm } = await req.json();
+    const { shipmentData, distanceKm, carrierData } = await req.json();
     
-    // Calculate payment amount based on weight and distance
-    // Base rate: ₹10 per kg + ₹5 per km + ₹50 base fee
+    // Base cost calculation
     const weightCost = (shipmentData.capacity_kg || 0) * 10; // ₹10 per kg
     const distanceCost = (distanceKm || 0) * 5; // ₹5 per km
     const basePrice = 50;
-    const totalAmount = Math.round(basePrice + weightCost + distanceCost); // Amount in rupees
+    let baseCost = basePrice + weightCost + distanceCost;
     
-    console.log(`Payment calculation: Weight(${shipmentData.capacity_kg}kg) = ₹${weightCost}, Distance(${distanceKm}km) = ₹${distanceCost}, Total = ₹${totalAmount}`);
+    // Apply carrier-specific multipliers
+    let finalMultiplier = 1.0;
+    
+    if (carrierData) {
+      // Experience Level Adjustments
+      const yearsExp = carrierData.years_experience || 0;
+      if (yearsExp < 0.5) {
+        finalMultiplier *= 0.8; // New drivers: 20% discount
+      } else if (yearsExp >= 2) {
+        finalMultiplier *= 1.1; // Experienced: 10% premium
+      }
+      
+      // Rating-based Pricing
+      const rating = carrierData.rating || 3;
+      if (rating >= 5) {
+        finalMultiplier *= 1.15; // 5-star: 15% premium
+      } else if (rating >= 4) {
+        finalMultiplier *= 1.05; // 4+ stars: 5% premium
+      } else if (rating < 4) {
+        finalMultiplier *= 0.9; // Below 4 stars: 10% discount
+      }
+      
+      // Vehicle Type Adjustments
+      const vehicleType = carrierData.vehicle_type || 'medium';
+      if (vehicleType === 'light') {
+        finalMultiplier *= 0.9; // Light vehicles: 10% discount
+      } else if (vehicleType === 'heavy' || vehicleType === 'container') {
+        finalMultiplier *= 1.2; // Heavy/Container: 20% premium
+      }
+    }
+    
+    // Distance Adjustments
+    if (distanceKm >= 50) {
+      finalMultiplier *= 0.95; // Long distance: 5% discount
+    } else if (distanceKm < 10) {
+      finalMultiplier *= 1.05; // Short distance: 5% premium
+    }
+    
+    const totalAmount = Math.round(baseCost * finalMultiplier);
+    
+    console.log(`Payment calculation: Base(₹${baseCost}) × Multiplier(${finalMultiplier.toFixed(2)}) = ₹${totalAmount}`);
 
     // Simulate Razorpay order creation (fake API)
     const fakeOrderId = `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;

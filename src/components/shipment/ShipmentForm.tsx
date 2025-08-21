@@ -33,6 +33,9 @@ interface CarrierProfile {
   isRecommended?: boolean;
   assignmentScore?: number;
   assignmentReasons?: string[];
+  whyRecommended?: string[];
+  calculatedCost?: number;
+  baseMultiplier?: number;
 }
 
 export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
@@ -267,32 +270,67 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
     );
     
     if (availableCarriers.length > 0) {
-    // Mark the first (best) carrier as recommended and add detailed reasons for all
+        // Calculate real pricing for each carrier
     const enhancedCarriers = availableCarriers.map((carrier, index) => {
       const reasons = [];
+      
+      // Calculate cost for this specific carrier
+      const weightCost = (Number(capacityKg) || 0) * 10;
+      const distanceCost = (carrier.distance || 0) * 5;
+      const basePrice = 50;
+      let baseCost = basePrice + weightCost + distanceCost;
+      let finalMultiplier = 1.0;
+      
+      // Experience Level Adjustments
+      const yearsExp = carrier.years_experience || 0;
+      if (yearsExp < 0.5) {
+        finalMultiplier *= 0.8;
+        reasons.push(`New driver discount - 20% off`);
+      } else if (yearsExp >= 2) {
+        finalMultiplier *= 1.1;
+        reasons.push(`${yearsExp}+ years experienced - premium service`);
+      } else {
+        reasons.push(`${yearsExp} years of reliable service`);
+      }
+      
+      // Rating-based Pricing (using score instead of rating)
+      const rating = (carrier.score || 0.6) * 5; // Convert score to 5-star rating
+      if (rating >= 5) {
+        finalMultiplier *= 1.15;
+        reasons.push("5-star rated driver - premium quality");
+      } else if (rating >= 4) {
+        finalMultiplier *= 1.05;
+        reasons.push("Highly rated 4+ star service");
+      } else if (rating < 4) {
+        finalMultiplier *= 0.9;
+        reasons.push("Competitive pricing - good value");
+      }
+      
+      // Vehicle Type Adjustments
+      const vehicleType = carrier.vehicle_type || 'medium';
+      if (vehicleType === 'light') {
+        finalMultiplier *= 0.9;
+        reasons.push("Light vehicle - eco-friendly & economical");
+      } else if (vehicleType === 'heavy' || vehicleType === 'container') {
+        finalMultiplier *= 1.2;
+        reasons.push("Heavy duty vehicle - secure transport");
+      }
+      
+      // Distance Adjustments
+      if ((carrier.distance || 0) >= 50) {
+        finalMultiplier *= 0.95;
+        reasons.push("Long distance discount - 5% off");
+      } else if ((carrier.distance || 0) < 10) {
+        finalMultiplier *= 1.05;
+        reasons.push("Quick local pickup - premium convenience");
+      }
       
       // Distance reason
       if (carrier.distance! <= 15) {
         reasons.push(`Only ${carrier.distance?.toFixed(1)}km away - quick pickup`);
-      } else {
-        reasons.push(`${carrier.distance?.toFixed(1)}km distance - good coverage`);
       }
       
-      // Experience reason
-      if (carrier.years_experience >= 8) {
-        reasons.push(`${carrier.years_experience}+ years experienced driver`);
-      } else {
-        reasons.push(`${carrier.years_experience} years of reliable service`);
-      }
-      
-      // Score-based reasons
-      if (carrier.score >= 0.8) {
-        reasons.push("High reliability & customer satisfaction");
-      } else if (carrier.score >= 0.6) {
-        reasons.push("Good performance track record");
-      } else {
-        reasons.push("Competitive pricing available");
-      }
+      const finalCost = Math.round(baseCost * finalMultiplier);
       
       // Capacity reason
       const reqCapacity = Number(capacityKg) || 0;
@@ -316,7 +354,9 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
       return {
         ...carrier,
         isRecommended: index === 0,
-        assignmentReasons: reasons.slice(0, 4) // Show top 4 reasons
+        whyRecommended: reasons,
+        calculatedCost: finalCost,
+        baseMultiplier: finalMultiplier
       };
     });
       
@@ -462,11 +502,19 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
                   </div>
                 </div>
                 
-                <div className="text-right">
-                  <div className="text-3xl font-bold text-primary mb-1">₹{calculatePrice(recommended.distance!, Number(capacityKg) || 10)}</div>
-                  <div className="text-sm text-green-600 font-medium">Save {savingsPercentage}%</div>
-                  <div className="text-sm text-muted-foreground">ETA: {calculateETA(recommended.distance!)} min</div>
-                </div>
+                  <div className="text-3xl font-bold text-primary mb-2">
+                    ₹{recommended.calculatedCost?.toLocaleString() || '1,200'}
+                  </div>
+                  <div className="text-sm text-muted-foreground flex items-center gap-1">
+                    {recommended.baseMultiplier && recommended.baseMultiplier !== 1.0 && (
+                      <>
+                        <span className="line-through">₹{Math.round((recommended.calculatedCost || 1200) / recommended.baseMultiplier).toLocaleString()}</span>
+                        <span className={`font-semibold ${recommended.baseMultiplier < 1 ? 'text-green-600' : 'text-orange-600'}`}>
+                          {recommended.baseMultiplier < 1 ? 'Save' : 'Premium'} {Math.round(Math.abs(1 - recommended.baseMultiplier) * 100)}%
+                        </span>
+                      </>
+                    )}
+                  </div>
               </div>
               
               {/* Why Recommended */}
@@ -478,9 +526,9 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
                   <span className="font-semibold text-amber-700 dark:text-amber-300">Smart AI Assignment:</span>
                 </div>
                 <p className="text-sm text-amber-800 dark:text-amber-200">
-                  {recommended.assignmentReasons && recommended.assignmentReasons.length > 0 
-                    ? recommended.assignmentReasons.join(' • ') 
-                    : `Optimized route • ${savingsPercentage}% cost savings • High reliability score • ${recommended.distance?.toFixed(1)}km away`
+                  {recommended.whyRecommended && recommended.whyRecommended.length > 0 
+                    ? recommended.whyRecommended.join(' • ') 
+                    : `Optimized route • Best pricing • High reliability score • ${recommended.distance?.toFixed(1)}km away`
                   }
                 </p>
                 {recommended.assignmentScore && (
@@ -512,11 +560,11 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
               
               <div className="space-y-4">
                 {alternatives.map((carrier, index) => (
-                  <div 
-                    key={carrier.user_id}
-                    onClick={() => selectCarrier(carrier)}
-                    className="group p-5 rounded-xl border border-border hover:border-primary/40 bg-card hover:shadow-lg transition-all duration-300 cursor-pointer"
-                  >
+                    <div 
+                      key={carrier.user_id}
+                      onClick={() => selectCarrier(carrier)}
+                      className="group p-5 rounded-xl border border-border hover:border-primary/40 bg-card hover:shadow-lg transition-all duration-300 cursor-pointer"
+                    >
                     <div className="flex items-start gap-4">
                       <div className="w-14 h-14 rounded-full bg-gradient-to-br from-secondary to-secondary/80 flex items-center justify-center text-foreground font-bold text-lg">
                         {carrier.business_name?.charAt(0) || 'C'}
@@ -553,19 +601,18 @@ export const ShipmentForm = ({ onCreated }: { onCreated?: () => void }) => {
                         )}
                       </div>
                       
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-primary mb-1">₹{calculatePrice(carrier.distance!, Number(capacityKg) || 10)}</div>
-                        <div className="text-sm text-muted-foreground">ETA: {calculateETA(carrier.distance!)} min</div>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          className="mt-2 group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
-                        >
-                          Select This Carrier
-                        </Button>
-                      </div>
+                        <div className="text-xl font-bold text-foreground">
+                          ₹{carrier.calculatedCost?.toLocaleString() || '1,200'}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {carrier.baseMultiplier && carrier.baseMultiplier !== 1.0 ? (
+                            carrier.baseMultiplier < 1 ? 
+                              `${Math.round((1 - carrier.baseMultiplier) * 100)}% cheaper` : 
+                              `${Math.round((carrier.baseMultiplier - 1) * 100)}% premium`
+                          ) : 'Standard rate'}
+                        </div>
                     </div>
-                  </div>
+                    </div>
                 ))}
               </div>
             </div>
