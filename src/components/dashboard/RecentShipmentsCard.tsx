@@ -62,22 +62,35 @@ const RecentShipmentsCard = ({
                 </span>
               </div>
               <div className="mt-3 flex items-center gap-2">
-                <Select value={s.carrier_id ?? ""} onValueChange={(v) => onAssign(s.id, v)}>
-                  <SelectTrigger className="w-full md:w-64">
-                    <SelectValue placeholder="Assign driver" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {carriers.map((c) => (
-                      <SelectItem key={c.user_id} value={c.user_id}>
-                        User {c.user_id.slice(0, 8)} • {c.points} pts
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {s.carrier_id && (
-                  <Button size="sm" variant="outline" onClick={() => onAssign(s.id, "")}>
-                    Unassign
-                  </Button>
+                {s.status === "pending" ? (
+                  <>
+                    <Select value={s.carrier_id ?? ""} onValueChange={(v) => onAssign(s.id, v)}>
+                      <SelectTrigger className="w-full md:w-64">
+                        <SelectValue placeholder="Assign driver" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {carriers.map((c) => (
+                          <SelectItem key={c.user_id} value={c.user_id}>
+                            User {c.user_id.slice(0, 8)} • {c.points} pts
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {s.carrier_id && (
+                      <Button size="sm" variant="outline" onClick={() => onAssign(s.id, "")}>
+                        Unassign
+                      </Button>
+                    )}
+                  </>
+                ) : s.carrier_id ? (
+                  <div className="text-sm text-muted-foreground flex items-center gap-2">
+                    <span>Assigned to: User {s.carrier_id.slice(0, 8)}</span>
+                    <span className="text-xs bg-muted px-2 py-1 rounded">Assignment locked</span>
+                  </div>
+                ) : (
+                  <div className="text-sm text-muted-foreground">
+                    No carrier assigned
+                  </div>
                 )}
               </div>
             </div>

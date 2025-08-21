@@ -138,12 +138,23 @@ const ShipmentsList = ({ refresh, onRefreshComplete }: ShipmentsListProps) => {
   };
 
   const assignCarrier = async (shipmentId: string, carrierId: string) => {
+    // Check if shipment is still pending (only allow assignment changes for pending shipments)
+    const currentShipment = shipments.find(s => s.id === shipmentId);
+    if (currentShipment && currentShipment.status !== "pending") {
+      toast({ 
+        title: "Cannot Modify Assignment", 
+        description: "Assignment cannot be changed once shipment is assigned or in transit." 
+      });
+      return;
+    }
+
     if (!carrierId || carrierId === "unassign") {
       // Unassign carrier
       const { error } = await supabase
         .from("shipments")
         .update({ carrier_id: null, status: "pending" })
-        .eq("id", shipmentId);
+        .eq("id", shipmentId)
+        .eq("status", "pending"); // Additional safety check
       
       if (error) {
         toast({ title: "Error", description: error.message });
@@ -157,7 +168,8 @@ const ShipmentsList = ({ refresh, onRefreshComplete }: ShipmentsListProps) => {
     const { error } = await supabase
       .from("shipments")
       .update({ carrier_id: carrierId, status: "assigned" })
-      .eq("id", shipmentId);
+      .eq("id", shipmentId)
+      .eq("status", "pending"); // Only allow assignment if still pending
 
     if (error) {
       toast({ title: "Error", description: error.message });
@@ -254,7 +266,7 @@ const ShipmentsList = ({ refresh, onRefreshComplete }: ShipmentsListProps) => {
               </div>
 
               {/* Carrier Assignment */}
-              {shipment.status === "pending" || shipment.status === "assigned" ? (
+              {shipment.status === "pending" ? (
                 <div className="bg-primary/5 rounded-md p-3 border border-primary/10">
                   <div className="text-sm font-medium text-primary mb-2 flex items-center gap-2">
                     <UserCheck className="h-4 w-4" />
