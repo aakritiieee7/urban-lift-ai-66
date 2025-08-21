@@ -66,14 +66,19 @@ const AvailableShipments = () => {
     
     setLoading(true);
     
-    const { error } = await supabase
+    console.log("Claiming shipment:", shipmentId, "for carrier:", userId);
+    
+    const { data, error } = await supabase
       .from("shipments")
       .update({ 
         carrier_id: userId,
         status: "assigned"
       })
       .eq("id", shipmentId)
-      .is("carrier_id", null); // Only claim if still unassigned
+      .is("carrier_id", null) // Only claim if still unassigned
+      .select(); // Return updated data to verify
+    
+    console.log("Claim result:", { data, error });
 
     if (error) {
       toast({ 
